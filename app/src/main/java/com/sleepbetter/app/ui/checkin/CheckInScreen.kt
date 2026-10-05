@@ -55,7 +55,7 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 /**
- * Morning check-in. Slide and Mochi's face follows you, from a rough night
+ * Morning check-in. Slide and Pico's face follows you, from a rough night
  * to a great one; the background takes the mood's colour.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -94,7 +94,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
 
         Box(Modifier.fillMaxWidth().padding(vertical = 18.dp).enter(0), contentAlignment = Alignment.Center) {
             Box(Modifier.size(240.dp).background(Color.White.copy(alpha = 0.55f), CircleShape))
-            MochiView(Modifier.size(210.dp), mood = mood, tintBody = Color.White)
+            MochiView(Modifier.size(210.dp), mood = mood)
             BouncyEmoji(current.emoji, Modifier.align(Alignment.TopEnd).padding(end = 18.dp).floaty(amplitude = 4f))
         }
         Text(current.label, style = Type.Title, color = Palette.Ink, modifier = Modifier.align(Alignment.CenterHorizontally))

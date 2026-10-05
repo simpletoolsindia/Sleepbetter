@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.sin
 
-/** Friends: the Mochi family that moves in as your bedtimes get steady. */
+/** Friends: the Pico family that moves in as your bedtimes get steady. */
 @Composable
 fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
     val sessions by vm.sessions.collectAsStateWithLifecycle()

@@ -64,7 +64,7 @@ import kotlin.math.sin
 private const val CYCLE_MINUTES = 90
 
 /**
- * Sleep mode: the dusk scene fills the screen, Mochi sleeps on the moon, one
+ * Sleep mode: the dusk scene fills the screen, Pico and Lulu sleep on the moon, one
  * big countdown. After 30 s it dims further and ambient motion stops; sound
  * keeps playing. Swipe up (or tap) "I'm awake" in the morning.
  */

@@ -74,7 +74,7 @@ class ReminderReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val pip = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground)?.toBitmap(256, 256)
-        val title = "Mochi is getting sleepy 😴"
+        val title = "Pico is getting sleepy 😴"
         val text = "Bedtime is ${settings.bedtimeLabel}. Your sounds are ready when you are 🌙"
         val builder = NotificationCompat.Builder(context, SleepBetterApp.CHANNEL_REMINDERS)
             .setSmallIcon(R.drawable.ic_moon)

@@ -43,12 +43,15 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Mochi: a round little panda with droopy eye patches and a crescent-moon
- * clip, who sleeps when you sleep. Every friend shares Mochi's shape (big head, small body,
+ * Pico: a mint baby dino with soft yellow back plates, who sleeps when you
+ * sleep, and Lulu, a pink baby dino still wearing a bit of her eggshell.
+ * Every friend shares the same shape (big head, small body,
  * thick soft outline) with its own colour and features, so the cast reads as
  * one family. Original designs, drawn in code.
  */
 enum class Species(val body: Color, val shade: Color, val description: String) {
+    PICO(Color(0xFFA3E4C8), Color(0xFF7DCBAA), "Pico the baby dino"),
+    LULU(Color(0xFFFFC6D8), Color(0xFFF2A4BE), "Lulu the baby dino"),
     MOCHI(Color(0xFFFFFFFF), Color(0xFFE4DDF7), "Mochi the panda"),
     TOFFEE(Color(0xFFC99A6E), Color(0xFFAA7C54), "Toffee the capybara"),
     ELEPHANT(Color(0xFFC3CEEA), Color(0xFFA3B2DA), "Pebble the elephant"),
@@ -60,7 +63,9 @@ enum class Species(val body: Color, val shade: Color, val description: String) {
 }
 
 fun Visitor.species(): Species = when (this) {
-    Visitor.PIP -> Species.MOCHI
+    Visitor.PIP -> Species.PICO
+    Visitor.LULU -> Species.LULU
+    Visitor.PANDA -> Species.MOCHI
     Visitor.TOFFEE -> Species.TOFFEE
     Visitor.PEBBLE -> Species.ELEPHANT
     Visitor.EMBER -> Species.FOX
@@ -70,7 +75,7 @@ fun Visitor.species(): Species = when (this) {
     Visitor.CAT -> Species.CAT
 }
 
-/** How Mochi feels. 0 = awful … 4 = great; values in between morph smoothly. */
+/** How Pico feels. 0 = awful … 4 = great; values in between morph smoothly. */
 enum class Mood(val label: String, val tint: Color, val emoji: String, val confetti: List<String>) {
     AWFUL("Awful", Color(0xFFD9D6E2), "😫", listOf("🫂", "💜", "🌧️")),
     POOR("Poor", Color(0xFFFFC2A6), "😕", listOf("🫂", "🍵", "💜")),
@@ -86,7 +91,7 @@ enum class Mood(val label: String, val tint: Color, val emoji: String, val confe
 @Composable
 fun MochiView(
     modifier: Modifier = Modifier,
-    species: Species = Species.MOCHI,
+    species: Species = Species.PICO,
     sleeping: Boolean = false,
     mood: Float = 3f,
     headphones: Boolean = false,
@@ -139,18 +144,18 @@ fun MochiView(
 }
 
 /**
- * Mochi and Toffee together: Toffee a little behind on the left, Mochi in
- * front. Awake, a small heart floats up between them.
+ * Pico and Lulu together: Lulu a little behind on the left, Pico in front.
+ * Awake, a small heart floats up between them.
  */
 @Composable
-fun MochiAndToffee(modifier: Modifier = Modifier, sleeping: Boolean = false, mood: Float = 3f) {
+fun BestFriends(modifier: Modifier = Modifier, sleeping: Boolean = false, mood: Float = 3f) {
     val still = rememberReduceMotion()
     val rise by rememberInfiniteTransition(label = "heart").animateFloat(
         0f, 1f, infiniteRepeatable(tween(2600, easing = FastOutSlowInEasing)), label = "rise",
     )
-    Box(modifier.aspectRatio(1.7f).semantics(mergeDescendants = true) { contentDescription = "Mochi and Toffee" }) {
-        MochiView(Modifier.fillMaxWidth(0.6f).align(Alignment.BottomStart), species = Species.TOFFEE, sleeping = sleeping, mood = mood)
-        MochiView(Modifier.fillMaxWidth(0.56f).align(Alignment.BottomEnd), species = Species.MOCHI, sleeping = sleeping, mood = mood)
+    Box(modifier.aspectRatio(1.7f).semantics(mergeDescendants = true) { contentDescription = "Pico and Lulu" }) {
+        MochiView(Modifier.fillMaxWidth(0.58f).align(Alignment.BottomStart), species = Species.LULU, sleeping = sleeping, mood = mood)
+        MochiView(Modifier.fillMaxWidth(0.58f).align(Alignment.BottomEnd), species = Species.PICO, sleeping = sleeping, mood = mood)
         if (!sleeping) {
             Canvas(Modifier.fillMaxWidth(0.14f).aspectRatio(1f).align(Alignment.TopCenter)) {
                 val p = if (still) 0.3f else rise
@@ -230,7 +235,13 @@ internal fun DrawScope.drawCharacter(
     // Ground shadow.
     drawOval(Color(0x1A2B2238), Offset(24f, 91f), Size(72f, 8f))
 
+    val dino = species == Species.PICO || species == Species.LULU
     if (withBody) {
+        if (dino) {
+            // A stubby tail curling out behind, with a tip that wags.
+            val wag = 3f * sin(wobble * 2f)
+            shape(Path().apply { moveTo(80f, 84f); quadraticBezierTo(100f, 88f, 106f + wag, 70f); quadraticBezierTo(98f, 80f, 81f, 72f); close() }, body)
+        }
         // Feet first, so the body sits on them and only their soles show.
         oval(Offset(39f, 86f), Size(16f, 10f), if (panda) Patch else shade)
         oval(Offset(65f, 86f), Size(16f, 10f), if (panda) Patch else shade)
@@ -241,7 +252,7 @@ internal fun DrawScope.drawCharacter(
             },
             body,
         )
-        if (species == Species.OWL) drawOval(Color(0x66FFFFFF), Offset(46f, 72f), Size(28f, 16f))
+        if (species == Species.OWL || dino) drawOval(Color(0x66FFFFFF), Offset(46f, 70f), Size(28f, 18f))
         // Stubby arms resting in front.
         oval(Offset(31f, 70f), Size(14f, 11f), limb)
         oval(Offset(75f, 70f), Size(14f, 11f), limb)
@@ -276,6 +287,15 @@ internal fun DrawScope.drawCharacter(
                 // Tiny capybara ears, set far back on the sides.
                 oval(Offset(19f, 22f), Size(11f, 9f), shade)
                 oval(Offset(90f, 22f), Size(11f, 9f), shade)
+            }
+            Species.PICO, Species.LULU -> {
+                // Soft, rounded back plates peeking over the head.
+                val plate = if (species == Species.PICO) Color(0xFFFFD98A) else Color(0xFFCDB9F7)
+                for (i in 0..2) {
+                    val x = 46f + i * 14f
+                    val tall = if (i == 1) 20f else 15f
+                    shape(Path().apply { moveTo(x - 7f, 24f); quadraticBezierTo(x - 6f, 24f - tall, x, 24f - tall); quadraticBezierTo(x + 6f, 24f - tall, x + 7f, 24f); close() }, if (face) plate else body)
+                }
             }
             Species.ELEPHANT -> {
                 // Big floppy ears that flap slowly.
@@ -324,6 +344,22 @@ internal fun DrawScope.drawCharacter(
         if (face) {
             drawOval(Outline, Offset(51f, headY + 7f), Size(4.5f, 7f))
             drawOval(Outline, Offset(64.5f, headY + 7f), Size(4.5f, 7f))
+        }
+    }
+    if (species == Species.LULU) {
+        // Lulu's mark: a piece of her eggshell, still worn like a hat.
+        val shell = Path().apply {
+            moveTo(36f, headY - 21f)
+            val tips = listOf(42f to -27f, 48f to -20f, 54f to -28f, 60f to -20f, 66f to -28f, 72f to -20f, 78f to -27f, 84f to -21f)
+            tips.forEach { (x, dy) -> lineTo(x, headY + dy) }
+            cubicTo(86f, headY - 46f, 34f, headY - 46f, 36f, headY - 21f)
+            close()
+        }
+        shape(shell, if (face) Color(0xFFFFFBF2) else body)
+        if (face) {
+            drawCircle(Color(0xFFA3E4C8), 2f, Offset(50f, headY - 34f))
+            drawCircle(Color(0xFFCDB9F7), 1.6f, Offset(66f, headY - 37f))
+            drawCircle(Color(0xFFFFD98A), 1.8f, Offset(72f, headY - 30f))
         }
     }
     if (species == Species.ELEPHANT) {

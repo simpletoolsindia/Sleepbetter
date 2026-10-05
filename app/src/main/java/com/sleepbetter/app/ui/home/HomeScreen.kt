@@ -133,7 +133,7 @@ fun HomeScreen(
             EmojiChip("🔥", "$steady", Modifier.pressable(onClick = onFriends))
         }
 
-        // Mochi chats: bedtime countdown, last night, a tip.
+        // Pico chats: bedtime countdown, last night, a tip.
         val lastNight = sessions.lastOrNull()
         val lines = remember(untilBed, lastNight, steady) {
             buildList {
@@ -142,7 +142,7 @@ fun HomeScreen(
                 if (steady > 0) add("$steady steady bedtimes so far! 🔥")
                 add("Pick a mix below and relax 🎧")
                 add("Dim the lights an hour before bed 💡")
-                add("Toffee says: no coffee after 2 pm ☕🚫")
+                add("Lulu says: no coffee after 2 pm ☕🚫")
             }
         }
         MochiSays(lines, Modifier.enter(40))

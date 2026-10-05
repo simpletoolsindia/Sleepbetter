@@ -1,6 +1,6 @@
 # Character style
 
-The cast (Mochi the panda and Toffee, Pebble the elephant, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
+The cast (Pico and Lulu the baby dinos, Mochi the panda, Toffee the capybara, Pebble the elephant, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
 
 ## Look
 
@@ -42,3 +42,12 @@ All characters follow the "baby schema" that makes faces read as cute: a big hea
 ## Pebble the elephant
 
 A soft blue-grey baby elephant with big floppy ears that flap slowly, a short swaying trunk, and a striped nightcap with a pom-pom. Pebble moves in after 5 steady nights.
+
+## Pico and Lulu: the duo is now two baby dinos
+
+At the owner's request the main duo changed from a panda and a capybara to two baby dinosaurs, which moves even further from Bubu and Dudu:
+
+- **Pico** (the mascot and app icon): mint green, three soft butter-yellow back plates, a stubby tail that wags.
+- **Lulu** (Pico's best friend): pink, lilac back plates, and a piece of her eggshell still worn like a hat.
+
+Mochi the panda and Toffee the capybara stay in the cast as friends you unlock (2 and 12 steady nights).

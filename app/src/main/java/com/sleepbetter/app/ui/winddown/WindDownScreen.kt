@@ -51,7 +51,7 @@ import com.sleepbetter.app.ui.components.Glyph
 import androidx.compose.ui.geometry.Offset
 import com.sleepbetter.app.ui.components.DriftingEmoji
 import com.sleepbetter.app.ui.components.LocalBurst
-import com.sleepbetter.app.ui.components.MochiAndToffee
+import com.sleepbetter.app.ui.components.BestFriends
 import com.sleepbetter.app.ui.components.PrimaryButton
 import com.sleepbetter.app.ui.components.hm
 import com.sleepbetter.app.ui.components.rememberClock
@@ -74,7 +74,7 @@ private fun breathAt(seconds: Float): Breath {
     }
 }
 
-/** Wind down: breathe with Mochi (it swells and settles with you), set the evening, then sleep. */
+/** Wind down: breathe with Pico and Lulu (they swell and settles with you), set the evening, then sleep. */
 @Composable
 fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Unit) {
     val burst = LocalBurst.current
@@ -104,7 +104,7 @@ fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Uni
                 Spacer(Modifier.weight(1f))
                 Text("Bedtime ${settings.bedtimeLabel}", style = Type.Label, color = Color.White.copy(alpha = 0.85f))
             }
-            Text("Breathe with Mochi & Toffee", style = Type.Display, color = Color.White, modifier = Modifier.padding(top = 18.dp))
+            Text("Breathe with Pico & Lulu", style = Type.Display, color = Color.White, modifier = Modifier.padding(top = 18.dp))
             Text("In through your nose for 4, hold for 7, out slowly for 8.", style = Type.Body, color = Color.White.copy(alpha = 0.8f))
 
             Box(Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
@@ -115,7 +115,7 @@ fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Uni
                         .graphicsLayer { scaleX = s; scaleY = s }
                         .background(Brush.radialGradient(listOf(Color.White.copy(alpha = 0.28f), Color.Transparent)), RoundedCornerShape(50)),
                 )
-                MochiAndToffee(
+                BestFriends(
                     Modifier.width(260.dp).graphicsLayer { scaleX = s; scaleY = s },
                     sleeping = breath.word == "Hold",
                     mood = 3.2f,

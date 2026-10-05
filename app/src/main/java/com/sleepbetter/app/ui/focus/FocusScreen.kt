@@ -58,7 +58,7 @@ import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sin
 
-/** Focus: a 25-minute session. The ring of bars and Mochi move on the music's real beat. */
+/** Focus: a 25-minute session. The ring of bars and Pico move on the music's real beat. */
 @Composable
 fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val focus by vm.focus.collectAsStateWithLifecycle()

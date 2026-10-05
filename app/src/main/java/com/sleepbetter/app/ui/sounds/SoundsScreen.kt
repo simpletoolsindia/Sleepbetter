@@ -172,7 +172,7 @@ fun SoundsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
 }
 
 /**
- * The space: Mochi listens in the middle. Drag a sound closer to make it
+ * The space: Pico listens in the middle. Drag a sound closer to make it
  * louder, or to the side to move it left or right.
  */
 @Composable

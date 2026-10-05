@@ -205,11 +205,11 @@ fun SpeechBubble(text: String, modifier: Modifier = Modifier, color: Color = Pal
 }
 
 /**
- * Mochi (and Toffee) chatting: a small character next to a speech bubble
+ * Pico (and friends) chatting: a small character next to a speech bubble
  * that cycles through [lines]. The character hops each time a new line comes.
  */
 @Composable
-fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long = 5200, species: Species = Species.MOCHI) {
+fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long = 5200, species: Species = Species.PICO) {
     if (lines.isEmpty()) return
     val still = rememberReduceMotion()
     var index by remember(lines) { mutableStateOf(0) }
@@ -303,6 +303,8 @@ fun DriftingEmoji(emojis: List<String>, modifier: Modifier = Modifier, count: In
 
 /** Emoji for each friend, used in greetings and confetti. */
 fun Species.emoji(): String = when (this) {
+    Species.PICO -> "🦕"
+    Species.LULU -> "🐣"
     Species.MOCHI -> "🐼"
     Species.TOFFEE -> "🦫"
     Species.ELEPHANT -> "🐘"

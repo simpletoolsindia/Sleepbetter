@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
-import com.sleepbetter.app.ui.components.MochiAndToffee
+import com.sleepbetter.app.ui.components.BestFriends
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.SceneFrames
 import com.sleepbetter.app.ui.components.Species
@@ -56,7 +56,7 @@ class ScreenshotTest {
     @Test fun insightsPlum() = shot(Destination.INSIGHTS, "12-theme-plum-noir-insights", theme = AppTheme.PLUM_NOIR)
     @Test fun windDownAmber() = shot(Destination.WIND_DOWN, "13-theme-amber-wind-down", theme = AppTheme.AMBER)
 
-    /** Every friend, plus Mochi's moods, sleeping and focus looks. */
+    /** Every friend, plus Pico's moods, sleeping and focus looks. */
     @Test fun characters() {
         Palette.theme = AppTheme.MOON_MILK
         compose.mainClock.autoAdvance = false
@@ -66,7 +66,7 @@ class ScreenshotTest {
                     Species.entries.chunked(3).forEach { row ->
                         Row { row.forEach { MochiView(Modifier.size(125.dp), species = it, mood = 3f) } }
                     }
-                    MochiAndToffee(Modifier.size(width = 300.dp, height = 176.dp))
+                    BestFriends(Modifier.size(width = 300.dp, height = 176.dp))
                     Row {
                         listOf(0.5f, 2f, 4f).forEach { MochiView(Modifier.size(120.dp), mood = it) }
                     }

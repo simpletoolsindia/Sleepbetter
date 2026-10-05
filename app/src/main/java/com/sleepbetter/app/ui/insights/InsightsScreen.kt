@@ -47,7 +47,7 @@ import com.sleepbetter.app.ui.components.BentoCard
 import com.sleepbetter.app.ui.components.Glyph
 import com.sleepbetter.app.ui.components.GlyphIcon
 import com.sleepbetter.app.ui.components.LevelBadge
-import com.sleepbetter.app.ui.components.MochiAndToffee
+import com.sleepbetter.app.ui.components.BestFriends
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.PrimaryButton
 import com.sleepbetter.app.ui.components.Ring
@@ -87,7 +87,7 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
         Text("Insights 📊", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
         if (night == null) {
             BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Accent) {
-                MochiAndToffee(Modifier.width(200.dp).align(Alignment.CenterHorizontally), sleeping = true)
+                BestFriends(Modifier.width(200.dp).align(Alignment.CenterHorizontally), sleeping = true)
                 Text("Your first insights appear after your first night.", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 10.dp))
                 Text("Start sleep mode at bedtime and swipe up when you wake. The rest is automatic.", style = Type.Body, color = Palette.InkSoft, modifier = Modifier.padding(top = 6.dp))
                 PrimaryButton("Wind down", onWindDown, Modifier.fillMaxWidth().padding(top = 16.dp), glyph = Glyph.MOON)

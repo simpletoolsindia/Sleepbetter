@@ -31,7 +31,7 @@ import com.sleepbetter.core.audio.SoundId
 import kotlin.math.sin
 
 /**
- * The bedtime landscape: a dusk sky, a crescent moon with Mochi asleep on it,
+ * The bedtime landscape: a dusk sky, a crescent moon with Pico and Lulu asleep on it,
  * and layered hills. Whatever is playing appears in the scene: rain, a tent, a
  * campfire, fireflies, birds, a waterfall. Lightning flashes exactly when the
  * engine plays a thunder strike. Laid out on a 390-unit-wide grid.
@@ -94,17 +94,17 @@ internal fun DrawScope.drawDuskScene(
         // Rain clouds dim the whole sky.
         if (stormy > 0.01f) drawRect(Palette.Night.copy(alpha = 0.28f * stormy), Offset.Zero, Size(390f, h))
         if (showMochi) {
-            // Toffee dozes against the moon, Mochi curled up on top.
+            // Lulu dozes against the moon, Pico curled up on top.
             withTransform({ translate(214f, h * 0.2f + 8f); scale(0.56f, 0.56f, pivot = Offset.Zero) }) {
                 val breath = 1f + 0.03f * sin(t * 2.2f + 1.3f)
                 scale(1f, breath, pivot = Offset(60f, 96f)) {
-                    drawCharacter(Species.TOFFEE, Species.TOFFEE.body, Species.TOFFEE.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
+                    drawCharacter(Species.LULU, Species.LULU.body, Species.LULU.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
                 }
             }
             withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
                 val breath = 1f + 0.03f * sin(t * 2.2f)
                 scale(1f, breath, pivot = Offset(60f, 96f)) {
-                    drawCharacter(Species.MOCHI, Color.White, Color(0xFFE4DDF7), sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
+                    drawCharacter(Species.PICO, Species.PICO.body, Species.PICO.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
                 }
             }
             drawZs(t, h)
