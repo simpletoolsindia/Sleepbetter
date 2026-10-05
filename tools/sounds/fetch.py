@@ -28,7 +28,7 @@ WANTED = {
     "NF": (["night crickets forest", "summer night crickets", "night ambience crickets"], ["city", "traffic", "music", "dog"], "plain"),
     "BI": (["birds singing forest morning", "birdsong forest", "dawn chorus"], ["city", "traffic", "music", "parrot", "crow"], "plain"),
     "ST": (["mountain stream", "creek water flowing", "brook stream"], ["rain", "music", "tap", "toilet"], "plain"),
-    "WD": (["water drops cave", "water dripping", "dripping water cave"], ["tap", "sink", "music", "faucet"], "plain"),
+    "WD": (["water drops cave", "water dripping", "dripping water cave"], ["tap", "sink", "music", "faucet", "drain", "toilet", "pipe", "shower"], "plain"),
 }
 
 DEBUG = {}
@@ -92,7 +92,8 @@ def process(path, flavour):
     if flavour == "warm":
         x = low_shelf(x, 200, 2)  # a little body for fire and surf
     loop = seamless(x, min(60, len(x) / SR - 4))
-    loop *= 10 ** ((-20 - rms_db(loop)) / 20)
+    # -20 dBFS RMS like the rain, unless that would push the loudest crackles far into the limiter.
+    loop *= min(10 ** ((-20 - rms_db(loop)) / 20), 1.3 / (np.abs(loop).max() + 1e-9))
     # Round off the rare loud crackle or crash instead of turning everything down.
     knee = 0.7
     over = np.abs(loop) > knee
