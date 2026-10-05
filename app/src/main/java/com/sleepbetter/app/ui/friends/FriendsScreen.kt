@@ -122,7 +122,7 @@ private fun FriendCard(visitor: Visitor, unlocked: Boolean, selected: Boolean, m
     val species = visitor.species()
     val bg = when {
         !unlocked -> Palette.Card
-        species == Species.MOCHI -> Palette.Lavender // Mochi is white; a white card would hide it
+        species == Species.MOCHI -> Palette.Accent // Mochi is white; a white card would hide it
         else -> lerp(Color.White, species.body, 0.35f)
     }
     Column(

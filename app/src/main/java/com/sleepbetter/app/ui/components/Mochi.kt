@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.core.sleep.Visitor
 import kotlin.math.PI
 import kotlin.math.cos
@@ -243,7 +244,7 @@ internal fun DrawScope.drawCharacter(
         )
     }
     if (headphones) {
-        val band = lerp(Color(0xFF6C55D9), body, 0.1f)
+        val band = lerp(Palette.AccentDeep, body, 0.1f)
         drawPath(Path().apply { moveTo(14f, 56f); quadraticBezierTo(60f, -10f, 106f, 56f) }, band, style = Stroke(7f, cap = StrokeCap.Round))
         drawRoundRect(band, Offset(6f, 50f), Size(16f, 26f), androidx.compose.ui.geometry.CornerRadius(8f))
         drawRoundRect(band, Offset(98f, 50f), Size(16f, 26f), androidx.compose.ui.geometry.CornerRadius(8f))

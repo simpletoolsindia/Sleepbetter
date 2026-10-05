@@ -170,9 +170,9 @@ private fun DrawScope.drawHills(h: Float) {
         }
         drawPath(path, color)
     }
-    hill(h - 120f, 18f, 0.4f, Color(0xFF8A70E0))
-    hill(h - 84f, 16f, 2.1f, Color(0xFF5A44B8))
-    hill(h - 44f, 12f, 4.2f, Color(0xFF2E2373))
+    hill(h - 120f, 18f, 0.4f, Palette.HillFar)
+    hill(h - 84f, 16f, 2.1f, Palette.HillMid)
+    hill(h - 44f, 12f, 4.2f, Palette.HillNear)
 }
 
 private fun DrawScope.drawWind(t: Float, h: Float, a: Float) {
@@ -192,7 +192,7 @@ private fun DrawScope.drawBirds(t: Float, h: Float, a: Float) {
         val flap = 3f * sin(t * 8f + i)
         drawPath(
             Path().apply { moveTo(x, y); quadraticBezierTo(x + 6f, y - 5f - flap, x + 12f, y); quadraticBezierTo(x + 18f, y - 5f - flap, x + 24f, y) },
-            Color(0xFF2E2373).copy(alpha = a), style = Stroke(2f, cap = StrokeCap.Round),
+            Palette.HillNear.copy(alpha = a), style = Stroke(2f, cap = StrokeCap.Round),
         )
     }
 }
@@ -234,8 +234,8 @@ private fun DrawScope.drawCar(h: Float) {
     drawRoundRect(Color(0xFFF6C3D6), Offset(bx + 12f, by - 30f), Size(36f, 16f), androidx.compose.ui.geometry.CornerRadius(7f))
     drawRoundRect(Palette.Moon.copy(alpha = 0.9f), Offset(bx + 16f, by - 27f), Size(12f, 9f), androidx.compose.ui.geometry.CornerRadius(3f))
     drawRoundRect(Palette.Moon.copy(alpha = 0.9f), Offset(bx + 31f, by - 27f), Size(13f, 9f), androidx.compose.ui.geometry.CornerRadius(3f))
-    drawCircle(Color(0xFF15102F), 6f, Offset(bx + 14f, by - 2f))
-    drawCircle(Color(0xFF15102F), 6f, Offset(bx + 50f, by - 2f))
+    drawCircle(Palette.Night, 6f, Offset(bx + 14f, by - 2f))
+    drawCircle(Palette.Night, 6f, Offset(bx + 50f, by - 2f))
 }
 
 private fun DrawScope.drawStream(t: Float, h: Float) {
@@ -272,7 +272,7 @@ private fun DrawScope.drawFire(t: Float, h: Float) {
 }
 
 private fun DrawScope.drawTrees(h: Float, a: Float) {
-    val color = Color(0xFF241C5E).copy(alpha = a)
+    val color = Palette.HillNear.copy(alpha = a)
     listOf(18f to 1f, 40f to 0.8f, 352f to 0.9f, 374f to 1.1f).forEach { (x, s) ->
         val base = h - 60f
         drawPath(Path().apply { moveTo(x, base - 70f * s); lineTo(x + 18f * s, base); lineTo(x - 18f * s, base); close() }, color)

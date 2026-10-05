@@ -4,6 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.sleepbetter.app.ui.theme.AppTheme
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
 import com.sleepbetter.core.sleep.NightTag
 import org.junit.Rule
@@ -36,11 +37,16 @@ class ScreenshotTest {
     @Test fun sleep() = shot(Destination.SLEEP, "07-sleep")
     @Test fun checkIn() = shot(Destination.CHECK_IN, "08-check-in")
     @Test fun homeFirstRun() = shot(Destination.HOME, "09-home-first-run", seed = false)
+    @Test fun homeJade() = shot(Destination.HOME, "10-theme-jade-home", theme = AppTheme.JADE)
+    @Test fun soundsCoolBlue() = shot(Destination.SOUNDS, "11-theme-cool-blue-sounds", theme = AppTheme.COOL_BLUE)
+    @Test fun insightsPlum() = shot(Destination.INSIGHTS, "12-theme-plum-noir-insights", theme = AppTheme.PLUM_NOIR)
+    @Test fun windDownAmber() = shot(Destination.WIND_DOWN, "13-theme-amber-wind-down", theme = AppTheme.AMBER)
 
-    private fun shot(destination: Destination, name: String, seed: Boolean = true) {
+    private fun shot(destination: Destination, name: String, seed: Boolean = true, theme: AppTheme? = null) {
         val app = ApplicationProvider.getApplicationContext<SleepBetterApp>()
         if (seed) seedWeek(app)
         val vm = AppViewModel(app)
+        theme?.let(vm::setTheme)
         compose.mainClock.autoAdvance = false
         compose.setContent { SleepBetterTheme { SleepBetterUi(vm, destination) {} } }
         compose.mainClock.advanceTimeBy(2_500)

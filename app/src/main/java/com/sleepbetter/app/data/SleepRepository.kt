@@ -25,6 +25,8 @@ data class SleepSettings(
     val bedtimeMinute: Int = 22 * 60 + 50,
     val remindersOn: Boolean = false,
     val windDownMinutes: Int = 30,
+    /** Name of the colour theme (an AppTheme entry). */
+    val theme: String = "MOON_MILK",
 ) {
     val bedtimeLabel: String get() = "%02d:%02d".format(bedtimeMinute / 60, bedtimeMinute % 60)
 }
@@ -129,6 +131,7 @@ class SleepRepository(context: Context) {
             .putInt("bedtime", s.bedtimeMinute)
             .putBoolean("reminders", s.remindersOn)
             .putInt("wind_down", s.windDownMinutes)
+            .putString("theme", s.theme)
             .apply()
         _settings.value = s
     }
@@ -180,5 +183,6 @@ class SleepRepository(context: Context) {
         bedtimeMinute = prefs.getInt("bedtime", 22 * 60 + 50),
         remindersOn = prefs.getBoolean("reminders", false),
         windDownMinutes = prefs.getInt("wind_down", 30),
+        theme = prefs.getString("theme", null) ?: "MOON_MILK",
     )
 }

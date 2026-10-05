@@ -81,7 +81,7 @@ fun MixesPanel(vm: AppViewModel) {
 
         Text("Your mixes", style = Type.Title, color = Palette.Ink)
         if (saved.isEmpty()) {
-            BentoCard(Modifier.fillMaxWidth(), color = Palette.Lavender) {
+            BentoCard(Modifier.fillMaxWidth(), color = Palette.Accent) {
                 Text("Make it yours", style = Type.Heading, color = Palette.Ink)
                 Text(
                     "Turn sounds on, place them where you like, then tap Save this mix. You can send any saved mix to a friend.",
@@ -175,7 +175,7 @@ private fun SavedMixRow(saved: SavedMix, playing: Boolean, onPlay: () -> Unit, o
             Modifier
                 .size(56.dp)
                 .clip(RoundedCornerShape(18.dp))
-                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Lavender))
+                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Accent))
                 .pressable(onClick = onPlay),
             contentAlignment = Alignment.Center,
         ) { GlyphIcon(if (playing) Glyph.SOUNDS else Glyph.PLAY, Palette.Ink, size = 22.dp) }
@@ -183,7 +183,7 @@ private fun SavedMixRow(saved: SavedMix, playing: Boolean, onPlay: () -> Unit, o
             Text(saved.mix.name, style = Type.Heading, color = Palette.Ink, maxLines = 1)
             Text(saved.mix.layers.joinToString(", ") { it.sound.label }, style = Type.Small, color = Palette.InkMuted, maxLines = 1)
         }
-        CircleButton(Glyph.SHARE, "Share ${saved.mix.name}", onShare, bg = Palette.Lavender, size = 44.dp)
+        CircleButton(Glyph.SHARE, "Share ${saved.mix.name}", onShare, bg = Palette.Accent, size = 44.dp)
         Spacer(Modifier.width(6.dp))
         CircleButton(Glyph.TRASH, "Delete ${saved.mix.name}", { confirmDelete = true }, bg = Color(0xFFF1ECEF), tint = Palette.InkSoft, size = 44.dp)
     }
@@ -214,7 +214,7 @@ private fun TemplateCard(mix: Mix, blurb: String, playing: Boolean, modifier: Mo
                 .fillMaxWidth()
                 .height(84.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Lavender))
+                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Accent))
                 .padding(10.dp),
         ) {
             SoundStack(mix)
@@ -249,7 +249,7 @@ private fun SaveMixDialog(enabled: Boolean, onDismiss: () -> Unit, onSave: (Stri
             }
         },
         confirmButton = {
-            if (enabled) TextButton({ onSave(name.ifBlank { "My mix" }) }) { Text("Save", style = Type.Label, color = Palette.LavenderDeep) }
+            if (enabled) TextButton({ onSave(name.ifBlank { "My mix" }) }) { Text("Save", style = Type.Label, color = Palette.AccentDeep) }
         },
         dismissButton = { TextButton(onDismiss) { Text(if (enabled) "Cancel" else "OK", style = Type.Label, color = Palette.Ink) } },
         containerColor = Palette.Card,
@@ -280,11 +280,11 @@ private fun ImportDialog(onDismiss: () -> Unit, onImport: (String) -> Boolean) {
                     supportingText = { if (failed) Text("That doesn't look like a SleepBetter mix.", style = Type.Small) },
                 )
                 TextButton({ clipboard.getText()?.text?.let { text = it; failed = false } }) {
-                    Text("Paste from clipboard", style = Type.Label, color = Palette.LavenderDeep)
+                    Text("Paste from clipboard", style = Type.Label, color = Palette.AccentDeep)
                 }
             }
         },
-        confirmButton = { TextButton({ failed = !onImport(text) }) { Text("Add", style = Type.Label, color = Palette.LavenderDeep) } },
+        confirmButton = { TextButton({ failed = !onImport(text) }) { Text("Add", style = Type.Label, color = Palette.AccentDeep) } },
         dismissButton = { TextButton(onDismiss) { Text("Cancel", style = Type.Label, color = Palette.Ink) } },
         containerColor = Palette.Card,
     )
@@ -306,7 +306,7 @@ private fun ShareSheet(mix: Mix, onDismiss: () -> Unit) {
             ShareOption(Glyph.WIFI, "Quick Share", "Wi-Fi, to a phone nearby", Palette.Sky) {
                 MixSharing.share(context, mix, MixSharing.Route.QUICK_SHARE); onDismiss()
             }
-            ShareOption(Glyph.BLUETOOTH, "Bluetooth", "Send the mix file over Bluetooth", Palette.Lavender) {
+            ShareOption(Glyph.BLUETOOTH, "Bluetooth", "Send the mix file over Bluetooth", Palette.Accent) {
                 MixSharing.share(context, mix, MixSharing.Route.BLUETOOTH); onDismiss()
             }
             ShareOption(Glyph.SHARE, "Other apps", "Messages, email and more", Palette.Rose) {
@@ -352,7 +352,7 @@ fun IncomingMixDialog(mix: Mix, onAdd: (play: Boolean) -> Unit, onDismiss: () ->
                 Text(mix.layers.joinToString(", ") { it.sound.label }, style = Type.Body, color = Palette.InkSoft)
             }
         },
-        confirmButton = { TextButton({ onAdd(true) }) { Text("Add and play", style = Type.Label, color = Palette.LavenderDeep) } },
+        confirmButton = { TextButton({ onAdd(true) }) { Text("Add and play", style = Type.Label, color = Palette.AccentDeep) } },
         dismissButton = {
             Row {
                 TextButton(onDismiss) { Text("Not now", style = Type.Label, color = Palette.InkSoft) }

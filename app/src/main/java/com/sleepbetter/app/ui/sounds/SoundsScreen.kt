@@ -192,9 +192,9 @@ private fun SoundSpace(
             val radius = side / 2f * 0.84f
             val cx = side / 2f
             Canvas(Modifier.fillMaxSize()) {
-                drawCircle(Brush.radialGradient(listOf(Palette.Lavender.copy(alpha = 0.45f), Color.Transparent), center, radius), radius)
+                drawCircle(Brush.radialGradient(listOf(Palette.Accent.copy(alpha = 0.45f), Color.Transparent), center, radius), radius)
                 val dash = PathEffect.dashPathEffect(floatArrayOf(8f, 10f))
-                listOf(1f, 0.64f, 0.3f).forEach { f -> drawCircle(Palette.Lavender, radius * f, center, style = Stroke(2f, pathEffect = if (f < 0.5f) null else dash)) }
+                listOf(1f, 0.64f, 0.3f).forEach { f -> drawCircle(Palette.Accent, radius * f, center, style = Stroke(2f, pathEffect = if (f < 0.5f) null else dash)) }
             }
             Text("far", style = Type.Small, color = Palette.InkMuted, modifier = Modifier.align(Alignment.TopCenter))
             Text("left", style = Type.Small, color = Palette.InkMuted, modifier = Modifier.align(Alignment.CenterStart))

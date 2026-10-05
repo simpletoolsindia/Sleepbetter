@@ -253,7 +253,7 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier, action: String? = 
             Text(
                 action,
                 style = Type.Label,
-                color = Palette.LavenderDeep,
+                color = Palette.AccentDeep,
                 modifier = Modifier.clip(RoundedCornerShape(12.dp)).pressable(onClick = onAction).padding(horizontal = 8.dp, vertical = 10.dp),
             )
         }

@@ -202,7 +202,7 @@ private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon
             Modifier
                 .offset(y = (-26).dp)
                 .size(64.dp)
-                .shadow(14.dp, CircleShape, ambientColor = Palette.LavenderDeep, spotColor = Palette.LavenderDeep)
+                .shadow(14.dp, CircleShape, ambientColor = Palette.AccentDeep, spotColor = Palette.AccentDeep)
                 .clip(CircleShape)
                 .background(Palette.Ink)
                 .pressable(onClick = onMoon)
@@ -218,7 +218,7 @@ private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon
 @Composable
 private fun NavItem(glyph: Glyph, label: String, on: Boolean, onClick: () -> Unit) {
     val tint by animateColorAsState(if (on) Palette.Ink else Palette.InkMuted, label = "tint")
-    val pill by animateColorAsState(if (on) Palette.Lavender else Color.Transparent, label = "pill")
+    val pill by animateColorAsState(if (on) Palette.Accent else Color.Transparent, label = "pill")
     Column(
         Modifier
             .clip(RoundedCornerShape(20.dp))

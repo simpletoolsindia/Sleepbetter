@@ -74,7 +74,7 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
         Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             CircleButton(Glyph.BACK, "Back", onBack)
             Spacer(Modifier.weight(1f))
-            Dots(4, focus.session, Palette.LavenderDeep, Modifier.clearAndSetSemantics { contentDescription = "Session ${focus.session} of 4" })
+            Dots(4, focus.session, Palette.AccentDeep, Modifier.clearAndSetSemantics { contentDescription = "Session ${focus.session} of 4" })
         }
         Text("Deep work", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 14.dp))
         Text("Session ${focus.session} of 4, then a 5-minute break", style = Type.Body, color = Palette.InkSoft)
@@ -85,7 +85,7 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
                 val r = size.minDimension * 0.4f
                 // Progress ring.
                 drawArc(Palette.Line, 0f, 360f, false, Offset(c.x - r, c.y - r), Size(r * 2, r * 2), style = Stroke(14f))
-                drawArc(Palette.LavenderDeep, -90f, 360f * progress, false, Offset(c.x - r, c.y - r), Size(r * 2, r * 2), style = Stroke(14f, cap = StrokeCap.Round))
+                drawArc(Palette.AccentDeep, -90f, 360f * progress, false, Offset(c.x - r, c.y - r), Size(r * 2, r * 2), style = Stroke(14f, cap = StrokeCap.Round))
                 // Bars outside the ring that bloom on every beat.
                 val spin = if (still) 0f else time * 6f
                 for (i in 0 until 36) {
@@ -114,7 +114,7 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
                     Text("Soft piano and pads at 72 BPM, made live", style = Type.Small, color = Palette.InkMuted)
                 }
                 Spacer(Modifier.width(12.dp))
-                MorphPlayButton(focus.running, vm::toggleFocus, color = Palette.LavenderDeep)
+                MorphPlayButton(focus.running, vm::toggleFocus, color = Palette.AccentDeep)
             }
             Text("Add underneath", style = Type.Label, color = Palette.InkSoft, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

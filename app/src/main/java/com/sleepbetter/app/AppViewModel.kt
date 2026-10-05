@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.sleepbetter.app.audio.TimerChoice
 import com.sleepbetter.app.reminders.ReminderScheduler
 import com.sleepbetter.app.ui.components.Haptics
+import com.sleepbetter.app.ui.theme.AppTheme
+import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.core.mix.Mix
 import com.sleepbetter.core.mix.MixCodec
 import com.sleepbetter.core.mix.MixLayer
@@ -138,6 +140,15 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun shiftBedtime(minutes: Int) {
         repository.updateSettings { it.copy(bedtimeMinute = Math.floorMod(it.bedtimeMinute + minutes, 1440)) }
         rescheduleReminders()
+    }
+
+    init {
+        Palette.theme = AppTheme.entries.firstOrNull { it.name == settings.value.theme } ?: AppTheme.MOON_MILK
+    }
+
+    fun setTheme(theme: AppTheme) {
+        Palette.theme = theme
+        repository.updateSettings { it.copy(theme = theme.name) }
     }
 
     fun setReminders(on: Boolean) {

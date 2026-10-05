@@ -100,6 +100,8 @@ fun HomeScreen(
             now = LocalTime.now()
         }
     }
+    var picking by remember { mutableStateOf(false) }
+    if (picking) ThemeSheet(Palette.theme, vm::setTheme) { picking = false }
     val untilBed = Math.floorMod(settings.bedtimeMinute - (now.hour * 60 + now.minute), 1440)
 
     Column(
@@ -113,12 +115,14 @@ fun HomeScreen(
                 Text(todayLabel(), style = Type.Small, color = Palette.InkMuted)
                 Text(greeting(now), style = Type.Display, color = Palette.Ink)
             }
+            CircleButton(Glyph.PALETTE, "Colour theme", { picking = true }, size = 44.dp)
+            Spacer(Modifier.width(8.dp))
             Row(
                 Modifier.clip(RoundedCornerShape(22.dp)).background(Palette.Card).pressable(onClick = onFriends).padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                GlyphIcon(Glyph.MOON, Palette.LavenderDeep, size = 18.dp)
+                GlyphIcon(Glyph.MOON, Palette.AccentDeep, size = 18.dp)
                 Text("$steady", style = Type.Label, color = Palette.Ink)
             }
         }
@@ -207,7 +211,7 @@ fun levelGlyph(level: RiskLevel): Glyph = when (level) {
 
 @Composable
 private fun LastNightCard(minutes: Int?, week: List<Int>, modifier: Modifier, onClick: () -> Unit) {
-    BentoCard(modifier, color = Palette.Lavender, onClick = onClick) {
+    BentoCard(modifier, color = Palette.Accent, onClick = onClick) {
         Text("Last night", style = Type.Label, color = Palette.InkSoft)
         if (minutes == null) {
             Text("No nights yet", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 10.dp))
@@ -223,7 +227,7 @@ private fun LastNightCard(minutes: Int?, week: List<Int>, modifier: Modifier, on
 
 /** Rounded pill bars; full height = 9 hours, the dashed line marks 7 hours. */
 @Composable
-fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.LavenderDeep, goalLine: Color = Color.White) {
+fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.AccentDeep, goalLine: Color = Color.White) {
     Canvas(modifier.semantics { contentDescription = minutes.joinToString { hoursMinutes(it) } }) {
         val n = 7
         val gap = size.width * 0.04f
@@ -265,7 +269,7 @@ private fun PresetCard(template: MixTemplate, playing: Boolean, onClick: () -> U
                 .fillMaxWidth()
                 .height(104.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Lavender)),
+                .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Accent)),
         ) {
             Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
                 sounds.forEach { id ->

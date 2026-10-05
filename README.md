@@ -18,6 +18,20 @@ The design mixes two concepts (see the [UI concept](https://claude.ai/artifact/L
 | Last night | Story cards in the style of Spotify Wrapped: hours slept, bedtime, the week as moon phases, a morning check-in, and your level (Good / Medium risk / At risk) with a tip |
 | Visitors | The collection: Pip, Ember the fox, Hoot, Dozy and more, unlocked by steady bedtimes |
 
+## Colour themes
+
+Tap the palette button on Home to switch the whole app, including the dusk scene, between five themes:
+
+| Theme | Idea |
+|---|---|
+| Moon milk | The original soft lavender |
+| Jade mist | Pinterest 2026 "Jade" and calm mint-to-moss greens; greens and blues are linked with relaxation |
+| Cool blue | Pinterest 2026 "Cool Blue" on Pantone 2026 "Cloud Dancer" white |
+| Plum noir | Pinterest 2026 "Plum Noir" with a persimmon glow at dusk |
+| Amber hour | Warm candlelight tones; warm, low-blue light is the gentlest on melatonin at night |
+
+The status colours (green good, yellow medium, peach at risk) never change, so levels read the same in every theme.
+
 ## Mixes and sharing
 
 - **20 ready-made mixes** in five groups (Rain, Storms, Nature, Cozy, Focus): Light rain, Heavy rain, Rain drops only, Heavy rain and thunder, Thunderstorm, Forest rain and thunder, Forest and thunder, Distant storm, Rain on the tent, Rain on the car, Campfire in the rain, Deep focus and more. Tap one to play it.

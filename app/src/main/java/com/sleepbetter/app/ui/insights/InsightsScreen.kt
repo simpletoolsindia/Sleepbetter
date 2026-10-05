@@ -32,6 +32,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.drawText
@@ -82,7 +83,7 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
     ) {
         Text("Insights", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
         if (night == null) {
-            BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Lavender) {
+            BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Accent) {
                 MochiView(Modifier.size(120.dp).align(Alignment.CenterHorizontally), sleeping = true)
                 Text("Your first insights appear after your first night.", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 10.dp))
                 Text("Start sleep mode at bedtime and swipe up when you wake. The rest is automatic.", style = Type.Body, color = Palette.InkSoft, modifier = Modifier.padding(top = 6.dp))
@@ -147,7 +148,7 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
         tips.forEachIndexed { i, tip ->
             BentoCard(Modifier.fillMaxWidth().enter(60 * i)) {
                 Row {
-                    Box(Modifier.size(40.dp).background(listOf(Palette.Lavender, Palette.Sky, Palette.Rose, Palette.Sage)[i % 4], CircleShape), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(40.dp).background(listOf(Palette.Accent, Palette.Sky, Palette.Rose, Palette.Sage)[i % 4], CircleShape), contentAlignment = Alignment.Center) {
                         GlyphIcon(Glyph.SPARK, Palette.Ink, size = 18.dp)
                     }
                     Column(Modifier.padding(start = 12.dp)) {
@@ -168,7 +169,7 @@ private fun NightView(night: SleepSession) {
     val from = night.start.atZone(zone).toLocalTime()
     val to = night.end.atZone(zone).toLocalTime()
     val minutes = rememberCountUp(night.minutes.toFloat()).roundToInt()
-    BentoCard(Modifier.fillMaxWidth(), color = Palette.Lavender) {
+    BentoCard(Modifier.fillMaxWidth(), color = Palette.Accent) {
         Text("You slept", style = Type.Label, color = Palette.InkSoft)
         Text(hoursMinutes(minutes), style = Type.Numeral, color = Palette.Ink)
         Text("%02d:%02d to %02d:%02d".format(from.hour, from.minute, to.hour, to.minute), style = Type.Body, color = Palette.InkSoft)
@@ -205,8 +206,8 @@ private fun EstimatedCycles(minutes: Int, modifier: Modifier) {
             listOf(0 to lightShare * 0.6f, 1 to deepShare, 0 to lightShare * 0.4f, 2 to remShare).forEach { (row, share) ->
                 val bw = cw * share - 3f
                 val color = when (row) {
-                    0 -> Color(0xFF9C8BEA)
-                    1 -> Palette.LavenderDeep
+                    0 -> lerp(Palette.Accent, Palette.AccentDeep, 0.35f)
+                    1 -> Palette.AccentDeep
                     else -> Color(0xFFE88BB4)
                 }
                 if (bw > 2f) drawRoundRect(color, Offset(x, row * rowH + rowH * 0.18f), Size(bw, rowH * 0.64f), CornerRadius(rowH * 0.32f))
