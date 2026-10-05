@@ -303,6 +303,37 @@ Plan:
 * Auto-dim and pause all UI animation after 30 s of a sleep session
   (battery + light). Audio keeps playing.
 
+### 4.5 Visual direction: "Midnight Meadow"
+
+Interactive concept: <https://claude.ai/artifact/L4TygS6m3ERHeBY1VPrKTh>
+(screens: Home, Sound mixer, Sleep mode, Insights, Cast & notification).
+
+| Token | Value | Use |
+|---|---|---|
+| `night` | `#0E1029` | App background |
+| `sleepBlack` | `#05061A` | Sleep mode (OLED-friendly) |
+| `panel` / `panelHi` | `#1A1D3F` / `#2A2F66` | Cards, selected tiles |
+| `ink` / `inkMuted` | `#EEF0FF` / `#A7ABD6` | Text |
+| `moon` | `#FFC86B` | Primary action, timers, bedtime |
+| `mint` | `#7FE3C4` | Active sounds, "Good" level |
+| `lavender` | `#B9A8FF` | Reading mode, headphones |
+| `coral` | `#FF8A7A` | "At risk" level (paired with icon and text, never colour alone) |
+
+* **Type:** Fredoka (rounded display, playful) + DM Sans (body). Bundle as
+  downloadable Google Fonts in Compose.
+* **Shapes:** large radii (20–32 dp), pill chips, floating bottom nav bar.
+* **Motion vocabulary:** spring "pop" on tile toggle, live equaliser bars on
+  active sounds, rain streaks whose density follows the rain layers,
+  lightning flash tied to thunder events, embers for campfire, fireflies for
+  night forest, breathing characters with floating "z"s, staggered card
+  rise-in, score ring that draws on.
+* **Sleep mode:** near-black, no bright elements, one large timer, dim
+  controls, slow drifting clouds; all animation stops after 30 s.
+* **Compose mapping:** `animateFloatAsState` + `spring()` for tiles,
+  `rememberInfiniteTransition` for breathing and twinkling, `Canvas` with a
+  particle list for rain, embers and fireflies, `SharedTransitionLayout` for
+  tile → mixer row, `AnimatedContent` for the score level change.
+
 ---
 
 ## 5. Technical architecture
