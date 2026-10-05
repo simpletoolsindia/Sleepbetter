@@ -84,6 +84,13 @@ def inspect(url):
     return title, author, cc0, preview
 
 
+def soft_limit(x, knee=0.7):
+    y = x.copy()
+    over = np.abs(y) > knee
+    y[over] = np.sign(y[over]) * (knee + 0.28 * np.tanh((np.abs(y[over]) - knee) / 0.28))
+    return y
+
+
 def process(path, flavour):
     x = load_file(path)
     if len(x) < 45 * SR:
@@ -92,12 +99,16 @@ def process(path, flavour):
     if flavour == "warm":
         x = low_shelf(x, 200, 2)  # a little body for fire and surf
     loop = seamless(x, min(60, len(x) / SR - 4))
-    # -20 dBFS RMS like the rain, unless that would push the loudest crackles far into the limiter.
-    loop *= min(10 ** ((-20 - rms_db(loop)) / 20), 1.3 / (np.abs(loop).max() + 1e-9))
-    # Round off the rare loud crackle or crash instead of turning everything down.
-    knee = 0.7
-    over = np.abs(loop) > knee
-    loop[over] = np.sign(loop[over]) * (knee + 0.28 * np.tanh((np.abs(loop[over]) - knee) / 0.28))
+    # -20 dBFS RMS like the rain. Crackly sounds have tall, short peaks, so raise the level
+    # step by step, rounding off only those peaks, until the body of the sound is loud enough.
+    peak = np.abs(loop).max() + 1e-9
+    base = loop.copy()
+    gain = min(10 ** ((-20 - rms_db(base)) / 20), 0.98 / peak)
+    while True:
+        loop = soft_limit(base * gain)
+        if rms_db(loop) >= -21.5 or gain * peak > 4:
+            break
+        gain *= 1.12
     return loop
 
 
