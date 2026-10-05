@@ -18,7 +18,8 @@ class VisitorsTest {
     @Test
     fun emberArrivesAfterThreeSteadyNights() {
         assertEquals(Visitor.EMBER, VisitorRules.arrivedAt(3))
-        assertNull(VisitorRules.arrivedAt(4))
+        assertEquals(Visitor.REX, VisitorRules.arrivedAt(4))
+        assertNull(VisitorRules.arrivedAt(6))
         assertTrue(Visitor.EMBER in VisitorRules.progress(3, 0).unlocked)
     }
 
@@ -27,6 +28,14 @@ class VisitorsTest {
         assertEquals(Visitor.PEBBLE, VisitorRules.arrivedAt(5))
         assertEquals(Visitor.PEBBLE, VisitorRules.progress(4, 0).next)
         assertEquals(1, VisitorRules.progress(4, 0).nightsToNext)
+    }
+
+    @Test
+    fun dinoGangArrivesInOrder() {
+        assertEquals(Visitor.TRIKE, VisitorRules.arrivedAt(9))
+        assertEquals(Visitor.STEGO, VisitorRules.arrivedAt(16))
+        assertEquals(Visitor.ANKY, VisitorRules.arrivedAt(25))
+        assertTrue(Visitor.PTERO in VisitorRules.progress(0, 8).unlocked)
     }
 
     @Test

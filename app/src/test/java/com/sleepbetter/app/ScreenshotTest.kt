@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.sleepbetter.app.ui.components.BestFriends
+import com.sleepbetter.app.ui.components.DinoEgg
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.SceneFrames
 import com.sleepbetter.app.ui.components.Species
@@ -63,8 +64,8 @@ class ScreenshotTest {
         compose.setContent {
             SleepBetterTheme {
                 Column(Modifier.fillMaxSize().background(Palette.Paper).padding(12.dp)) {
-                    Species.entries.chunked(3).forEach { row ->
-                        Row { row.forEach { MochiView(Modifier.size(125.dp), species = it, mood = 3f) } }
+                    Species.entries.chunked(4).forEach { row ->
+                        Row { row.forEach { MochiView(Modifier.size(94.dp), species = it, mood = 3f) } }
                     }
                     BestFriends(Modifier.size(width = 300.dp, height = 176.dp))
                     Row {
@@ -74,6 +75,9 @@ class ScreenshotTest {
                         MochiView(Modifier.size(120.dp), sleeping = true)
                         MochiView(Modifier.size(120.dp), headphones = true, mood = 3.5f)
                         MochiView(Modifier.size(120.dp), species = Species.FOX, silhouette = true)
+                    }
+                    Row {
+                        listOf(0.2f, 0.6f, 0.95f).forEach { DinoEgg(it, Modifier.size(70.dp)) }
                     }
                 }
             }

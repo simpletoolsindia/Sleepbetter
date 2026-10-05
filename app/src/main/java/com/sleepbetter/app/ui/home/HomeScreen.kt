@@ -71,6 +71,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.sleepbetter.app.ui.components.EmojiChip
 import com.sleepbetter.app.ui.components.LocalBurst
 import com.sleepbetter.app.ui.components.MochiSays
+import com.sleepbetter.app.ui.components.species
+import com.sleepbetter.app.ui.components.isDino
 import com.sleepbetter.app.ui.components.floaty
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
@@ -145,7 +147,11 @@ fun HomeScreen(
                 add("Lulu says: no coffee after 2 pm ☕🚫")
             }
         }
-        MochiSays(lines, Modifier.enter(40))
+        // Friends you have take turns talking, dinos first.
+        val speakers = remember(sessions, settings) {
+            vm.repository.visitorProgress().unlocked.map { it.species() }.sortedByDescending { it.isDino }.take(6)
+        }
+        MochiSays(lines, Modifier.enter(40), speakers = speakers)
 
         // Tonight: the dusk scene shows exactly what is in the mix.
         Box(

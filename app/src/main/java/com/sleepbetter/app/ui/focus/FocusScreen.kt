@@ -45,6 +45,7 @@ import com.sleepbetter.app.ui.components.Dots
 import com.sleepbetter.app.ui.components.Glyph
 import com.sleepbetter.app.ui.components.DriftingEmoji
 import com.sleepbetter.app.ui.components.MochiView
+import com.sleepbetter.app.ui.components.Species
 import com.sleepbetter.app.ui.components.MorphPlayButton
 import com.sleepbetter.app.ui.components.SoundTile
 import com.sleepbetter.app.ui.components.rememberClock
@@ -105,7 +106,7 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
                 }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                MochiView(Modifier.size(96.dp), headphones = true, mood = 3.5f, beat = if (musicOn) frame.beatPhase else null)
+                MochiView(Modifier.size(96.dp), species = Species.REX, headphones = true, mood = 3.5f, beat = if (musicOn) frame.beatPhase else null)
                 RollingTimer(focus.remainingSeconds)
             }
         }

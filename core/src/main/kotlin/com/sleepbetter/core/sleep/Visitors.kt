@@ -16,12 +16,18 @@ enum class Visitor(
     LULU("Lulu", 0, blurb = "Lulu is Pico's best friend. She still wears a bit of her eggshell and holds Pico's paw when it thunders."),
     PANDA("Mochi the panda", 2, blurb = "Mochi loves soft rain. Try Light rain tonight."),
     EMBER("Ember the fox", 3, blurb = "Ember loves the campfire. Turn on Campfire tonight."),
+    REX("Rex the T. rex", 4, blurb = "Rex has tiny arms and a giant yawn, and drums along to Focus music."),
     PEBBLE("Pebble the elephant", 5, blurb = "Pebble wears a cosy nightcap and sprinkles a little rain with its trunk. Try Water drops tonight."),
     HOOT("Hoot the owl", 7, blurb = "Hoot keeps watch whenever Night forest is playing."),
     DOZY("Dozy the dino", 0, focusSessionsNeeded = 4, blurb = "Dozy nods along to the music in focus sessions."),
+    PTERO("Petra the pterosaur", 0, focusSessionsNeeded = 8, blurb = "Petra glides over the moon on quiet nights, and loves a long focus streak."),
+    TRIKE("Trixie the triceratops", 9, blurb = "Trixie looks grumpy but gives the best hugs. Loves a Campfire night."),
     KOALA("Koko the koala", 10, blurb = "Koko can nap through any thunderstorm."),
     TOFFEE("Toffee the capybara", 12, blurb = "Toffee is the calmest friend of all. Try River tonight."),
     CAT("Purr the cat", 14, blurb = "Purr hums along when Brown noise is on."),
+    STEGO("Steggy the stegosaurus", 16, blurb = "Steggy's heart-shaped plates glow softly while you sleep."),
+    BRONTO("Bronty the brontosaurus", 20, blurb = "Bronty stretches that long neck to peek at the stars, and sometimes over the hills."),
+    ANKY("Anky the ankylosaurus", 25, blurb = "Anky is the bravest of all: not even thunder wakes Anky up."),
 }
 
 data class VisitorProgress(

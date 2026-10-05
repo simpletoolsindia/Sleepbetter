@@ -51,3 +51,18 @@ At the owner's request the main duo changed from a panda and a capybara to two b
 - **Lulu** (Pico's best friend): pink, lilac back plates, and a piece of her eggshell still worn like a hat.
 
 Mochi the panda and Toffee the capybara stay in the cast as friends you unlock (2 and 12 steady nights).
+
+## The dino gang
+
+Based on research into cute dinosaur design (soft round shapes, big sparkly eyes set high, stubby limbs, one playful signature per species), six more baby dinos join Pico and Lulu, each with its own animation:
+
+| Dino | Signature | Animation | Arrives |
+|---|---|---|---|
+| Rex the T. rex | tiny arms, two little fangs | arms wave; drums in Focus | 4 steady nights |
+| Trixie the triceratops | scalloped frill, three soft horns, grumpy-but-loving brows | | 9 |
+| Steggy the stegosaurus | heart-shaped back plates | plates glow while asleep | 16 |
+| Bronty the brontosaurus | long curious neck | head sways and bobs; peeks over the hills in the night scene | 20 |
+| Petra the pterosaur | wings and a swept-back crest | wings flap; glides across the night sky | 8 focus sessions |
+| Anky the ankylosaurus | armour dots, club tail | club tail wags | 25 |
+
+The next dino friend shows as an egg on the Friends screen: it rocks more as you get closer, cracks past halfway, and someone peeks out at the end.

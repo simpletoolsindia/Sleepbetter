@@ -54,6 +54,9 @@ import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.core.audio.SoundId
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.rotate
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -209,7 +212,7 @@ fun SpeechBubble(text: String, modifier: Modifier = Modifier, color: Color = Pal
  * that cycles through [lines]. The character hops each time a new line comes.
  */
 @Composable
-fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long = 5200, species: Species = Species.PICO) {
+fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long = 5200, speakers: List<Species> = listOf(Species.PICO)) {
     if (lines.isEmpty()) return
     val still = rememberReduceMotion()
     var index by remember(lines) { mutableStateOf(0) }
@@ -227,6 +230,8 @@ fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long 
         hop.animateTo(1f, spring(0.4f, 300f))
     }
     val burst = LocalBurst.current
+    // Friends take turns: each new line can come from a different one.
+    val species = speakers.ifEmpty { listOf(Species.PICO) }.let { it[index % it.size] }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         // Tap the character to hear the next line.
         MochiView(
@@ -306,6 +311,12 @@ fun Species.emoji(): String = when (this) {
     Species.PICO -> "🦕"
     Species.LULU -> "🐣"
     Species.MOCHI -> "🐼"
+    Species.REX -> "🦖"
+    Species.TRIKE -> "🌋"
+    Species.STEGO -> "💗"
+    Species.BRONTO -> "🦕"
+    Species.PTERO -> "🪽"
+    Species.ANKY -> "🛡️"
     Species.TOFFEE -> "🦫"
     Species.ELEPHANT -> "🐘"
     Species.FOX -> "🦊"
@@ -313,4 +324,64 @@ fun Species.emoji(): String = when (this) {
     Species.DINO -> "🦕"
     Species.KOALA -> "🐨"
     Species.CAT -> "🐱"
+}
+
+/**
+ * A dino egg that is getting ready to hatch. It rocks more as [progress]
+ * (0..1) grows, cracks appear past halfway, and near the end a pair of eyes
+ * peeks out. Tapping it gives a big wobble.
+ */
+@Composable
+fun DinoEgg(progress: Float, modifier: Modifier = Modifier, spots: Color = Color(0xFFA3E4C8)) {
+    val still = rememberReduceMotion()
+    val clock by rememberClock()
+    val nudge = remember { androidx.compose.animation.core.Animatable(0f) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val p = progress.coerceIn(0f, 1f)
+    Canvas(
+        modifier
+            .pressable {
+                scope.launch {
+                    nudge.snapTo(1f)
+                    nudge.animateTo(0f, tween(900))
+                }
+            }
+            .semantics { liveRegion = LiveRegionMode.Polite },
+    ) {
+        val t = if (still) 0f else clock
+        // Rock in little bursts, more often as hatching gets close.
+        val burst = sin(t * (1.2f + 2f * p)).coerceAtLeast(0f).let { it * it * it }
+        val angle = (3f + 12f * p) * burst * sin(t * 14f) + 18f * nudge.value * sin(t * 22f)
+        val k = size.minDimension / 100f
+        rotate(angle, pivot = Offset(size.width / 2f, size.height * 0.92f)) {
+            scale(k, k, pivot = Offset.Zero) {
+                val egg = Path().apply {
+                    moveTo(50f, 6f)
+                    cubicTo(78f, 6f, 90f, 52f, 86f, 70f)
+                    cubicTo(82f, 90f, 66f, 96f, 50f, 96f)
+                    cubicTo(34f, 96f, 18f, 90f, 14f, 70f)
+                    cubicTo(10f, 52f, 22f, 6f, 50f, 6f)
+                    close()
+                }
+                drawOval(Color(0x1A2B2238), Offset(20f, 90f), androidx.compose.ui.geometry.Size(60f, 8f))
+                drawPath(egg, Color(0xFFFFFBF2))
+                listOf(Triple(34f, 40f, 7f), Triple(62f, 30f, 5f), Triple(66f, 62f, 8f), Triple(36f, 72f, 5f)).forEach { (x, y, r) ->
+                    drawCircle(spots, r, Offset(x, y))
+                }
+                drawPath(egg, Color(0xFF3A2622), style = androidx.compose.ui.graphics.drawscope.Stroke(3f))
+                if (p > 0.5f) {
+                    val crack = Path().apply { moveTo(26f, 50f); lineTo(36f, 44f); lineTo(42f, 54f); lineTo(52f, 46f); lineTo(58f, 55f); lineTo(68f, 47f); lineTo(76f, 52f) }
+                    drawPath(crack, Color(0xFF3A2622), style = androidx.compose.ui.graphics.drawscope.Stroke(2.2f, join = androidx.compose.ui.graphics.StrokeJoin.Round))
+                }
+                if (p > 0.85f) {
+                    // Someone is peeking out.
+                    val blink = if ((t % 3.2f) < 0.12f) 0.15f else 1f
+                    scale(1f, blink, pivot = Offset(50f, 52f)) {
+                        drawOval(Color(0xFF3A2622), Offset(40f, 47f), androidx.compose.ui.geometry.Size(6f, 8f))
+                        drawOval(Color(0xFF3A2622), Offset(54f, 47f), androidx.compose.ui.geometry.Size(6f, 8f))
+                    }
+                }
+            }
+        }
+    }
 }

@@ -111,6 +111,8 @@ internal fun DrawScope.drawDuskScene(
         }
         drawClouds(t, h, stormy)
         if (windy > 0.01f) drawWind(t, h, windy)
+        // Petra glides across the sky on quieter nights.
+        if (stormy < 0.6f) drawPetra(t, h, 1f - stormy)
         if (a(SoundId.BIRDS) > 0.01f) drawBirds(t, h, a(SoundId.BIRDS).coerceAtMost(1f) * (1f - 0.6f * rain))
 
         val sinceFlash = time - flashAt
@@ -118,6 +120,8 @@ internal fun DrawScope.drawDuskScene(
             drawLightning(h, sinceFlash, seed = (flashAt * 1000f).toInt(), dim = dim)
         }
 
+        // Bronty peeks over the far hills now and then.
+        drawBronty(t, h)
         drawHills(h)
         // Rain falls in front of the far hills and splashes on them.
         if (rain > 0.01f) drawRain(t, h, rain, heavy, wind)
@@ -512,5 +516,54 @@ private fun DrawScope.drawNotes(t: Float, h: Float, a: Float) {
         val c = Color.White.copy(alpha = (1f - p) * a)
         drawCircle(c, 3.2f, Offset(x, y))
         drawLine(c, Offset(x + 3f, y), Offset(x + 3f, y - 12f), 1.6f, StrokeCap.Round)
+    }
+}
+
+/**
+ * Every half minute Bronty's long neck rises from behind the far hills,
+ * looks around, and slowly sinks back. A silhouette with a moonlit eye.
+ */
+private fun DrawScope.drawBronty(t: Float, h: Float) {
+    val period = 34f
+    val u = t % period
+    if (u > 10f) return
+    val rise = when {
+        u < 2f -> u / 2f
+        u > 8f -> (10f - u) / 2f
+        else -> 1f
+    }.let { it * it * (3f - 2f * it) } // smooth start and stop
+    val look = if (u in 2f..8f) sin((u - 2f) / 6f * Math.PI.toFloat() * 2f) * 6f else 0f
+    val base = Offset(70f, h - 112f)
+    val head = Offset(base.x + 10f + look, base.y - 46f * rise)
+    val color = Palette.HillMid
+    drawPath(
+        Path().apply { moveTo(base.x - 6f, base.y + 10f); quadraticBezierTo(base.x - 4f, head.y + 10f, head.x - 4f, head.y + 2f); lineTo(head.x + 4f, head.y + 4f); quadraticBezierTo(base.x + 8f, head.y + 16f, base.x + 8f, base.y + 10f); close() },
+        color,
+    )
+    drawOval(color, Offset(head.x - 8f, head.y - 6f), Size(18f, 11f))
+    if (rise > 0.6f) drawCircle(Palette.Moon.copy(alpha = (rise - 0.6f) * 2.5f), 1.4f, Offset(head.x + 4f + look * 0.1f, head.y - 2f))
+}
+
+/**
+ * Petra the pterosaur glides across the sky every so often: a few wing
+ * beats, then a long glide, with a gentle rise and fall.
+ */
+private fun DrawScope.drawPetra(t: Float, h: Float, a: Float) {
+    val period = 26f
+    val u = (t + 9f) % period
+    if (u > 11f) return
+    val p = u / 11f
+    val x = -40f + 470f * p
+    val y = h * 0.14f + 10f * sin(u * 0.9f)
+    val flapping = (u % 4f) < 1.4f
+    val wing = if (flapping) 7f * sin(u * 12f) else -2f
+    val c = Palette.HillNear.copy(alpha = 0.9f * a)
+    withTransform({ translate(x, y) }) {
+        drawPath(Path().apply { moveTo(0f, 0f); quadraticBezierTo(-10f, -6f - wing, -22f, -2f - wing); quadraticBezierTo(-12f, 1f, 0f, 3f); close() }, c)
+        drawPath(Path().apply { moveTo(0f, 0f); quadraticBezierTo(10f, -6f - wing, 22f, -2f - wing); quadraticBezierTo(12f, 1f, 0f, 3f); close() }, c)
+        drawOval(c, Offset(-3f, -3f), Size(10f, 6f))
+        // Head with its swept-back crest, facing the way it flies.
+        drawPath(Path().apply { moveTo(5f, -2f); lineTo(13f, -1f); lineTo(6f, 1f); close() }, c)
+        drawPath(Path().apply { moveTo(5f, -2f); lineTo(0f, -7f); lineTo(3f, -1f); close() }, c)
     }
 }

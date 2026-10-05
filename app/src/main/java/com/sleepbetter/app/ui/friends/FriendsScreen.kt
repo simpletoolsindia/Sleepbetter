@@ -45,6 +45,8 @@ import com.sleepbetter.app.ui.components.enter
 import com.sleepbetter.app.ui.components.pressable
 import com.sleepbetter.app.ui.components.species
 import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.DinoEgg
+import com.sleepbetter.app.ui.components.isDino
 import com.sleepbetter.app.ui.components.SpeechBubble
 import com.sleepbetter.app.ui.components.emoji
 import com.sleepbetter.app.ui.components.floaty
@@ -79,7 +81,12 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
         progress.next?.let { next ->
             BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Butter) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    MochiView(Modifier.size(64.dp), species = next.species(), silhouette = true)
+                    if (next.species().isDino) {
+                        // A dino egg that rocks more as the night count gets close, then cracks.
+                        DinoEgg(steady.toFloat() / next.steadyNightsNeeded, Modifier.size(64.dp), spots = next.species().body)
+                    } else {
+                        MochiView(Modifier.size(64.dp), species = next.species(), silhouette = true)
+                    }
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
                         Text("Someone is on the way 🎁", style = Type.Heading, color = Palette.Ink)
                         Text(
