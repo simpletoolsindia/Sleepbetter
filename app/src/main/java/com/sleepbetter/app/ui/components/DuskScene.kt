@@ -68,7 +68,7 @@ fun DuskScene(
                 withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
                     val breath = 1f + 0.03f * sin(t * 2.2f)
                     scale(1f, breath, pivot = Offset(60f, 96f)) {
-                        drawCharacter(Species.MOCHI, Color.White, Color(0xFFE4DDF7), sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false)
+                        drawCharacter(Species.MOCHI, Color.White, Color(0xFFE4DDF7), sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
                     }
                 }
                 drawZs(t, h)

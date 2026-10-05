@@ -1,10 +1,21 @@
 package com.sleepbetter.app
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.sleepbetter.app.ui.components.MochiView
+import com.sleepbetter.app.ui.components.Species
 import com.sleepbetter.app.ui.theme.AppTheme
+import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
 import com.sleepbetter.core.sleep.NightTag
 import org.junit.Rule
@@ -41,6 +52,30 @@ class ScreenshotTest {
     @Test fun soundsCoolBlue() = shot(Destination.SOUNDS, "11-theme-cool-blue-sounds", theme = AppTheme.COOL_BLUE)
     @Test fun insightsPlum() = shot(Destination.INSIGHTS, "12-theme-plum-noir-insights", theme = AppTheme.PLUM_NOIR)
     @Test fun windDownAmber() = shot(Destination.WIND_DOWN, "13-theme-amber-wind-down", theme = AppTheme.AMBER)
+
+    /** Every friend, plus Mochi's moods, sleeping and focus looks. */
+    @Test fun characters() {
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            SleepBetterTheme {
+                Column(Modifier.fillMaxSize().background(Palette.Paper).padding(12.dp)) {
+                    Species.entries.chunked(2).forEach { row ->
+                        Row { row.forEach { MochiView(Modifier.size(180.dp), species = it, mood = 3f) } }
+                    }
+                    Row {
+                        listOf(0.5f, 2f, 4f).forEach { MochiView(Modifier.size(120.dp), mood = it) }
+                    }
+                    Row {
+                        MochiView(Modifier.size(120.dp), sleeping = true)
+                        MochiView(Modifier.size(120.dp), headphones = true, mood = 3.5f)
+                        MochiView(Modifier.size(120.dp), species = Species.FOX, silhouette = true)
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onRoot().captureRoboImage("build/screenshots/14-characters.png")
+    }
 
     private fun shot(destination: Destination, name: String, seed: Boolean = true, theme: AppTheme? = null) {
         val app = ApplicationProvider.getApplicationContext<SleepBetterApp>()
