@@ -86,7 +86,7 @@ class ScreenshotTest {
     @Test fun notificationFrames() {
         val sounds = setOf(SoundId.RAIN, SoundId.THUNDER, SoundId.TENT, SoundId.NIGHT_FOREST)
         val times = List(6) { 2f + it * 0.15f }
-        SceneFrames.frames(sounds, 320, 140, times, lightningAt = times[1]).forEachIndexed { i, frame ->
+        SceneFrames.frames(sounds, 300, 200, times, lightningAt = times[1]).forEachIndexed { i, frame ->
             save(frame, "15-notification-frame-$i.png")
         }
         save(SceneFrames.still(sounds, 360, 360), "16-playback-artwork.png")

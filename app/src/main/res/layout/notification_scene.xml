@@ -11,7 +11,7 @@
     <ViewFlipper
         android:id="@+id/scene_flipper"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="180dp"
         android:autoStart="true"
         android:flipInterval="150"
         android:background="@drawable/notification_scene_bg"

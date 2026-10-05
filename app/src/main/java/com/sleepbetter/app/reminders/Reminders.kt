@@ -95,14 +95,15 @@ class ReminderReceiver : BroadcastReceiver() {
 /**
  * The reminder's expanded view: a short flip-book of the dusk scene (rain
  * falling, stars twinkling, a lightning flash if Thunder is in the mix) that
- * the system plays in a loop. Small RGB_565 frames keep it well under the
- * size the system accepts. Null if rendering fails; the plain reminder is used then.
+ * the system plays in a loop. Frames keep the scene's own shape (3:2) so the
+ * characters stay clear of the hills, and the view crops the edges. Small
+ * RGB_565 frames keep it well under the size the system accepts. Null if rendering fails; the plain reminder is used then.
  */
 private fun animatedScene(context: Context, active: Set<SoundId>, title: String, text: String): RemoteViews? = runCatching {
     val sounds = active.ifEmpty { setOf(SoundId.RAIN, SoundId.TENT, SoundId.NIGHT_FOREST) }
     val times = List(6) { 2f + it * 0.15f }
     val strike = if (SoundId.THUNDER in sounds) times[1] else -10f
-    val frames = SceneFrames.frames(sounds, 320, 140, times, lightningAt = strike)
+    val frames = SceneFrames.frames(sounds, 300, 200, times, lightningAt = strike)
     RemoteViews(context.packageName, R.layout.notification_scene).apply {
         setTextViewText(R.id.scene_title, title)
         setTextViewText(R.id.scene_text, text)
