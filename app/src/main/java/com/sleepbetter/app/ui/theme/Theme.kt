@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -45,6 +46,7 @@ fun RiskLevel.color(): Color = when (this) {
 }
 
 /** Bricolage Grotesque (variable, narrowed) for display; Atkinson Hyperlegible for reading with sleepy eyes. */
+@OptIn(ExperimentalTextApi::class) // variable-font settings on resource fonts
 val Display = FontFamily(
     Font(
         R.font.bricolage_grotesque,
