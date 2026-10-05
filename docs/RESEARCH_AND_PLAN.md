@@ -303,36 +303,55 @@ Plan:
 * Auto-dim and pause all UI animation after 30 s of a sleep session
   (battery + light). Audio keeps playing.
 
-### 4.5 Visual direction: "Midnight Meadow"
+### 4.5 Visual direction: "Night Island" (v2, replaces Midnight Meadow)
 
 Interactive concept: <https://claude.ai/artifact/L4TygS6m3ERHeBY1VPrKTh>
-(screens: Home, Sound mixer, Sleep mode, Insights, Cast & notification).
+(page "Night Island": island mixer, morning summary, sleep mode with Live
+Update, visitors; page "First pass" keeps the earlier screens).
+
+**The one big idea:** the sound mixer *is* a living island. Every sound you
+turn on appears on it: a cloud and rain for Rain, lightning for Thunder, a
+glowing tent, a parked car, a campfire, an owl and fireflies for Night forest,
+birds in the tree, a pond with ripples for Water drops, a waterfall for Stream,
+drifting wind ribbons for Brown noise, a little radio with floating notes for
+Focus music. Pip the panda sleeps in the middle. Good sleep brings new
+**visitors** (animals) to live on the island, so building good habits and
+building tonight's soundscape share one world.
+
+Why this and not a tile grid: BetterSleep, Calm and most noise apps use the
+same grid of sound tiles. A scene you build is ownable, shows the mix at a
+glance, and gives the characters a home (see §8).
 
 | Token | Value | Use |
 |---|---|---|
-| `night` | `#0E1029` | App background |
-| `sleepBlack` | `#05061A` | Sleep mode (OLED-friendly) |
-| `panel` / `panelHi` | `#1A1D3F` / `#2A2F66` | Cards, selected tiles |
-| `ink` / `inkMuted` | `#EEF0FF` / `#A7ABD6` | Text |
-| `moon` | `#FFC86B` | Primary action, timers, bedtime |
-| `mint` | `#7FE3C4` | Active sounds, "Good" level |
-| `lavender` | `#B9A8FF` | Reading mode, headphones |
-| `coral` | `#FF8A7A` | "At risk" level (paired with icon and text, never colour alone) |
+| `night` | `#0F1133` | App background |
+| `sleepBlack` | `#07081F` | Sleep mode |
+| `sheet` | `#1F2350` | Mixer sheet, cards (also the chart surface) |
+| `ink` / `inkSoft` / `inkMuted` | `#F3F1FF` / `#D6D4F5` / `#B3B1D9` | Text |
+| `lantern` | `#F4B860` | Primary action, selected sounds, timer |
+| `moss` / `mossLight` | `#4E8A64` / `#5E9C72` | Island grass |
+| `clay` | `#3B2D63` | Island underside |
+| `moonlight` | `#F2E3B8` | Moon, score moons |
+| Status good / medium / at risk | `#45A87C` / `#BF8426` / `#D6548A` | Always with an icon and a text label. Passed the dataviz palette validator on `#1F2350` (lightness band, CVD ΔE ≥ 8.6, normal-vision ΔE ≥ 16.7, contrast ≥ 3:1). |
 
-* **Type:** Fredoka (rounded display, playful) + DM Sans (body). Bundle as
-  downloadable Google Fonts in Compose.
-* **Shapes:** large radii (20–32 dp), pill chips, floating bottom nav bar.
-* **Motion vocabulary:** spring "pop" on tile toggle, live equaliser bars on
-  active sounds, rain streaks whose density follows the rain layers,
-  lightning flash tied to thunder events, embers for campfire, fireflies for
-  night forest, breathing characters with floating "z"s, staggered card
-  rise-in, score ring that draws on.
-* **Sleep mode:** near-black, no bright elements, one large timer, dim
-  controls, slow drifting clouds; all animation stops after 30 s.
-* **Compose mapping:** `animateFloatAsState` + `spring()` for tiles,
-  `rememberInfiniteTransition` for breathing and twinkling, `Canvas` with a
-  particle list for rain, embers and fireflies, `SharedTransitionLayout` for
-  tile → mixer row, `AnimatedContent` for the score level change.
+* **Type:** Fraunces with the SOFT axis at 100 (a soft, storybook serif) for
+  headings and big numbers; Atkinson Hyperlegible for body text, chosen for
+  legibility with tired, half-closed eyes at night.
+* **Score as a moon:** the moon fills with the score; the week is shown as
+  seven moon phases with the hours labelled under each.
+* **Motion:** user-triggered and spring-based, following Material 3
+  Expressive. Sound buttons morph from circle to rounded square, the timer
+  button group stretches the selected option, and the play button morphs and
+  turns when playing. Each island object springs into place when you turn its
+  sound on. The single orchestrated moment is the new visitor arriving in the
+  morning summary. Ambient motion (rain, fire, fireflies) only appears when the
+  matching sound is actually playing, so motion always means something.
+* **Compose mapping:** `spring(dampingRatio = 0.5f)` with `animateDpAsState`
+  for corner morphs, `MaterialShapes` and `Morph` from
+  `androidx.graphics.shapes` for expressive shapes, `ButtonGroup` for the
+  timer, `AnimatedVisibility(enter = scaleIn(spring()))` for island objects,
+  `Canvas` particles for rain, embers and fireflies, `rememberInfiniteTransition`
+  for breathing, Rive for characters.
 
 ---
 
@@ -433,3 +452,36 @@ Interactive concept: <https://claude.ai/artifact/L4TygS6m3ERHeBY1VPrKTh>
 * Media3 playback — <https://developer.android.com/media/implement/playback-app>
 * Lottie vs Rive — <https://callstack.com/blog/lottie-vs-rive-optimizing-mobile-app-animation>, <https://lottiefiles.com/blog/working-with-lottie-animations/getting-started-with-lottie-animations-in-android-app>
 * RemoteViews limits — <https://itnext.io/android-custom-notification-in-6-mins-c2e7e2ddadab>
+
+---
+
+## 8. UI/UX trend research (round 2)
+
+| Finding | Source | What we take from it |
+|---|---|---|
+| Material 3 Expressive (Android 16): spring motion physics, 35 morphable shapes, button groups, emphasised type; used selectively at hero moments | Android Authority, 9to5Google, ProAndroidDev | Spring-morph controls, button-group timer, shape morph on play |
+| Android 16 Live Updates: `Notification.ProgressStyle` with segments and points, promoted to lock screen and a status-bar chip | ProAndroidDev, Android Authority | Sleep timer as a Live Update; one segment per estimated 90-min cycle |
+| Pokémon Sleep: creature collection tied to sleep; ~10 M downloads; a Japanese study reported users slept 26 min more per night | Sleep Foundation, Sleep Review | "Visitors" collection rewarded by steady bedtimes |
+| Finch: a cute pet whose wellbeing mirrors yours drives retention well above meditation apps; living widget; onboarding hatches the pet | Deconstructor of Fun, Appbot, Pratt IxD critique | Pip lives on the island and sleeps when you sleep; home-screen widget shows the island; onboarding starts by naming your island |
+| BetterSleep opens straight to audio; Sleep Cycle's morning summary and notes (caffeine, stress); RISE's sleep debt | Sleep Foundation, BetterSleep blog | Island first on open; "Anything different last night?" tags; sleep debt in tips |
+| 2026 mobile trends: tactile/clay 3D, functional micro-interactions over decoration | daisyUI trends, vp0 | Soft clay-like island objects; every animation reflects state |
+
+Design review notes (applied from the frontend-design guidance): removed
+all-caps labels, middle-dot meta strings and fade-in on every card from the
+first pass; one bold idea (the island) with quieter surroundings; sentence
+case and action-named buttons; visible focus rings; reduced motion respected.
+
+### Sources (round 2)
+* <https://www.androidauthority.com/google-material-3-expressive-features-changes-availability-supported-devices-3556392/>
+* <https://9to5google.com/2025/05/13/android-16-material-3-expressive-redesign/>
+* <https://proandroiddev.com/live-updates-in-android-16-exploring-the-next-evolution-of-notifications-1a5cf5de2068>
+* <https://androidauthority.com/android-16-live-notifications-3518375>
+* <https://sleepfoundation.org/sleep-news/can-you-catch-all-your-zzzs-with-pokemon-sleep-app>
+* <https://sleepreviewmag.com/curated/pokemon-sleep/>
+* <https://www.deconstructoroffun.com/blog/x0hd2ssr80y5n7gv0w967pg7hwd7tl>
+* <https://appbot.co/blog/finch-app-reviews-emotional-attachment-user-retention-product-loyalty/>
+* <https://ixd.prattsi.org/2026/02/design-critique-finch-self-care-pet-ios-app/>
+* <https://www.sleepfoundation.org/best-sleep-apps>
+* <https://www.bettersleep.com/blog/sleep-cycle-vs-bettersleep-2026-honest-sleep-app-comparison>
+* <https://trends.daisyui.com/ui-design-trends-2026/>
+* <https://vp0.com/blogs/mobile-app-ui-design-inspiration-2026>
