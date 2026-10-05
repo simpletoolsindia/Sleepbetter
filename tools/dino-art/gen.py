@@ -32,8 +32,6 @@ FRONT = [
     *[P("STATIC", circle(x, y, 4), "WHITE", L, 2.5) for x, y in [(62,186),(71,188),(80,186),(120,186),(129,188),(138,186)]],
     P("ARM_L", "M82 124 C70 128 68 146 76 152 C82 156 88 150 86 142 C86 134 90 128 82 124 Z", "BODY", L, 4),
     P("ARM_L", circle(75,151,2.6), "WHITE", L, 1.6), P("ARM_L", circle(81,154,2.6), "WHITE", L, 1.6),
-    P("ARM_R", "M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z", "BODY", L, 4),
-    P("ARM_R", circle(125,151,2.6), "WHITE", L, 1.6), P("ARM_R", circle(119,154,2.6), "WHITE", L, 1.6),
     *[P("HEAD", spike(*a), "PLATE", L, 4) for a in [(106,33,112,12,11),(127,38,140,20,11),(145,52,162,40,10)]],
     P("HEAD", HEAD, "BODY"),
     P("HEAD", "M42 96 C54 118 78 126 100 126 C122 126 146 118 158 96 C144 112 124 119 100 119 C76 119 56 112 42 96 Z", "SHADE"),
@@ -42,6 +40,9 @@ FRONT = [
     P("HEAD", circle(84,40,3), "WHITE", None, 0, 0.55),
     P("HEAD", circle(134,50,4.5), "SPOT"), P("HEAD", circle(145,64,3), "SPOT"), P("HEAD", circle(124,40,2.5), "SPOT"),
     P("HEAD", circle(58,100,8), "CHEEK", None, 0, 0.85), P("HEAD", circle(142,100,8), "CHEEK", None, 0, 0.85),
+    # The waving arm comes after the head so it shows when raised.
+    P("ARM_R", "M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z", "BODY", L, 4),
+    P("ARM_R", circle(125,151,2.6), "WHITE", L, 1.6), P("ARM_R", circle(119,154,2.6), "WHITE", L, 1.6),
 ]
 
 SHEAD = "M62 38 C74 18 114 16 130 34 C142 48 140 74 126 84 C116 92 100 94 86 92 C70 94 42 92 34 76 C28 62 42 50 62 50 Z"

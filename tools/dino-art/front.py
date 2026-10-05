@@ -37,8 +37,6 @@ def front(p, wave=True, tag=""):
   {toes}
   <g class="arm-l"><path d="M82 124 C70 128 68 146 76 152 C82 156 88 150 86 142 C86 134 90 128 82 124 Z" fill="{p["body"]}" {s()}/>
     <circle cx="75" cy="151" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/><circle cx="81" cy="154" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/></g>
-  <g class="arm-r"><path d="M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z" fill="{p["body"]}" {s()}/>
-    <circle cx="125" cy="151" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/><circle cx="119" cy="154" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/></g>
   <g class="head">
     {head_spikes}
     <path d="M100 28 C146 28 166 58 162 86 C158 112 132 126 100 126 C68 126 42 112 38 86 C34 58 54 28 100 28 Z" fill="{p["body"]}"/>
@@ -52,6 +50,8 @@ def front(p, wave=True, tag=""):
     <circle cx="58" cy="100" r="8" fill="{p["cheek"]}" opacity="0.85"/><circle cx="142" cy="100" r="8" fill="{p["cheek"]}" opacity="0.85"/>
     <path d="M88 101 Q100 113 112 101" fill="none" stroke="{INK}" stroke-width="4" stroke-linecap="round"/>
   </g>
+  <g class="arm-r"><path d="M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z" fill="{p["body"]}" {s()}/>
+    <circle cx="125" cy="151" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/><circle cx="119" cy="154" r="2.6" fill="#fff" stroke="{INK}" stroke-width="1.6"/></g>
 </g>'''
 
 CSS = """

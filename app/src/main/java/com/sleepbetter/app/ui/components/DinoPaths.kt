@@ -32,9 +32,6 @@ internal object DinoPaths {
         DinoPart(DinoGroup.ARM_L, "M82 124 C70 128 68 146 76 152 C82 156 88 150 86 142 C86 134 90 128 82 124 Z", DinoInk.BODY, DinoInk.LINE, 4f, 1.0f),
         DinoPart(DinoGroup.ARM_L, "M72.4 151 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
         DinoPart(DinoGroup.ARM_L, "M78.4 154 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
-        DinoPart(DinoGroup.ARM_R, "M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z", DinoInk.BODY, DinoInk.LINE, 4f, 1.0f),
-        DinoPart(DinoGroup.ARM_R, "M122.4 151 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
-        DinoPart(DinoGroup.ARM_R, "M116.4 154 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
         DinoPart(DinoGroup.HEAD, "M95 33 C95 22.5 107.05 13 112 12 C116.95 13 117 22.5 117 33 Z", DinoInk.PLATE, DinoInk.LINE, 4f, 1.0f),
         DinoPart(DinoGroup.HEAD, "M116 38 C116 29.0 135.05 21 140 20 C144.95 21 138 29.0 138 38 Z", DinoInk.PLATE, DinoInk.LINE, 4f, 1.0f),
         DinoPart(DinoGroup.HEAD, "M135 52 C135 46.0 157.5 41 162 40 C166.5 41 155 46.0 155 52 Z", DinoInk.PLATE, DinoInk.LINE, 4f, 1.0f),
@@ -48,6 +45,9 @@ internal object DinoPaths {
         DinoPart(DinoGroup.HEAD, "M121.5 40 a2.5 2.5 0 1 0 5.0 0 a2.5 2.5 0 1 0 -5.0 0 Z", DinoInk.SPOT, null, 0f, 1.0f),
         DinoPart(DinoGroup.HEAD, "M50 100 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0 Z", DinoInk.CHEEK, null, 0f, 0.85f),
         DinoPart(DinoGroup.HEAD, "M134 100 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0 Z", DinoInk.CHEEK, null, 0f, 0.85f),
+        DinoPart(DinoGroup.ARM_R, "M118 124 C130 128 132 146 124 152 C118 156 112 150 114 142 C114 134 110 128 118 124 Z", DinoInk.BODY, DinoInk.LINE, 4f, 1.0f),
+        DinoPart(DinoGroup.ARM_R, "M122.4 151 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
+        DinoPart(DinoGroup.ARM_R, "M116.4 154 a2.6 2.6 0 1 0 5.2 0 a2.6 2.6 0 1 0 -5.2 0 Z", DinoInk.WHITE, DinoInk.LINE, 1.6f, 1.0f),
     )
 
     /** Walking, facing left. 210 x 200 artboard. */
