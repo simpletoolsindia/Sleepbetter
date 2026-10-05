@@ -13,7 +13,6 @@ import numpy as np, soundfile as sf
 from scipy.signal import resample_poly, butter, sosfilt
 
 SR = 48000
-SRC, OUT = sys.argv[1], sys.argv[2]
 
 LOOPS = {  # sound code -> (source file name fragment, loop seconds)
     "RN": ("gentle-rain-07", 60),
@@ -33,8 +32,11 @@ CREDITS = {
     "thunder-sound": "Thunder Sound by SoundReality (Pixabay)",
 }
 
-def load(fragment):
-    path = next(os.path.join(SRC, f) for f in os.listdir(SRC) if fragment in f)
+def load(fragment, src):
+    path = next(os.path.join(src, f) for f in os.listdir(src) if fragment in f)
+    return load_file(path)
+
+def load_file(path):
     x, sr = sf.read(path, always_2d=True, dtype="float64")
     if x.shape[1] == 1:
         x = np.repeat(x, 2, axis=1)
@@ -116,27 +118,31 @@ def save(x, path):
         for i in range(0, len(data), 4096):
             fh.write(data[i:i + 4096])
 
-report = {}
-os.makedirs(OUT, exist_ok=True)
-for code, (frag, secs) in LOOPS.items():
-    x = highpass(load(frag), 25)
-    loop = seamless(x, secs)
-    loop *= 10 ** ((-20 - rms_db(loop)) / 20)
-    save(loop, f"{OUT}/{code}.ogg")
-    report[code] = {"source": CREDITS[frag], "seconds": round(len(loop) / SR, 1), "rms_db": round(rms_db(loop), 1)}
+def main(SRC, OUT):
+    report = {}
+    os.makedirs(OUT, exist_ok=True)
+    for code, (frag, secs) in LOOPS.items():
+        x = highpass(load(frag, SRC), 25)
+        loop = seamless(x, secs)
+        loop *= 10 ** ((-20 - rms_db(loop)) / 20)
+        save(loop, f"{OUT}/{code}.ogg")
+        report[code] = {"source": CREDITS[frag], "seconds": round(len(loop) / SR, 1), "rms_db": round(rms_db(loop), 1)}
 
-clips = []
-for frag in THUNDER:
-    x = low_shelf(highpass(load(frag), 22), 120, 5)  # heavier, deeper rumble
-    for p in strikes(x, frag):
-        clips.append((frag, p * (10 ** (-1 / 20) / np.abs(p).max())))
-for i, (frag, p) in enumerate(clips, 1):
-    save(p, f"{OUT}/thunder/{i}.ogg")
-    report[f"thunder/{i}"] = {"source": CREDITS[frag], "seconds": round(len(p) / SR, 1)}
+    clips = []
+    for frag in THUNDER:
+        x = low_shelf(highpass(load(frag, SRC), 22), 120, 5)  # heavier, deeper rumble
+        for p in strikes(x, frag):
+            clips.append((frag, p * (10 ** (-1 / 20) / np.abs(p).max())))
+    for i, (frag, p) in enumerate(clips, 1):
+        save(p, f"{OUT}/thunder/{i}.ogg")
+        report[f"thunder/{i}"] = {"source": CREDITS[frag], "seconds": round(len(p) / SR, 1)}
 
-with open(f"{OUT}/CREDITS.txt", "w") as fh:
-    fh.write("Recordings used under the Pixabay Content License (https://pixabay.com/service/license-summary/),\n")
-    fh.write("processed (trimmed, looped, equalised) and mixed inside SleepBetter.\n\n")
-    for v in sorted({CREDITS[k] for k in CREDITS}):
-        fh.write(f"- {v}\n")
-print(json.dumps(report, indent=1))
+    with open(f"{OUT}/CREDITS.txt", "w") as fh:
+        fh.write("Recordings used under the Pixabay Content License (https://pixabay.com/service/license-summary/),\n")
+        fh.write("processed (trimmed, looped, equalised) and mixed inside SleepBetter.\n\n")
+        for v in sorted({CREDITS[k] for k in CREDITS}):
+            fh.write(f"- {v}\n")
+    print(json.dumps(report, indent=1))
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2])

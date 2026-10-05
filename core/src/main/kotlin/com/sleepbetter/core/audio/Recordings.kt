@@ -31,6 +31,9 @@ sealed interface Recording {
 
 private const val SHORT_SCALE = 1f / 32768f
 
+/** Thunder should be felt over the rain, not lost under it; the mixer's soft clip catches the peaks. */
+private const val STRIKE_BOOST = 1.7f
+
 /**
  * Plays a seamless recorded loop forever, starting at a random point so two
  * nights never begin the same way. Recordings are normalised to about
@@ -68,7 +71,7 @@ class SampledThunderSource(private val clips: List<StereoClip>, private val samp
 
     private val voices = ArrayList<Voice>(2)
     private var last = -1
-    private var untilNext = (rng.range(2f, 6f) * sampleRate).toInt()
+    private var untilNext = (rng.range(0.8f, 2.5f) * sampleRate).toInt()
 
     @Volatile
     override var eventCount: Int = 0
@@ -77,13 +80,13 @@ class SampledThunderSource(private val clips: List<StereoClip>, private val samp
     override fun renderStereo(left: FloatArray, right: FloatArray, frames: Int) {
         for (i in 0 until frames) {
             if (--untilNext <= 0) strike()
-            val bed = bedFilter.process(bedNoise.next()) * 0.06f
+            val bed = bedFilter.process(bedNoise.next()) * 0.09f
             var l = bed
             var r = bed
             for (v in voices) {
                 if (v.pos < v.clip.frames) {
-                    l += v.clip.pcm[2 * v.pos] * SHORT_SCALE * v.gain
-                    r += v.clip.pcm[2 * v.pos + 1] * SHORT_SCALE * v.gain
+                    l += v.clip.pcm[2 * v.pos] * SHORT_SCALE * v.gain * STRIKE_BOOST
+                    r += v.clip.pcm[2 * v.pos + 1] * SHORT_SCALE * v.gain * STRIKE_BOOST
                     v.pos++
                 }
             }
@@ -103,11 +106,11 @@ class SampledThunderSource(private val clips: List<StereoClip>, private val samp
         last = pick
         if (voices.size >= 2) voices.removeAt(0)
         val clip = clips[pick]
-        voices += Voice(clip, rng.range(0.6f, 1f))
+        voices += Voice(clip, rng.range(0.75f, 1f))
         eventCount++
         // Usually wait for this one to roll away; sometimes another comes in early.
         val clipSeconds = clip.frames / sampleRate.toFloat()
-        val gap = if (rng.chance(0.25f)) rng.range(2f, clipSeconds * 0.6f) else clipSeconds + rng.range(4f, 14f)
+        val gap = if (rng.chance(0.3f)) rng.range(1.5f, clipSeconds * 0.6f) else clipSeconds * 0.8f + rng.range(2f, 8f)
         untilNext = (gap * sampleRate).toInt().coerceAtLeast(sampleRate)
     }
 }

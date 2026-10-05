@@ -104,8 +104,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     // Focus: 25 minutes with focus music, then a gentle buzz.
     fun toggleFocus() {
         if (_focus.value.running) {
+            // Pausing the session pauses the music too.
             focusJob?.cancel()
             _focus.update { it.copy(running = false) }
+            if (mix.value.playing) engine.pause()
             return
         }
         if (SoundId.FOCUS_MUSIC !in mix.value.active) engine.setActive(SoundId.FOCUS_MUSIC, true)

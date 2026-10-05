@@ -21,6 +21,18 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch real recordings (CC0)
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          pip install -q numpy soundfile scipy
+          python3 tools/sounds/fetch.py app/src/main/assets/sounds fetched-sounds.json
+          cat fetched-sounds.json
+
       - name: Unit tests (core)
         run: ./gradlew :core:test --stacktrace
 
@@ -44,6 +56,7 @@ jobs:
           path: |
             SleepBetter-debug.apk
             SleepBetter-screenshots.zip
+            fetched-sounds.json
 
       - name: Publish as a pre-release
         uses: softprops/action-gh-release@v2
@@ -58,3 +71,4 @@ jobs:
           files: |
             SleepBetter-debug.apk
             SleepBetter-screenshots.zip
+            fetched-sounds.json

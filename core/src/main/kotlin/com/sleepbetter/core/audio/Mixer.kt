@@ -3,6 +3,7 @@ package com.sleepbetter.core.audio
 import java.util.EnumMap
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -11,10 +12,14 @@ object Spatial {
     /** 0 at the edge of the stage, 1 at the listener. */
     fun closeness(x: Float, y: Float): Float = 1f - sqrt(x * x + y * y).coerceAtMost(1f)
 
-    /** Linear gain. Never fully silent, so a sound on the rim is still faintly there. */
+    /**
+     * Linear gain. A gentle curve: a sound placed further back is softer
+     * but still clearly part of the mix (about -6 dB halfway out), and never
+     * fully silent at the rim.
+     */
     fun gain(x: Float, y: Float): Float {
         val c = closeness(x, y)
-        return 0.06f + 0.94f * c * sqrt(c)
+        return 0.14f + 0.86f * c.toDouble().pow(0.75).toFloat()
     }
 
     /** -1 hard left, 1 hard right, kept a little inside the extremes. */
