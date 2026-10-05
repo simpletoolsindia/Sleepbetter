@@ -485,3 +485,53 @@ case and action-named buttons; visible focus rings; reduced motion respected.
 * <https://www.bettersleep.com/blog/sleep-cycle-vs-bettersleep-2026-honest-sleep-app-comparison>
 * <https://trends.daisyui.com/ui-design-trends-2026/>
 * <https://vp0.com/blogs/mobile-app-ui-design-inspiration-2026>
+
+---
+
+## 9. Round 3: music, animation and 2026 UI research ("Sound Stage", v3)
+
+Concept page "Sound Stage (v3)": <https://claude.ai/artifact/L4TygS6m3ERHeBY1VPrKTh>
+
+### What other apps do
+
+| App / trend | What stands out | What we take |
+|---|---|---|
+| **Endel** | Every soundscape has its own generative visual; calm sound plays during onboarding so you feel the product before signing up | Background colours come from the sounds you are playing; sound starts on the first screen |
+| **Portal** | Immersive 3D spatial soundscapes of real places; Webby-winning design, App Store Award finalist | **Sound Stage**: drag each sound around the listener to set volume (distance) and left/right position (pan) |
+| **Spotify Wrapped 2025** | Built with Rive; bold kinetic type, "visual mixtape", shareable story cards | **Last night** recap as tap-through story cards with dropping numerals and a share button |
+| **Duolingo** | Rive state-machine characters (idle, happy, sad, talking) driven by app inputs | Characters as Rive state machines with inputs such as `mood`, `beat` and `sleepiness` |
+| **Headspace / Calm** | Slow easing and long transitions that physically calm the user | Wind down screen uses a slow 19-second breathing cycle; no fast motion after bedtime |
+| **Tiimo** (2025 iPhone App of the Year) | Visual, accessible routines | Simple visual session dots for focus sessions |
+| **Material 3 Expressive** | Spring physics, shape morphing, button groups, hero moments | Morphing play buttons, stretching timer group, morphing breathing blob |
+| **Apple Liquid Glass** / glassmorphism 2.0 | Translucent layers that refract colour behind them | Frosted glass controls and tab bar floating over moving colour |
+| **Aurora / mesh gradients** | Soft moving colour fields | Background blobs coloured by the active sounds; in Compose, `Brush` mesh gradients or AGSL shaders |
+| **Kinetic typography** | Animated letterforms as the main visual | Headlines that blur and rise in word by word; rolling-digit timers |
+| **Rich haptics** (`VibrationEffect.Composition`) | Precise ticks and slow rises on modern vibration motors | A soft tick when a sound snaps into place; a slow-rise buzz to end a focus session; check `arePrimitivesSupported()` first |
+| **Nothing OS Glyph Matrix** | Dot-matrix visuals for notifications | Optional later: show the sleep timer on Glyph-capable phones |
+
+### v3 screens
+1. **Sound stage:** sounds are glowing bubbles that pulse at their own rhythm. Drag a bubble toward Pip (wearing headphones) to make it louder, or left and right to place it. Arrow keys move the focused bubble too. A live caption says what is close and what is far. The background colour changes with the sounds on stage.
+2. **Focus flow:** a rolling-digit 25-minute timer, a ring of bars and rings pulsing at the track's tempo (72 BPM), Dozy nodding to the beat, a glass music card with track changes, and session dots (2 of 4).
+3. **Wind down:** a colourful blob that morphs and grows with 4-7-8 breathing, with the phase and count in the centre, plus a "Lights down" slider that dims the screen and a button to start sleep mode.
+4. **Last night:** four auto-advancing story cards: hours slept with dropping numerals; time to fall asleep with rain; a week of rising moons; and the new visitor reveal with Share.
+
+### Build notes (Android)
+* Spatial mix: map distance to gain (`1 − d/R`) and x to pan in the `MixerEngine`. Use `pointerInput { detectDragGestures }` and `Modifier.offset` with `animateOffsetAsState(spring())`. Expose bubble positions to TalkBack with custom accessibility actions ("Move closer", "Move left").
+* Beat sync: the engine publishes the track's BPM and beat phase as a `StateFlow`, so the UI pulses on real beats, not a guessed CSS timer.
+* Audio-reactive visuals: read the mixer's output levels (RMS per layer) every frame and feed them into the bubble glow and pulse size. Avoid `Visualizer` (it needs the microphone permission); the engine already has the samples.
+* Shaders: AGSL `RuntimeShader` for aurora and the breathing blob on API 33+, with a static gradient fallback below that.
+* Story cards: `HorizontalPager` with `graphicsLayer` transitions and an auto-advance timer. Share renders a 1080×1920 bitmap of the card.
+* Motion safety: respect "Remove animations"; never flash bright colour after bedtime; stop ambient animation 30 seconds into sleep mode.
+
+### Sources (round 3)
+* Endel design: <https://blog.readymag.com/tune-in-drop-out-how-endel-helps-get-into-the-flow-via-immersive-soundscapes-5ab08d932687/>, <https://screensdesign.com/showcase/endel-focus-sleep-sounds>
+* Portal: <https://apps.apple.com/us/app/portal-sleep-focus-escape/id1436994560>, <https://portal.app/campfire/mac-app-of-the-year-finalist>
+* Spotify Wrapped 2025 with Rive: <https://rive.app/blog/spotify-used-rive-for-spotify-wrapped-2025>, <https://newsroom.spotify.com/?p=37865>
+* Duolingo and Rive: <https://rive.app/blog/duolingo-s-ai-powered-video-call-brings-lily-to-life>, <https://blog.duolingo.com/world-character-visemes>
+* Headspace motion: <https://blakecrosley.com/guides/design/headspace>
+* App Store Awards 2025 (Tiimo): <https://www.apple.com/sg/newsroom/2025/12/apple-unveils-the-winners-of-the-2025-app-store-awards/>
+* Liquid Glass: <https://en.wikipedia.org/wiki/Liquid_Glass>
+* Mesh gradients and AGSL in Compose: <https://proandroiddev.com/mesh-gradients-in-jetpack-compose-a8a6795eb8ee>, <https://github.com/AndreFrelicot/paper-shaders-android>, <https://developer.android.com/guide/topics/graphics/agsl/using-agsl>
+* 2026 UI trends: <https://trends.daisyui.com/>, <https://line25.com/articles/web-design-trends-2026/>
+* Haptics: <https://developer.android.com/develop/ui/views/haptics/custom-haptic-effects>
+* Nothing Glyph Matrix: <https://design-milk.com/the-nothing-phone-3s-glyph-matrix-turns-notifications-into-pixel-art/>
