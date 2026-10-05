@@ -15,6 +15,7 @@ enum class Visitor(
     PIP("Mochi", 0, blurb = "Mochi yawns 30 minutes before bedtime and sleeps on the moon all night."),
     TOFFEE("Toffee", 0, blurb = "Toffee is Mochi's best friend. They nap side by side and hold paws when it thunders."),
     EMBER("Ember the fox", 3, blurb = "Ember loves the campfire. Turn on Campfire tonight."),
+    PEBBLE("Pebble the elephant", 5, blurb = "Pebble wears a cosy nightcap and sprinkles a little rain with its trunk. Try Water drops tonight."),
     HOOT("Hoot the owl", 7, blurb = "Hoot keeps watch whenever Night forest is playing."),
     DOZY("Dozy the dino", 0, focusSessionsNeeded = 4, blurb = "Dozy nods along to the music in focus sessions."),
     KOALA("Koko the koala", 10, blurb = "Koko can nap through any thunderstorm."),

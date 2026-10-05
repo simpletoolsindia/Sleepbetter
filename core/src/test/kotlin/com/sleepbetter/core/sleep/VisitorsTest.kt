@@ -23,6 +23,13 @@ class VisitorsTest {
     }
 
     @Test
+    fun pebbleArrivesAfterFiveSteadyNights() {
+        assertEquals(Visitor.PEBBLE, VisitorRules.arrivedAt(5))
+        assertEquals(Visitor.PEBBLE, VisitorRules.progress(4, 0).next)
+        assertEquals(1, VisitorRules.progress(4, 0).nightsToNext)
+    }
+
+    @Test
     fun dozyComesForFocusSessions() {
         assertTrue(Visitor.DOZY !in VisitorRules.progress(20, 3).unlocked)
         assertTrue(Visitor.DOZY in VisitorRules.progress(0, 4).unlocked)

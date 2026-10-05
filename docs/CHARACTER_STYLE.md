@@ -1,6 +1,6 @@
 # Character style
 
-The cast (Mochi and Toffee, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
+The cast (Mochi the panda and Toffee, Pebble the elephant, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
 
 ## Look
 
@@ -27,10 +27,18 @@ The owner asked for our own version of a cute two-friend duo. The idea of a pair
 
 | | Bubu and Dudu (not used) | Mochi and Toffee (ours) |
 |---|---|---|
-| Animals | Panda and bear | A rice-cake bun and a capybara |
-| Light one | White panda, black ears, bow tie | White bun, no ears, crescent-moon clip |
+| Animals | Panda and bear | A classic panda and a capybara |
+| Light one | White panda with black ears only, bow tie | Panda with droopy black eye patches, black arms and feet, crescent-moon clip, no bow tie |
 | Dark one | Brown bear, round dark ears | Caramel capybara, small high ears, wide pale muzzle with a nose, two-leaf sprout |
 | Names | Bubu, Dudu (Yier) | Mochi, Toffee |
 | Story | A couple's daily life | Sleep buddies: they nap together and appear when you wind down |
 
-Keep it that way: no panda ears or patches on Mochi, no bear ears or bow tie on Toffee, and no recreating scenes or poses from the Bubu and Dudu comics.
+Keep it that way: Mochi always has its eye patches and moon clip and never a bow tie; no bear ears or bow tie on Toffee; and no recreating scenes or poses from the Bubu and Dudu comics.
+
+## Cuteness rules
+
+All characters follow the "baby schema" that makes faces read as cute: a big head on a small body, large eyes set low and wide on the face with two highlights, a tiny mouth, round blush cheeks, and short arms and legs.
+
+## Pebble the elephant
+
+A soft blue-grey baby elephant with big floppy ears that flap slowly, a short swaying trunk, and a striped nightcap with a pom-pom. Pebble moves in after 5 steady nights.
