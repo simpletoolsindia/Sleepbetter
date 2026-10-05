@@ -12,9 +12,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -46,6 +49,7 @@ import kotlin.math.sin
  */
 enum class Species(val body: Color, val shade: Color, val description: String) {
     MOCHI(Color(0xFFFFFFFF), Color(0xFFE4DDF7), "Mochi"),
+    TOFFEE(Color(0xFFD9A273), Color(0xFFBE8456), "Toffee the capybara"),
     FOX(Color(0xFFFFB98E), Color(0xFFF29A68), "Ember the fox"),
     OWL(Color(0xFFC9BCF7), Color(0xFFA996F0), "Hoot the owl"),
     DINO(Color(0xFFBFD8A9), Color(0xFF9DBF8A), "Dozy the dinosaur"),
@@ -55,6 +59,7 @@ enum class Species(val body: Color, val shade: Color, val description: String) {
 
 fun Visitor.species(): Species = when (this) {
     Visitor.PIP -> Species.MOCHI
+    Visitor.TOFFEE -> Species.TOFFEE
     Visitor.EMBER -> Species.FOX
     Visitor.HOOT -> Species.OWL
     Visitor.DOZY -> Species.DINO
@@ -126,6 +131,40 @@ fun MochiView(
                 headphones = headphones,
                 face = !silhouette,
             )
+        }
+    }
+}
+
+/**
+ * Mochi and Toffee together: Toffee a little behind on the left, Mochi in
+ * front. Awake, a small heart floats up between them.
+ */
+@Composable
+fun MochiAndToffee(modifier: Modifier = Modifier, sleeping: Boolean = false, mood: Float = 3f) {
+    val still = rememberReduceMotion()
+    val rise by rememberInfiniteTransition(label = "heart").animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2600, easing = FastOutSlowInEasing)), label = "rise",
+    )
+    Box(modifier.aspectRatio(1.7f).semantics(mergeDescendants = true) { contentDescription = "Mochi and Toffee" }) {
+        MochiView(Modifier.fillMaxWidth(0.6f).align(Alignment.BottomStart), species = Species.TOFFEE, sleeping = sleeping, mood = mood)
+        MochiView(Modifier.fillMaxWidth(0.56f).align(Alignment.BottomEnd), species = Species.MOCHI, sleeping = sleeping, mood = mood)
+        if (!sleeping) {
+            Canvas(Modifier.fillMaxWidth(0.14f).aspectRatio(1f).align(Alignment.TopCenter)) {
+                val p = if (still) 0.3f else rise
+                val k = size.width / 24f
+                withTransform({
+                    translate(top = size.height * 0.6f * (1f - p))
+                    scale(k * (0.7f + 0.3f * p), k * (0.7f + 0.3f * p), pivot = Offset.Zero)
+                }) {
+                    val heart = Path().apply {
+                        moveTo(12f, 21f); cubicTo(3f, 15f, 1f, 10f, 4f, 6f); cubicTo(7f, 2f, 11f, 4f, 12f, 7f)
+                        cubicTo(13f, 4f, 17f, 2f, 20f, 6f); cubicTo(23f, 10f, 21f, 15f, 12f, 21f); close()
+                    }
+                    val alpha = if (still) 1f else (1f - p) * 1.4f
+                    drawPath(heart, Color(0xFFFF8FA3).copy(alpha = alpha.coerceIn(0f, 1f)))
+                    drawPath(heart, Outline.copy(alpha = alpha.coerceIn(0f, 1f)), style = Stroke(2f, join = StrokeJoin.Round))
+                }
+            }
         }
     }
 }
@@ -215,7 +254,7 @@ internal fun DrawScope.drawCharacter(
             }
             Species.DINO -> for (i in 0..3) {
                 val x = 38f + i * 15f
-                shape(Path().apply { moveTo(x - 7f, 26f); quadraticBezierTo(x, 8f, x + 7f, 26f); close() }, shade)
+                shape(Path().apply { moveTo(x - 7f, 22f); quadraticBezierTo(x, -4f, x + 7f, 22f); close() }, shade)
             }
             Species.KOALA -> {
                 oval(Offset(6f, 14f), Size(32f, 32f), body); drawCircle(Color(0xFFF6C3D6), 8f, Offset(22f, 30f))
@@ -224,6 +263,11 @@ internal fun DrawScope.drawCharacter(
             Species.CAT -> {
                 shape(Path().apply { moveTo(28f, 34f); lineTo(32f, 10f); lineTo(50f, 26f); close() }, body)
                 shape(Path().apply { moveTo(92f, 34f); lineTo(88f, 10f); lineTo(70f, 26f); close() }, body)
+            }
+            Species.TOFFEE -> {
+                // Small, high capybara ears.
+                oval(Offset(26f, 12f), Size(15f, 13f), shade)
+                oval(Offset(79f, 12f), Size(15f, 13f), shade)
             }
             Species.MOCHI -> Unit
         }
@@ -238,6 +282,17 @@ internal fun DrawScope.drawCharacter(
     }
     drawPath(head, line, style = stroke)
 
+    if (species == Species.TOFFEE) {
+        if (face) {
+            // Toffee's own mark: a two-leaf sprout.
+            drawLine(line, Offset(60f, headY - 33f), Offset(60f, headY - 42f), 2.2f, StrokeCap.Round)
+            shape(Path().apply { moveTo(60f, headY - 41f); quadraticBezierTo(50f, headY - 50f, 47f, headY - 41f); quadraticBezierTo(53f, headY - 36f, 60f, headY - 41f); close() }, Color(0xFF8CC56B))
+            shape(Path().apply { moveTo(60f, headY - 41f); quadraticBezierTo(70f, headY - 52f, 74f, headY - 43f); quadraticBezierTo(67f, headY - 36f, 60f, headY - 41f); close() }, Color(0xFFA8D98A))
+        }
+        // A wide, soft muzzle under the eyes, with a little nose.
+        shape(Path().apply { addOval(Rect(Offset(42f, headY + 4f), Size(36f, 22f))) }, if (face) Color(0xFFF0D2AC) else body)
+        if (face) drawOval(Outline, Offset(55f, headY + 6.5f), Size(10f, 5.5f))
+    }
     if (species == Species.CAT) {
         drawLine(line.copy(alpha = 0.6f), Offset(12f, headY + 10f), Offset(25f, headY + 11f), 1.8f, StrokeCap.Round)
         drawLine(line.copy(alpha = 0.6f), Offset(108f, headY + 10f), Offset(95f, headY + 11f), 1.8f, StrokeCap.Round)
@@ -256,10 +311,10 @@ internal fun DrawScope.drawCharacter(
 
     // Face. Mood 0..4 bends the mouth from a frown to an open smile and changes the eyes.
     val smile = (mood - 2f) / 2f // -1..1
-    val eyeY = headY + 2f
+    val eyeY = headY + if (species == Species.TOFFEE) -3f else 2f
     val lx = 44f
     val rx = 76f
-    val mouthY = eyeY + 11f
+    val mouthY = eyeY + if (species == Species.TOFFEE) 17f else 11f
     if (sleeping) {
         val s = Stroke(3f, cap = StrokeCap.Round)
         drawPath(Path().apply { moveTo(lx - 6f, eyeY); quadraticBezierTo(lx, eyeY + 5f, lx + 6f, eyeY) }, Outline, style = s)
@@ -279,12 +334,13 @@ internal fun DrawScope.drawCharacter(
         if (mood < 1.5f) {
             // Tired lids for a rough night.
             val droop = (1.5f - mood) * 4f
-            drawLine(Outline, Offset(lx - 7f, eyeY - 7f - droop), Offset(lx + 6f, eyeY - 8f + droop), 2.6f, StrokeCap.Round)
-            drawLine(Outline, Offset(rx - 6f, eyeY - 8f + droop), Offset(rx + 7f, eyeY - 7f - droop), 2.6f, StrokeCap.Round)
+            // Inner ends raised: tired and a bit sad, never cross.
+            drawLine(Outline, Offset(lx - 7f, eyeY - 7f + droop * 0.4f), Offset(lx + 6f, eyeY - 9f - droop), 2.6f, StrokeCap.Round)
+            drawLine(Outline, Offset(rx - 6f, eyeY - 9f - droop), Offset(rx + 7f, eyeY - 7f + droop * 0.4f), 2.6f, StrokeCap.Round)
         }
     }
     val cheek = when (species) {
-        Species.FOX, Species.CAT -> Color(0x99FF8A5C)
+        Species.FOX, Species.CAT, Species.TOFFEE -> Color(0x99FF8A5C)
         else -> Color(0xB3FF9AA8)
     }
     drawCircle(cheek, 8f, Offset(29f, eyeY + 10f))

@@ -148,7 +148,7 @@ private fun FriendCard(visitor: Visitor, unlocked: Boolean, selected: Boolean, m
         Text(if (unlocked) visitor.displayName else "Someone new", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
         Text(
             when {
-                unlocked -> if (visitor == Visitor.PIP) "Here from day one" else "Lives with you"
+                unlocked -> if (visitor.steadyNightsNeeded == 0 && visitor.focusSessionsNeeded == 0) "Here from day one" else "Lives with you"
                 visitor.focusSessionsNeeded > 0 -> "${visitor.focusSessionsNeeded} focus sessions"
                 else -> "${visitor.steadyNightsNeeded} steady nights"
             },

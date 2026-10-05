@@ -7,9 +7,10 @@ import kotlin.test.assertTrue
 
 class VisitorsTest {
     @Test
-    fun pipIsThereFromDayOne() {
+    fun mochiAndToffeeAreThereFromDayOne() {
         val p = VisitorRules.progress(totalSteadyNights = 0, focusSessions = 0)
-        assertEquals(listOf(Visitor.PIP), p.unlocked)
+        assertEquals(listOf(Visitor.PIP, Visitor.TOFFEE), p.unlocked)
+        assertNull(VisitorRules.arrivedAt(0))
         assertEquals(Visitor.EMBER, p.next)
         assertEquals(3, p.nightsToNext)
     }

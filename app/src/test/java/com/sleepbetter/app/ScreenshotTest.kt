@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.sleepbetter.app.ui.components.MochiAndToffee
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.Species
 import com.sleepbetter.app.ui.theme.AppTheme
@@ -55,13 +56,15 @@ class ScreenshotTest {
 
     /** Every friend, plus Mochi's moods, sleeping and focus looks. */
     @Test fun characters() {
+        Palette.theme = AppTheme.MOON_MILK
         compose.mainClock.autoAdvance = false
         compose.setContent {
             SleepBetterTheme {
                 Column(Modifier.fillMaxSize().background(Palette.Paper).padding(12.dp)) {
-                    Species.entries.chunked(2).forEach { row ->
-                        Row { row.forEach { MochiView(Modifier.size(180.dp), species = it, mood = 3f) } }
+                    Species.entries.chunked(3).forEach { row ->
+                        Row { row.forEach { MochiView(Modifier.size(125.dp), species = it, mood = 3f) } }
                     }
+                    MochiAndToffee(Modifier.size(width = 300.dp, height = 176.dp))
                     Row {
                         listOf(0.5f, 2f, 4f).forEach { MochiView(Modifier.size(120.dp), mood = it) }
                     }

@@ -16,7 +16,7 @@ The design mixes two concepts (see the [UI concept](https://claude.ai/artifact/L
 | Wind down | 4-7-8 breathing blob, a "Lights down" dimmer, bedtime and reminder settings, and "Start sleep mode" |
 | Sleep mode | Near-black countdown, a dimmed island and estimated 90-minute cycles; dims further after 30 s. "I'm awake" logs the night |
 | Last night | Story cards in the style of Spotify Wrapped: hours slept, bedtime, the week as moon phases, a morning check-in, and your level (Good / Medium risk / At risk) with a tip |
-| Visitors | The collection: Pip, Ember the fox, Hoot, Dozy and more, unlocked by steady bedtimes |
+| Visitors | The collection: Mochi and Toffee (from day one), Ember the fox, Hoot, Dozy and more, unlocked by steady bedtimes |
 
 ## Colour themes
 

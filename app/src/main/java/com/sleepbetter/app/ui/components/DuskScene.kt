@@ -65,6 +65,13 @@ fun DuskScene(
             drawStars(t, h)
             drawMoon(h)
             if (showMochi) {
+                // Toffee dozes against the moon, Mochi curled up on top.
+                withTransform({ translate(214f, h * 0.2f + 8f); scale(0.56f, 0.56f, pivot = Offset.Zero) }) {
+                    val breath = 1f + 0.03f * sin(t * 2.2f + 1.3f)
+                    scale(1f, breath, pivot = Offset(60f, 96f)) {
+                        drawCharacter(Species.TOFFEE, Species.TOFFEE.body, Species.TOFFEE.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
+                    }
+                }
                 withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
                     val breath = 1f + 0.03f * sin(t * 2.2f)
                     scale(1f, breath, pivot = Offset(60f, 96f)) {

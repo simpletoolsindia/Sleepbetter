@@ -1,6 +1,6 @@
 # Character style
 
-The cast (Mochi, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
+The cast (Mochi and Toffee, Ember the fox, Hoot the owl, Dozy the dinosaur, Koko the koala, Purr the cat) is drawn in code in `ui/components/Mochi.kt`.
 
 ## Look
 
@@ -20,3 +20,17 @@ The reference screenshots show **Bubu and Dudu** (officially Yier and Bubu), cre
 - Our characters keep their own shapes and identity marks (Mochi is a rice-cake bun with a crescent-moon clip; the friends are a fox, owl, dinosaur, koala and cat).
 
 Using a general art style is allowed; copying a specific character's expression is not. Using the real characters would need a written licence from the rights holder.
+
+## Mochi and Toffee: our own duo
+
+The owner asked for our own version of a cute two-friend duo. The idea of a pair of friends, one light and one dark, is not protected; specific characters are. So the duo is designed to be clearly different from Bubu and Dudu:
+
+| | Bubu and Dudu (not used) | Mochi and Toffee (ours) |
+|---|---|---|
+| Animals | Panda and bear | A rice-cake bun and a capybara |
+| Light one | White panda, black ears, bow tie | White bun, no ears, crescent-moon clip |
+| Dark one | Brown bear, round dark ears | Caramel capybara, small high ears, wide pale muzzle with a nose, two-leaf sprout |
+| Names | Bubu, Dudu (Yier) | Mochi, Toffee |
+| Story | A couple's daily life | Sleep buddies: they nap together and appear when you wind down |
+
+Keep it that way: no panda ears or patches on Mochi, no bear ears or bow tie on Toffee, and no recreating scenes or poses from the Bubu and Dudu comics.
