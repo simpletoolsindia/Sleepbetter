@@ -1,0 +1,11 @@
+id,display_name,layer_type,file,source_site,source_url,author,license,attribution_required,downloaded_on,processing_notes,verified_by
+rain_light,Gentle rain,bed,,,,,,,,,
+rain_heavy,Heavy rain,bed,,,,,,,,,
+thunder_bed,Distant thunder,bed,,,,,,,,,
+thunder_oneshot_01,Thunder roll 1,oneshot,,,,,,,,,
+rain_tent,Rain on tent,bed,,,,,,,,,
+rain_car,Rain on car,bed,,,,,,,,,
+birds_forest,Forest birds,bed,,,,,,,,,
+night_forest,Night forest,bed,,,,,,,,,
+campfire,Campfire,bed,,,,,,,,,
+water_drops,Water drops,oneshot,,,,,,,,,
