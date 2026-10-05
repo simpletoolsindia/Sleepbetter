@@ -27,13 +27,23 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :app:assembleDebug --stacktrace
 
+      - name: Render screenshots
+        continue-on-error: true
+        run: ./gradlew :app:testDebugUnitTest --tests "com.sleepbetter.app.ScreenshotTest" --stacktrace
+
+      - name: Bundle screenshots
+        continue-on-error: true
+        run: cd app/build/screenshots && zip -q ../../../SleepBetter-screenshots.zip *.png && ls
+
       - name: Name the APK
         run: cp app/build/outputs/apk/debug/app-debug.apk SleepBetter-debug.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: SleepBetter-debug-apk
-          path: SleepBetter-debug.apk
+          path: |
+            SleepBetter-debug.apk
+            SleepBetter-screenshots.zip
 
       - name: Publish as a pre-release
         uses: softprops/action-gh-release@v2
@@ -45,4 +55,6 @@ jobs:
           body: |
             Debug build from `${{ github.ref_name }}` at ${{ github.sha }}.
             Install on Android 8.0+: download SleepBetter-debug.apk on the phone and open it (allow installs from this source when asked).
-          files: SleepBetter-debug.apk
+          files: |
+            SleepBetter-debug.apk
+            SleepBetter-screenshots.zip

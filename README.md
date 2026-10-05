@@ -56,7 +56,7 @@ cd core && gradle test
 
 ## Fonts
 
-Bricolage Grotesque and Atkinson Hyperlegible are bundled under the SIL Open Font License; see `licenses/`.
+Outfit is bundled under the SIL Open Font License; see `licenses/`.
 
 ## Privacy
 

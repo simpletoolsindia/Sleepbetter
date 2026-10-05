@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Pip the panda asleep under a crescent moon. -->
+<!-- Mochi asleep under a crescent moon. Kept inside the 66 dp safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:fillColor="#FFF2E3B8" android:pathData="M80,30a12,12 0,1 1,-14 -12a9,9 0,0 0,14 12z" />
-    <path android:fillColor="#FF1B1840" android:pathData="M36,46m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
-    <path android:fillColor="#FF1B1840" android:pathData="M72,46m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0" />
-    <path android:fillColor="#FFF7F7FB" android:pathData="M54,64m-27,0a27,23 0,1 1,54 0a27,23 0,1 1,-54 0" />
-    <path android:fillColor="#FF1B1840" android:pathData="M43,64m-7,0a7,5.5 0,1 1,14 0a7,5.5 0,1 1,-14 0" />
-    <path android:fillColor="#FF1B1840" android:pathData="M65,64m-7,0a7,5.5 0,1 1,14 0a7,5.5 0,1 1,-14 0" />
-    <path android:strokeColor="#FFF7F7FB" android:strokeWidth="1.6" android:strokeLineCap="round" android:pathData="M39,65q4,2.6 8,0M61,65q4,2.6 8,0" />
-    <path android:fillColor="#FF1B1840" android:pathData="M54,72m-3.2,0a3.2,2.3 0,1 1,6.4 0a3.2,2.3 0,1 1,-6.4 0" />
+    <!-- Crescent moon -->
+    <path android:fillColor="#FFFFE6A3"
+        android:pathData="M70,26 A13,13 0,1,0 83.5,40.5 A10.5,10.5 0,1,1 70,26 Z" />
+    <!-- Two tiny stars -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M37,32 Q37.6,35.4 41,36 Q37.6,36.6 37,40 Q36.4,36.6 33,36 Q36.4,35.4 37,32 Z" />
+    <path android:fillColor="#B3FFFFFF"
+        android:pathData="M48,25 Q48.4,27.1 50.5,27.5 Q48.4,27.9 48,30 Q47.6,27.9 45.5,27.5 Q47.6,27.1 48,25 Z" />
+    <!-- Mochi: shaded underside, then body -->
+    <path android:fillColor="#FFD9CFF7"
+        android:pathData="M30,65 C30,50 41,43 54,43 C67,43 78,50 78,65 C78,75 69,80 54,80 C39,80 30,75 30,65 Z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M31,63.5 C31,49.5 41.5,43 54,43 C66.5,43 77,49.5 77,63.5 C77,72 68.5,76.5 54,76.5 C39.5,76.5 31,72 31,63.5 Z" />
+    <!-- Sleeping eyes, blush, mouth -->
+    <path android:strokeColor="#FF2B2238" android:strokeWidth="2.4" android:strokeLineCap="round"
+        android:pathData="M42,60 Q46,63.5 50,60 M58,60 Q62,63.5 66,60" />
+    <path android:fillColor="#80FF8FA8" android:pathData="M39.5,67m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path android:fillColor="#80FF8FA8" android:pathData="M68.5,67m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+    <path android:fillColor="#FF2B2238" android:pathData="M54,68.5m-2.2,0a2.2,1.6 0,1 1,4.4 0a2.2,1.6 0,1 1,-4.4 0" />
 </vector>

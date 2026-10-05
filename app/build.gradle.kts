@@ -33,6 +33,16 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                // Screenshot tests write PNGs instead of comparing against stored ones.
+                it.systemProperty("roborazzi.test.record", "true")
+            }
+        }
+    }
 }
 
 kotlin {
@@ -58,4 +68,13 @@ dependencies {
     implementation(libs.androidx.media)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
 }

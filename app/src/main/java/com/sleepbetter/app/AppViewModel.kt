@@ -18,13 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class Destination(val label: String) {
-    TONIGHT("Tonight"),
-    FOCUS("Focus"),
-    WIND_DOWN("Wind down"),
-    LAST_NIGHT("Last night"),
-    VISITORS("Visitors"),
-    SLEEP("Sleep"),
+enum class Destination {
+    HOME, SOUNDS, INSIGHTS, FRIENDS, FOCUS, WIND_DOWN, SLEEP, CHECK_IN,
 }
 
 data class FocusState(

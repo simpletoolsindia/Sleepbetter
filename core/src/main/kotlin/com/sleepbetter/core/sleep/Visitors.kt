@@ -11,12 +11,12 @@ enum class Visitor(
     val focusSessionsNeeded: Int = 0,
     val blurb: String,
 ) {
-    PIP("Pip", 0, blurb = "Yawns 30 minutes before your bedtime and sleeps on the island all night."),
-    EMBER("Ember the fox", 3, blurb = "Curls up by the campfire. Turn on Campfire to see Ember there."),
-    HOOT("Hoot", 7, blurb = "Sits in the tree whenever Night forest is playing."),
-    DOZY("Dozy", 0, focusSessionsNeeded = 4, blurb = "Wears headphones and nods along during focus sessions."),
-    KOALA("Someone fluffy", 10, blurb = "A sleepy koala who naps through anything."),
-    CAT("Someone purring", 14, blurb = "A cat who purrs when Brown noise is on."),
+    PIP("Mochi", 0, blurb = "Mochi yawns 30 minutes before bedtime and sleeps on the moon all night."),
+    EMBER("Ember the fox", 3, blurb = "Ember loves the campfire. Turn on Campfire tonight."),
+    HOOT("Hoot the owl", 7, blurb = "Hoot keeps watch whenever Night forest is playing."),
+    DOZY("Dozy the dino", 0, focusSessionsNeeded = 4, blurb = "Dozy nods along to the music in focus sessions."),
+    KOALA("Koko the koala", 10, blurb = "Koko can nap through any thunderstorm."),
+    CAT("Purr the cat", 14, blurb = "Purr hums along when Brown noise is on."),
 }
 
 data class VisitorProgress(

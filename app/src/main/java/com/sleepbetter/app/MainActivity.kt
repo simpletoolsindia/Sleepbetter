@@ -8,14 +8,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +25,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,24 +44,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sleepbetter.app.ui.components.AuroraBackground
-import com.sleepbetter.app.ui.components.glass
-import com.sleepbetter.app.ui.components.rememberReduceMotion
+import com.sleepbetter.app.ui.checkin.CheckInScreen
+import com.sleepbetter.app.ui.components.Glyph
+import com.sleepbetter.app.ui.components.GlyphIcon
+import com.sleepbetter.app.ui.components.pressable
 import com.sleepbetter.app.ui.focus.FocusScreen
-import com.sleepbetter.app.ui.recap.RecapScreen
+import com.sleepbetter.app.ui.friends.FriendsScreen
+import com.sleepbetter.app.ui.home.HomeScreen
+import com.sleepbetter.app.ui.insights.InsightsScreen
 import com.sleepbetter.app.ui.sleep.SleepModeScreen
+import com.sleepbetter.app.ui.sounds.SoundsScreen
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
 import com.sleepbetter.app.ui.theme.Type
-import com.sleepbetter.app.ui.theme.uiColor
-import com.sleepbetter.app.ui.tonight.TonightScreen
-import com.sleepbetter.app.ui.visitors.VisitorsScreen
 import com.sleepbetter.app.ui.winddown.WindDownScreen
 
 class MainActivity : ComponentActivity() {
@@ -64,7 +72,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private val vm: AppViewModel by viewModels()
-    private val startDestination = mutableStateOf<Destination?>(null)
+    private val requested = mutableStateOf<Destination?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -72,7 +80,7 @@ class MainActivity : ComponentActivity() {
         readDestination(intent)
         setContent {
             SleepBetterTheme {
-                SleepBetterUi(vm, startDestination.value) { startDestination.value = null }
+                SleepBetterUi(vm, requested.value) { requested.value = null }
             }
         }
     }
@@ -84,99 +92,130 @@ class MainActivity : ComponentActivity() {
 
     private fun readDestination(intent: Intent?) {
         val name = intent?.getStringExtra(EXTRA_DESTINATION) ?: return
-        startDestination.value = runCatching { Destination.valueOf(name) }.getOrNull()
+        requested.value = runCatching { Destination.valueOf(name) }.getOrNull()
     }
 }
 
-private val tabs = listOf(Destination.TONIGHT, Destination.FOCUS, Destination.WIND_DOWN, Destination.LAST_NIGHT, Destination.VISITORS)
+private val tabs = listOf(Destination.HOME, Destination.SOUNDS, Destination.INSIGHTS, Destination.FRIENDS)
+private val fullScreen = setOf(Destination.FOCUS, Destination.WIND_DOWN, Destination.SLEEP, Destination.CHECK_IN)
 
 @Composable
 fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: () -> Unit) {
-    var dest by rememberSaveable { mutableStateOf(if (vm.repository.sleepStartedAt != null) Destination.SLEEP else Destination.TONIGHT) }
+    var dest by rememberSaveable { mutableStateOf(if (vm.repository.sleepStartedAt != null) Destination.SLEEP else Destination.HOME) }
     LaunchedEffect(requested) {
         if (requested != null) {
             dest = requested
             onRequestHandled()
         }
     }
-    val mix by vm.mix.collectAsStateWithLifecycle()
-    val still = rememberReduceMotion()
+    BackHandler(enabled = dest != Destination.HOME && dest != Destination.SLEEP) {
+        dest = if (dest == Destination.CHECK_IN) Destination.INSIGHTS else Destination.HOME
+    }
 
-    BackHandler(enabled = dest != Destination.TONIGHT && dest != Destination.SLEEP) { dest = Destination.TONIGHT }
-
-    Box(Modifier.fillMaxSize().background(Palette.Night)) {
-        if (dest != Destination.SLEEP && dest != Destination.LAST_NIGHT) {
-            AuroraBackground(mix.active.map { it.uiColor() }.take(3), still = still)
-        }
+    Box(Modifier.fillMaxSize().background(Palette.Paper)) {
         AnimatedContent(
             targetState = dest,
-            transitionSpec = {
-                (fadeIn() + scaleIn(spring(0.7f, 400f), initialScale = 0.96f)) togetherWith fadeOut()
-            },
+            transitionSpec = { (fadeIn() + scaleIn(spring(0.8f, 500f), initialScale = 0.97f)) togetherWith fadeOut() },
             label = "destination",
         ) { d ->
+            val padded = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)
             when (d) {
-                Destination.SLEEP -> Box(Modifier.windowInsetsPadding(WindowInsets.safeDrawing)) {
-                    SleepModeScreen(
-                        vm,
-                        onWake = { logged -> dest = if (logged) Destination.LAST_NIGHT else Destination.TONIGHT },
-                        onBack = { dest = Destination.WIND_DOWN },
-                    )
-                }
-                else -> Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
-                    Box(Modifier.weight(1f)) {
-                        when (d) {
-                            Destination.TONIGHT -> TonightScreen(vm, onOpenVisitors = { dest = Destination.VISITORS })
-                            Destination.FOCUS -> FocusScreen(vm)
-                            Destination.WIND_DOWN -> WindDownScreen(vm, onStartSleep = {
-                                vm.startSleep()
-                                dest = Destination.SLEEP
-                            })
-                            Destination.LAST_NIGHT -> RecapScreen(
-                                vm,
-                                onOpenVisitors = { dest = Destination.VISITORS },
-                                onOpenWindDown = { dest = Destination.WIND_DOWN },
-                            )
-                            Destination.VISITORS -> VisitorsScreen(vm)
-                            Destination.SLEEP -> Unit
-                        }
-                    }
-                    GlassNavBar(dest, onSelect = { dest = it })
-                }
+                Destination.HOME -> HomeScreen(
+                    vm,
+                    onWindDown = { dest = Destination.WIND_DOWN },
+                    onFocus = { dest = Destination.FOCUS },
+                    onSounds = { dest = Destination.SOUNDS },
+                    onInsights = { dest = Destination.INSIGHTS },
+                    onFriends = { dest = Destination.FRIENDS },
+                    modifier = padded,
+                )
+                Destination.SOUNDS -> SoundsScreen(vm, padded)
+                Destination.INSIGHTS -> InsightsScreen(vm, onWindDown = { dest = Destination.WIND_DOWN }, onFriends = { dest = Destination.FRIENDS }, modifier = padded)
+                Destination.FRIENDS -> FriendsScreen(vm, padded)
+                Destination.FOCUS -> FocusScreen(vm, onBack = { dest = Destination.HOME }, modifier = padded)
+                Destination.WIND_DOWN -> WindDownScreen(vm, onBack = { dest = Destination.HOME }, onStartSleep = {
+                    vm.startSleep()
+                    dest = Destination.SLEEP
+                })
+                Destination.SLEEP -> SleepModeScreen(
+                    vm,
+                    onWake = { logged -> dest = if (logged) Destination.CHECK_IN else Destination.HOME },
+                    onBack = { dest = Destination.WIND_DOWN },
+                )
+                Destination.CHECK_IN -> CheckInScreen(vm, onDone = { dest = Destination.INSIGHTS }, modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing))
             }
+        }
+
+        AnimatedVisibility(
+            visible = dest !in fullScreen,
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut(),
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            NavBar(dest, onSelect = { dest = it }, onMoon = { dest = Destination.WIND_DOWN })
+        }
+    }
+}
+
+/** Floating nav: four tabs and a raised moon in the middle that starts the bedtime flow. */
+@Composable
+private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .height(72.dp)
+                .shadow(18.dp, RoundedCornerShape(36.dp), ambientColor = Color(0x332B2238), spotColor = Color(0x332B2238))
+                .clip(RoundedCornerShape(36.dp))
+                .background(Color.White)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            NavItem(Glyph.HOME, "Home", current == Destination.HOME) { onSelect(Destination.HOME) }
+            NavItem(Glyph.SOUNDS, "Sounds", current == Destination.SOUNDS) { onSelect(Destination.SOUNDS) }
+            Box(Modifier.size(64.dp))
+            NavItem(Glyph.CHART, "Insights", current == Destination.INSIGHTS) { onSelect(Destination.INSIGHTS) }
+            NavItem(Glyph.FRIENDS, "Friends", current == Destination.FRIENDS) { onSelect(Destination.FRIENDS) }
+        }
+        Box(
+            Modifier
+                .offset(y = (-26).dp)
+                .size(64.dp)
+                .shadow(14.dp, CircleShape, ambientColor = Palette.LavenderDeep, spotColor = Palette.LavenderDeep)
+                .clip(CircleShape)
+                .background(Palette.Ink)
+                .pressable(onClick = onMoon)
+                .semantics { contentDescription = "Wind down and sleep" }
+                .align(Alignment.TopCenter),
+            contentAlignment = Alignment.Center,
+        ) {
+            GlyphIcon(Glyph.MOON, Palette.Moon, size = 28.dp, strokeWidth = 2.2f)
         }
     }
 }
 
 @Composable
-private fun GlassNavBar(current: Destination, onSelect: (Destination) -> Unit) {
-    Row(
+private fun NavItem(glyph: Glyph, label: String, on: Boolean, onClick: () -> Unit) {
+    val tint by animateColorAsState(if (on) Palette.Ink else Palette.InkMuted, label = "tint")
+    val pill by animateColorAsState(if (on) Palette.Lavender else Color.Transparent, label = "pill")
+    Column(
         Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 10.dp)
-            .glass(RoundedCornerShape(32.dp))
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+            .clip(RoundedCornerShape(20.dp))
+            .pressable(role = Role.Tab, onClick = onClick)
+            .semantics { selected = on }
+            .padding(horizontal = 6.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        tabs.forEach { tab ->
-            val on = tab == current
-            Box(
-                Modifier
-                    .weight(if (on) 1.6f else 1f)
-                    .heightIn(min = 52.dp)
-                    .clip(RoundedCornerShape(26.dp))
-                    .background(if (on) Color.White else Color.Transparent)
-                    .clickable(role = Role.Tab) { onSelect(tab) }
-                    .semantics { selected = on },
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    tab.label,
-                    style = Type.Small.copy(fontWeight = if (on) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal),
-                    color = if (on) Color(0xFF0A0B1C) else Palette.InkSoft,
-                    maxLines = 1,
-                )
-            }
+        Box(Modifier.clip(RoundedCornerShape(14.dp)).background(pill).padding(horizontal = 14.dp, vertical = 4.dp)) {
+            GlyphIcon(glyph, tint, size = 22.dp)
         }
+        Text(label, style = Type.Small, color = tint)
     }
 }

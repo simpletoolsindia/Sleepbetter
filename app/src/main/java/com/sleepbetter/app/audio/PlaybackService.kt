@@ -129,7 +129,7 @@ class PlaybackService : Service() {
         val names = engine.state.value.active.joinToString(", ") { it.label }.ifEmpty { "Nothing playing" }
         return NotificationCompat.Builder(this, SleepBetterApp.CHANNEL_PLAYBACK)
             .setSmallIcon(R.drawable.ic_moon)
-            .setContentTitle(if (playing) "Your island is playing" else "Paused")
+            .setContentTitle(if (playing) "Your sounds are playing" else "Paused")
             .setContentText(names)
             .setContentIntent(open)
             .setOngoing(playing)
