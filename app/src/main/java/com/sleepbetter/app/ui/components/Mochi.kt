@@ -50,7 +50,7 @@ import kotlin.math.sin
  */
 enum class Species(val body: Color, val shade: Color, val description: String) {
     MOCHI(Color(0xFFFFFFFF), Color(0xFFE4DDF7), "Mochi the panda"),
-    TOFFEE(Color(0xFFD9A273), Color(0xFFBE8456), "Toffee the capybara"),
+    TOFFEE(Color(0xFFC99A6E), Color(0xFFAA7C54), "Toffee the capybara"),
     ELEPHANT(Color(0xFFC3CEEA), Color(0xFFA3B2DA), "Pebble the elephant"),
     FOX(Color(0xFFFFB98E), Color(0xFFF29A68), "Ember the fox"),
     OWL(Color(0xFFC9BCF7), Color(0xFFA996F0), "Hoot the owl"),
@@ -273,9 +273,9 @@ internal fun DrawScope.drawCharacter(
                 shape(Path().apply { moveTo(92f, 34f); lineTo(88f, 10f); lineTo(70f, 26f); close() }, body)
             }
             Species.TOFFEE -> {
-                // Small, high capybara ears.
-                oval(Offset(26f, 12f), Size(15f, 13f), shade)
-                oval(Offset(79f, 12f), Size(15f, 13f), shade)
+                // Tiny capybara ears, set far back on the sides.
+                oval(Offset(19f, 22f), Size(11f, 9f), shade)
+                oval(Offset(90f, 22f), Size(11f, 9f), shade)
             }
             Species.ELEPHANT -> {
                 // Big floppy ears that flap slowly.
@@ -299,23 +299,32 @@ internal fun DrawScope.drawCharacter(
 
     // Head: shaded underside, the body colour on top, then one clean outline.
     val headY = if (withBody) 44f else 56f
-    val head = blobPath(wobble, cy = headY, rx = 43f, ry = 34f)
+    // A capybara's head is wider and flatter than everyone else's.
+    val headRx = if (species == Species.TOFFEE) 46f else 43f
+    val headRy = if (species == Species.TOFFEE) 30f else 34f
+    val head = blobPath(wobble, cy = headY, rx = headRx, ry = headRy)
     drawPath(head, shade)
     withTransform({ translate(top = -2.5f); scale(0.96f, 0.93f, pivot = Offset(60f, headY - 16f)) }) {
-        drawPath(blobPath(wobble, cy = headY, rx = 43f, ry = 34f), body)
+        drawPath(blobPath(wobble, cy = headY, rx = headRx, ry = headRy), body)
     }
     drawPath(head, line, style = stroke)
 
     if (species == Species.TOFFEE) {
         if (face) {
             // Toffee's own mark: a two-leaf sprout.
-            drawLine(line, Offset(60f, headY - 33f), Offset(60f, headY - 42f), 2.2f, StrokeCap.Round)
-            shape(Path().apply { moveTo(60f, headY - 41f); quadraticBezierTo(50f, headY - 50f, 47f, headY - 41f); quadraticBezierTo(53f, headY - 36f, 60f, headY - 41f); close() }, Color(0xFF8CC56B))
-            shape(Path().apply { moveTo(60f, headY - 41f); quadraticBezierTo(70f, headY - 52f, 74f, headY - 43f); quadraticBezierTo(67f, headY - 36f, 60f, headY - 41f); close() }, Color(0xFFA8D98A))
+            drawLine(line, Offset(60f, headY - 29f), Offset(60f, headY - 38f), 2.2f, StrokeCap.Round)
+            shape(Path().apply { moveTo(60f, headY - 37f); quadraticBezierTo(50f, headY - 46f, 47f, headY - 37f); quadraticBezierTo(53f, headY - 32f, 60f, headY - 37f); close() }, Color(0xFF8CC56B))
+            shape(Path().apply { moveTo(60f, headY - 37f); quadraticBezierTo(70f, headY - 48f, 74f, headY - 39f); quadraticBezierTo(67f, headY - 32f, 60f, headY - 37f); close() }, Color(0xFFA8D98A))
         }
-        // A wide, soft muzzle under the eyes, with a little nose.
-        shape(Path().apply { addOval(Rect(Offset(42f, headY + 4f), Size(36f, 22f))) }, if (face) Color(0xFFF0D2AC) else body)
-        if (face) drawOval(Outline, Offset(55f, headY + 6.5f), Size(10f, 5.5f))
+        // The big, blunt capybara snout: a wide rounded block with two nostrils.
+        shape(
+            Path().apply { addRoundRect(androidx.compose.ui.geometry.RoundRect(Rect(Offset(34f, headY + 1f), Size(52f, 26f)), androidx.compose.ui.geometry.CornerRadius(14f))) },
+            if (face) Color(0xFFB98A61) else body,
+        )
+        if (face) {
+            drawOval(Outline, Offset(51f, headY + 7f), Size(4.5f, 7f))
+            drawOval(Outline, Offset(64.5f, headY + 7f), Size(4.5f, 7f))
+        }
     }
     if (species == Species.ELEPHANT) {
         // Pebble's new thing: a striped nightcap with a pom-pom, tipped to one side.
@@ -360,13 +369,13 @@ internal fun DrawScope.drawCharacter(
     val smile = (mood - 2f) / 2f // -1..1
     // Baby-face proportions: big eyes set low and wide, a tiny mouth.
     val eyeY = headY + when (species) {
-        Species.TOFFEE -> -2f
+        Species.TOFFEE -> -8f
         Species.ELEPHANT -> 1f
         else -> 5f
     }
-    val lx = 42f
-    val rx = 78f
-    val mouthY = eyeY + if (species == Species.TOFFEE) 16f else 10f
+    val lx = if (species == Species.TOFFEE) 37f else 42f
+    val rx = if (species == Species.TOFFEE) 83f else 78f
+    val mouthY = eyeY + if (species == Species.TOFFEE) 27f else 10f
     if (panda) {
         // Droopy teardrop eye patches, tilted outwards: sleepy and soft.
         rotate(22f, pivot = Offset(lx, eyeY)) { drawOval(Patch, Offset(lx - 9.5f, eyeY - 9f), Size(19f, 22f)) }
@@ -411,6 +420,8 @@ internal fun DrawScope.drawCharacter(
     val mouth = Stroke(2.6f, cap = StrokeCap.Round, join = StrokeJoin.Round)
     when {
         species == Species.ELEPHANT -> Unit // the trunk is the face
+        species == Species.TOFFEE && !sleeping && mood <= 3.5f ->
+            drawPath(Path().apply { moveTo(55f, mouthY); quadraticBezierTo(60f, mouthY + 3f + 2f * smile.coerceAtLeast(-1f), 65f, mouthY) }, Outline, style = mouth)
         sleeping -> drawOval(Outline, Offset(57.5f, mouthY - 1f), Size(5f, 4f))
         mood > 3.5f -> {
             // Open, happy mouth with a little tongue.
