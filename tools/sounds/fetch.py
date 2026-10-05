@@ -31,6 +31,7 @@ WANTED = {
     "WD": (["water drops cave", "water dripping", "dripping water cave"], ["tap", "sink", "music", "faucet"], "plain"),
 }
 
+DEBUG = {}
 LICENCE_OK = ("creativecommons.org/publicdomain/zero", "Creative Commons 0", "CC0")
 
 
@@ -67,7 +68,14 @@ def inspect(url):
         m = re.search(r'(https://cdn\.freesound\.org/previews/[^"\']+?-(?:hq|lq)\.(?:mp3|ogg))', page)
         preview = m.group(1) if m else None
     if preview:
+        preview = html.unescape(preview).strip()
+        if preview.startswith("//"):
+            preview = "https:" + preview
+        elif preview.startswith("/"):
+            preview = "https://freesound.org" + preview
         preview = re.sub(r"-lq\.(mp3|ogg)$", r"-hq.\1", preview)
+    DEBUG.setdefault("pages", []).append({"url": url, "preview": preview,
+        "previews_on_page": sorted(set(re.findall(r'[^"\'\s]*previews/[^"\'\s]+', page)))[:6]})
     licence_block = page[page.find("icense"):][:4000] if "icense" in page else page
     cc0 = any(k in page for k in LICENCE_OK) and "noncommercial" not in licence_block.lower()
     author = url.rstrip("/").split("/")[-3]
@@ -114,8 +122,12 @@ def main(out, report_path):
                     if not preview:
                         tried.append({"url": url, "skip": "no preview"}); continue
                     ext = preview.rsplit(".", 1)[-1]
+                    try:
+                        data = get(preview, binary=True)
+                    except Exception as e:  # noqa: BLE001
+                        raise RuntimeError(f"preview {preview}: {e}")
                     with tempfile.NamedTemporaryFile(suffix="." + ext, delete=False) as fh:
-                        fh.write(get(preview, binary=True))
+                        fh.write(data)
                     loop = process(fh.name, flavour)
                     os.unlink(fh.name)
                     save(loop, f"{out}/{code}.ogg")
@@ -136,6 +148,7 @@ def main(out, report_path):
         with open(f"{out}/CREDITS.txt", "a") as fh:
             fh.write("\nRecordings dedicated to the public domain (CC0) on Freesound, processed the same way:\n\n")
             fh.write("\n".join(credits) + "\n")
+    report["debug"] = {"pages": DEBUG.get("pages", [])[:5]}
     with open(report_path, "w") as fh:
         json.dump(report, fh, indent=1)
 
