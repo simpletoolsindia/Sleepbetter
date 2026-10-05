@@ -248,6 +248,22 @@ internal fun DrawScope.drawCharacter(
     // Ground shadow.
     drawOval(Color(0x1A2B2238), Offset(24f, 91f), Size(72f, 8f))
 
+    val headY = if (withBody) 44f else 56f
+    // Bronty's long neck: the head rides up on it and sways, curious.
+    val bronto = species == Species.BRONTO && withBody
+    val lift = if (bronto) 18f + 4f * sin(wobble * 2f) else 0f
+    val sway = if (bronto) 4f * sin(wobble) else 0f
+    // The neck goes behind the body, so only the part above it shows.
+    if (bronto) {
+        val top = headY + 26f - lift
+        shape(
+            Path().apply {
+                moveTo(49f, 84f); cubicTo(48f, 66f, 50f, top + 6f, 52f + sway, top)
+                lineTo(68f + sway, top); cubicTo(70f, top + 6f, 72f, 66f, 71f, 84f); close()
+            },
+            body,
+        )
+    }
     val dino = species.isDino
     if (withBody) {
         if (dino && species != Species.PTERO) {
@@ -293,21 +309,6 @@ internal fun DrawScope.drawCharacter(
         }
     }
 
-    val headY = if (withBody) 44f else 56f
-    // Bronty's long neck: the head rides up on it and sways, curious.
-    val bronto = species == Species.BRONTO && withBody
-    val lift = if (bronto) 18f + 4f * sin(wobble * 2f) else 0f
-    val sway = if (bronto) 4f * sin(wobble) else 0f
-    if (bronto) {
-        val top = headY + 26f - lift
-        shape(
-            Path().apply {
-                moveTo(48f, 70f); cubicTo(47f, 62f, 50f, top + 6f, 52f + sway, top)
-                lineTo(68f + sway, top); cubicTo(70f, top + 6f, 73f, 62f, 72f, 70f); close()
-            },
-            body,
-        )
-    }
     withTransform({
         if (bronto) {
             translate(left = sway, top = -lift)
@@ -366,20 +367,20 @@ internal fun DrawScope.drawCharacter(
                     val plate = Color(0xFFFF9DB0)
                     if (sleeping && face) {
                         val glow = 0.35f + 0.25f * sin(wobble * 3f)
-                        drawCircle(Brush.radialGradient(listOf(plate.copy(alpha = glow), Color.Transparent), Offset(60f, 14f), 44f), 44f, Offset(60f, 14f))
+                        drawCircle(Brush.radialGradient(listOf(plate.copy(alpha = glow), Color.Transparent), Offset(60f, 16f), 46f), 46f, Offset(60f, 16f))
                     }
-                    listOf(Triple(40f, 18f, 0.8f), Triple(60f, 8f, 1f), Triple(80f, 18f, 0.8f)).forEach { (x, y, k) ->
-                        shape(heartPath(Offset(x, y), 13f * k), if (face) plate else body)
+                    listOf(Triple(36f, 21f, 0.82f), Triple(60f, 14f, 1f), Triple(84f, 21f, 0.82f)).forEach { (x, y, k) ->
+                        shape(heartPath(Offset(x, y), 26f * k), if (face) plate else body)
                     }
                 }
                 Species.TRIKE -> {
                     // A big scalloped frill behind the head.
-                    val c = Offset(60f, 48f)
+                    val c = Offset(60f, 46f)
                     for (k in 0..6) {
                         val a = Math.PI.toFloat() * (1.08f + k * 0.14f)
-                        oval(Offset(c.x + 50f * kotlin.math.cos(a) - 8f, c.y + 42f * sin(a) - 8f), Size(16f, 16f), if (face) shade else body)
+                        oval(Offset(c.x + 44f * kotlin.math.cos(a) - 7f, c.y + 36f * sin(a) - 7f), Size(14f, 14f), if (face) shade else body)
                     }
-                    shape(Path().apply { addOval(Rect(c, 48f)) }, if (face) Color(0xFFFFE7C7) else body)
+                    shape(Path().apply { addOval(Rect(c, 42f)) }, if (face) Color(0xFFFFE7C7) else body)
                 }
                 Species.PTERO -> {
                     // A swept-back crest.
