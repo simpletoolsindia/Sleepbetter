@@ -83,9 +83,10 @@ def process(path, flavour):
         x = low_shelf(x, 200, 2)  # a little body for fire and surf
     loop = seamless(x, min(60, len(x) / SR - 4))
     loop *= 10 ** ((-20 - rms_db(loop)) / 20)
-    peak = np.abs(loop).max()
-    if peak > 0.98:  # keep loud crackles from clipping, at the cost of a little loudness
-        loop *= 0.98 / peak
+    # Round off the rare loud crackle or crash instead of turning everything down.
+    knee = 0.7
+    over = np.abs(loop) > knee
+    loop[over] = np.sign(loop[over]) * (knee + 0.28 * np.tanh((np.abs(loop[over]) - knee) / 0.28))
     return loop
 
 
