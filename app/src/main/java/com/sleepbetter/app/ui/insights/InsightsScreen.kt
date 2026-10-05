@@ -132,13 +132,13 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
         val shown = rememberCountUp(if (report.enoughData) report.score.toFloat() else 0f)
         BentoCard(Modifier.fillMaxWidth(), color = if (report.enoughData) report.level.tint() else Palette.Card) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Ring(shown / 100f, if (report.enoughData) report.level.deep() else Palette.Line, Modifier.size(96.dp), track = Color.White.copy(alpha = 0.6f)) {
+                Ring(shown / 100f, if (report.enoughData) report.level.deep() else Palette.Line, Modifier.size(96.dp), track = Palette.veil(0.6f)) {
                     Text(if (report.enoughData) shown.roundToInt().toString() else "–", style = Type.Title.copy(fontSize = 30.sp), color = Palette.Ink)
                 }
                 Column(Modifier.padding(start = 16.dp)) {
                     Text("Sleep score", style = Type.Label, color = Palette.InkSoft)
                     if (report.enoughData) {
-                        LevelBadge(report.level.label, Color.White.copy(alpha = 0.7f), report.level.deep(), levelGlyph(report.level), Modifier.padding(top = 6.dp))
+                        LevelBadge(report.level.label, Palette.veil(0.7f), report.level.deep(), levelGlyph(report.level), Modifier.padding(top = 6.dp))
                         Text("${report.steadyNights} steady bedtimes this week", style = Type.Small, color = Palette.InkSoft, modifier = Modifier.padding(top = 6.dp))
                     } else {
                         Text("Log ${3 - report.nights} more nights to see your level", style = Type.Body, color = Palette.Ink, modifier = Modifier.padding(top = 4.dp))

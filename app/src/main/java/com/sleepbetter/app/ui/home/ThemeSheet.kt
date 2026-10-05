@@ -29,6 +29,19 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.sleepbetter.app.ui.theme.Appearance
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import com.sleepbetter.app.ui.components.Glyph
 import com.sleepbetter.app.ui.components.GlyphIcon
 import com.sleepbetter.app.ui.components.pressable
@@ -39,14 +52,22 @@ import com.sleepbetter.app.ui.theme.Type
 /** Pick a colour theme. Each card previews the theme's dusk sky, hills and accents; tapping recolours the app at once. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ThemeSheet(current: AppTheme, onPick: (AppTheme) -> Unit, onDismiss: () -> Unit) {
+fun ThemeSheet(
+    current: AppTheme,
+    onPick: (AppTheme) -> Unit,
+    appearance: Appearance,
+    onAppearance: (Appearance) -> Unit,
+    onDismiss: () -> Unit,
+) {
     val sheetColor by animateColorAsState(Palette.Paper, label = "sheet")
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = sheetColor) {
         Column(
             Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp).padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Text("Colour theme", style = Type.Title, color = Palette.Ink)
+            Text("Light or dark", style = Type.Title, color = Palette.Ink)
+            AppearanceToggle(appearance, onAppearance)
+            Text("Colour theme", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 8.dp))
             Text("Calm colours for day and night. Your sounds and sleep data stay the same.", style = Type.Body, color = Palette.InkSoft)
             AppTheme.entries.forEach { t -> ThemeRow(t, t == current) { onPick(t) } }
         }
@@ -91,5 +112,58 @@ private fun ThemeRow(theme: AppTheme, on: Boolean, onClick: () -> Unit) {
             Modifier.size(28.dp).clip(CircleShape).background(if (on) c.accentDeep else c.line),
             contentAlignment = Alignment.Center,
         ) { if (on) GlyphIcon(Glyph.CHECK, Color.White, size = 16.dp) }
+    }
+}
+
+/**
+ * Light / Dark / Auto as one pill with a knob that springs across. The
+ * chosen emoji spins in as the knob arrives; the whole app's colours morph
+ * at the same time.
+ */
+@Composable
+private fun AppearanceToggle(current: Appearance, onPick: (Appearance) -> Unit) {
+    val options = Appearance.entries
+    val index = options.indexOf(current)
+    val slide by animateFloatAsState(index.toFloat(), spring(0.62f, 380f), label = "knob")
+    val spin = remember { Animatable(0f) }
+    LaunchedEffect(current) {
+        spin.snapTo(-180f)
+        spin.animateTo(0f, spring(0.5f, 260f))
+    }
+    BoxWithConstraints(
+        Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Palette.Line)
+            .padding(4.dp),
+    ) {
+        val w = maxWidth / options.size
+        Box(
+            Modifier
+                .offset(x = w * slide)
+                .width(w)
+                .fillMaxHeight()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Palette.Card),
+        )
+        Row(Modifier.fillMaxSize()) {
+            options.forEach { o ->
+                val on = o == current
+                Row(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(24.dp))
+                        .pressable(role = Role.RadioButton) { onPick(o) }
+                        .semantics { selected = on },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(o.emoji, fontSize = 18.sp, modifier = Modifier.graphicsLayer { rotationZ = if (on) spin.value else 0f })
+                    Text(o.label, style = Type.Label, color = if (on) Palette.Ink else Palette.InkMuted, modifier = Modifier.padding(start = 6.dp))
+                }
+            }
+        }
     }
 }

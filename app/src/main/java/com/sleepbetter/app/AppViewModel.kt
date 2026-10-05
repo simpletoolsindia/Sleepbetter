@@ -7,6 +7,7 @@ import com.sleepbetter.app.audio.TimerChoice
 import com.sleepbetter.app.reminders.ReminderScheduler
 import com.sleepbetter.app.ui.components.Haptics
 import com.sleepbetter.app.ui.theme.AppTheme
+import com.sleepbetter.app.ui.theme.Appearance
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.core.mix.Mix
 import com.sleepbetter.core.mix.MixCodec
@@ -144,6 +145,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         Palette.theme = AppTheme.entries.firstOrNull { it.name == settings.value.theme } ?: AppTheme.MOON_MILK
+        Palette.appearance = Appearance.entries.firstOrNull { it.name == settings.value.appearance } ?: Appearance.AUTO
+    }
+
+    fun setAppearance(appearance: Appearance) {
+        Palette.appearance = appearance
+        repository.updateSettings { it.copy(appearance = appearance.name) }
     }
 
     fun setTheme(theme: AppTheme) {

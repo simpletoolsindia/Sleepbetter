@@ -110,7 +110,7 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                     LaunchedEffect(Unit) { grow.animateTo(1f, tween(900)) }
                     repeat(segments) { i ->
                         val filled = i < (steady * segments / needed) * grow.value
-                        Box(Modifier.weight(1f).height(10.dp).background(if (filled) Palette.Ink else Color.White.copy(alpha = 0.7f), RoundedCornerShape(5.dp)))
+                        Box(Modifier.weight(1f).height(10.dp).background(if (filled) Palette.Ink else Palette.veil(0.7f), RoundedCornerShape(5.dp)))
                     }
                 }
                 Text("Steady means in bed within 30 min of ${settings.bedtimeLabel}.", style = Type.Small, color = Palette.InkSoft, modifier = Modifier.padding(top = 8.dp))
@@ -151,7 +151,7 @@ private fun FriendCard(visitor: Visitor, unlocked: Boolean, selected: Boolean, m
     val bg = when {
         !unlocked -> Palette.Card
         species == Species.MOCHI -> Palette.Accent // Mochi is white; a white card would hide it
-        else -> lerp(Color.White, species.body, 0.35f)
+        else -> lerp(Palette.Card, species.body, 0.35f - 0.12f * Palette.darkness)
     }
     Column(
         modifier

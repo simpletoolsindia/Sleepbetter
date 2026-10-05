@@ -126,7 +126,7 @@ fun SoundsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             MorphPlayButton(
                 mix.playing, vm::togglePlay,
                 Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                diameter = 58.dp, color = Color.White, iconColor = Palette.Ink,
+                diameter = 58.dp, color = Color.White, iconColor = Palette.DarkInk,
             )
         }
 

@@ -113,7 +113,7 @@ fun HomeScreen(
         }
     }
     var picking by remember { mutableStateOf(false) }
-    if (picking) ThemeSheet(Palette.theme, vm::setTheme) { picking = false }
+    if (picking) ThemeSheet(Palette.theme, vm::setTheme, Palette.appearance, vm::setAppearance) { picking = false }
     val untilBed = Math.floorMod(settings.bedtimeMinute - (now.hour * 60 + now.minute), 1440)
 
     Column(
@@ -172,9 +172,9 @@ fun HomeScreen(
                 Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                PrimaryButton("Wind down", onWindDown, Modifier.weight(1f), color = Palette.Moon, textColor = Palette.Ink, glyph = Glyph.MOON)
+                PrimaryButton("Wind down", onWindDown, Modifier.weight(1f), color = Palette.Moon, textColor = Palette.DarkInk, glyph = Glyph.MOON)
                 Spacer(Modifier.width(10.dp))
-                MorphPlayButton(mix.playing, vm::togglePlay, diameter = 56.dp, color = Color.White, iconColor = Palette.Ink)
+                MorphPlayButton(mix.playing, vm::togglePlay, diameter = 56.dp, color = Color.White, iconColor = Palette.DarkInk)
             }
         }
 
@@ -223,13 +223,13 @@ private fun ScoreCard(score: Int, level: RiskLevel, enough: Boolean, modifier: M
             progress = shown / 100f,
             color = if (enough) level.deep() else Palette.Line,
             modifier = Modifier.padding(top = 10.dp).size(92.dp),
-            track = Color.White.copy(alpha = 0.6f),
+            track = Palette.veil(0.6f),
         ) {
             Text(if (enough) shown.roundToInt().toString() else "–", style = Type.Title.copy(fontSize = 30.sp), color = Palette.Ink)
         }
         Spacer(Modifier.height(10.dp))
         if (enough) {
-            LevelBadge(level.label, Color.White.copy(alpha = 0.7f), level.deep(), levelGlyph(level))
+            LevelBadge(level.label, Palette.veil(0.7f), level.deep(), levelGlyph(level))
         } else {
             Text("After 3 nights", style = Type.Small, color = Palette.InkMuted)
         }
@@ -260,7 +260,7 @@ private fun LastNightCard(minutes: Int?, week: List<Int>, modifier: Modifier, on
 
 /** Rounded pill bars; full height = 9 hours, the dashed line marks 7 hours. */
 @Composable
-fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.AccentDeep, goalLine: Color = Color.White) {
+fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.AccentDeep, goalLine: Color = Palette.veil(0.9f)) {
     // Bars grow up one after another when the card appears.
     val still = rememberReduceMotion()
     val grow = remember { Animatable(if (still) 1f else 0f) }
@@ -287,7 +287,7 @@ private fun BreathingRings(time: Float, still: Boolean) {
         val r = size.minDimension / 2f
         drawCircle(Palette.PeachDeep.copy(alpha = 0.18f), r * (0.6f + 0.4f * phase))
         drawCircle(Palette.PeachDeep.copy(alpha = 0.3f), r * (0.4f + 0.3f * phase))
-        drawCircle(Color.White, r * 0.22f)
+        drawCircle(Palette.Card, r * 0.22f)
     }
 }
 
@@ -312,7 +312,7 @@ private fun PresetCard(template: MixTemplate, playing: Boolean, onClick: () -> U
         ) {
             Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
                 sounds.forEach { id ->
-                    Box(Modifier.size(34.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(34.dp).clip(CircleShape).background(Palette.Card), contentAlignment = Alignment.Center) {
                         GlyphIcon(id.glyph(), id.deep(), size = 18.dp)
                     }
                 }
@@ -366,7 +366,7 @@ private fun EqualizerBadge(modifier: Modifier = Modifier) {
     val time by rememberClock()
     val still = rememberReduceMotion()
     Row(
-        modifier.clip(RoundedCornerShape(10.dp)).background(Color.White).padding(horizontal = 7.dp, vertical = 6.dp),
+        modifier.clip(RoundedCornerShape(10.dp)).background(Palette.Card).padding(horizontal = 7.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.Bottom,
     ) {

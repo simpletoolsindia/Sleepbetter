@@ -74,7 +74,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
 
     Column(
         modifier
-            .background(lerp(Palette.Paper, bg, 0.55f))
+            .background(lerp(Palette.Paper, bg, 0.55f - 0.35f * Palette.darkness))
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 22.dp),
     ) {
@@ -93,7 +93,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
         }
 
         Box(Modifier.fillMaxWidth().padding(vertical = 18.dp).enter(0), contentAlignment = Alignment.Center) {
-            Box(Modifier.size(240.dp).background(Color.White.copy(alpha = 0.55f), CircleShape))
+            Box(Modifier.size(240.dp).background(Palette.veil(0.55f), CircleShape))
             MochiView(Modifier.size(210.dp), mood = mood)
             BouncyEmoji(current.emoji, Modifier.align(Alignment.TopEnd).padding(end = 18.dp).floaty(amplitude = 4f))
         }
@@ -102,7 +102,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
             value = mood,
             onValueChange = { mood = it },
             valueRange = 0f..4f,
-            colors = SliderDefaults.colors(thumbColor = Palette.Ink, activeTrackColor = Palette.Ink, inactiveTrackColor = Color.White),
+            colors = SliderDefaults.colors(thumbColor = Palette.Ink, activeTrackColor = Palette.Ink, inactiveTrackColor = Palette.Card),
             modifier = Modifier.padding(top = 8.dp).semantics { stateDescription = current.label },
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -114,11 +114,11 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             NightTag.entries.forEach { tag ->
                 val on = tag in tags
-                val chipBg by animateColorAsState(if (on) Palette.Ink else Color.White, label = "chip")
+                val chipBg by animateColorAsState(if (on) Palette.Ink else Palette.Card, label = "chip")
                 Text(
                     "${tag.emoji} ${tag.label}",
                     style = Type.Label,
-                    color = if (on) Color.White else Palette.Ink,
+                    color = if (on) Palette.OnInk else Palette.Ink,
                     modifier = Modifier
                         .clip(RoundedCornerShape(20.dp))
                         .background(chipBg)

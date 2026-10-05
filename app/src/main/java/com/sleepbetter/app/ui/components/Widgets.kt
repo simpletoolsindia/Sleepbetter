@@ -79,7 +79,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     color: Color = Palette.Ink,
-    textColor: Color = Color.White,
+    textColor: Color = Palette.OnInk,
     glyph: Glyph? = null,
 ) {
     Row(
@@ -115,7 +115,7 @@ fun CircleButton(glyph: Glyph, description: String, onClick: () -> Unit, modifie
 
 /** Pill tabs; the selected one is a white chip on a soft track. */
 @Composable
-fun <T> SegmentedTabs(options: List<T>, selected: T, label: (T) -> String, onSelect: (T) -> Unit, modifier: Modifier = Modifier, track: Color = Color(0xFFEDE8EF)) {
+fun <T> SegmentedTabs(options: List<T>, selected: T, label: (T) -> String, onSelect: (T) -> Unit, modifier: Modifier = Modifier, track: Color = Palette.Line) {
     Row(
         modifier
             .clip(RoundedCornerShape(24.dp))
@@ -161,7 +161,7 @@ fun <T> ChoiceRow(options: List<T>, selected: T, label: (T) -> String, onSelect:
                     .semantics { this.selected = on },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(label(option), style = Type.Label, color = if (on) Color.White else Palette.InkSoft, maxLines = 1)
+                Text(label(option), style = Type.Label, color = if (on) Palette.OnInk else Palette.InkSoft, maxLines = 1)
             }
         }
     }
@@ -169,7 +169,7 @@ fun <T> ChoiceRow(options: List<T>, selected: T, label: (T) -> String, onSelect:
 
 /** A progress ring with rounded ends; [content] sits in the middle. */
 @Composable
-fun Ring(progress: Float, color: Color, modifier: Modifier = Modifier, track: Color = Color(0x1F2B2238), stroke: Dp = 10.dp, content: @Composable BoxScope.() -> Unit = {}) {
+fun Ring(progress: Float, color: Color, modifier: Modifier = Modifier, track: Color = Palette.Ink.copy(alpha = 0.12f), stroke: Dp = 10.dp, content: @Composable BoxScope.() -> Unit = {}) {
     Box(modifier, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val w = stroke.toPx()
@@ -218,7 +218,7 @@ fun SoundTile(id: SoundId, on: Boolean, level: Float, time: Float, onClick: () -
                         rotationZ = -12f * k
                     }
                     .clip(CircleShape)
-                    .background(if (on) Color.White.copy(alpha = 0.7f) else id.tint()),
+                    .background(if (on) Palette.veil(0.7f) else id.tint()),
                 contentAlignment = Alignment.Center,
             ) { GlyphIcon(id.glyph(), id.deep(), size = 22.dp) }
             Spacer(Modifier.weight(1f))
@@ -249,7 +249,7 @@ private fun LevelBars(level: Float, time: Float, color: Color) {
 
 /** Play button that morphs circle → rounded square and turns a quarter while playing. */
 @Composable
-fun MorphPlayButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, diameter: Dp = 64.dp, color: Color = Palette.Ink, iconColor: Color = Color.White) {
+fun MorphPlayButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, diameter: Dp = 64.dp, color: Color = Palette.Ink, iconColor: Color = Palette.OnInk) {
     val corner by animateDpAsState(if (playing) 22.dp else diameter / 2, spring(0.5f, Spring.StiffnessMediumLow), label = "corner")
     val turn by animateFloatAsState(if (playing) 90f else 0f, spring(0.5f, Spring.StiffnessLow), label = "turn")
     Box(
@@ -297,7 +297,7 @@ fun LevelBadge(text: String, bg: Color, fg: Color, glyph: Glyph, modifier: Modif
 }
 
 @Composable
-fun Dots(count: Int, filled: Int, color: Color, modifier: Modifier = Modifier, empty: Color = Color(0x1F2B2238)) {
+fun Dots(count: Int, filled: Int, color: Color, modifier: Modifier = Modifier, empty: Color = Palette.Ink.copy(alpha = 0.12f)) {
     Row(modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(count) { i -> Box(Modifier.size(10.dp).background(if (i < filled) color else empty, CircleShape)) }
     }

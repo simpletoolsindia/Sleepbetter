@@ -20,6 +20,7 @@ import com.sleepbetter.app.ui.components.SceneFrames
 import com.sleepbetter.app.ui.components.Species
 import com.sleepbetter.core.audio.SoundId
 import com.sleepbetter.app.ui.theme.AppTheme
+import com.sleepbetter.app.ui.theme.Appearance
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
 import com.sleepbetter.core.sleep.NightTag
@@ -57,6 +58,12 @@ class ScreenshotTest {
     @Test fun soundsCoolBlue() = shot(Destination.SOUNDS, "11-theme-cool-blue-sounds", theme = AppTheme.COOL_BLUE)
     @Test fun insightsPlum() = shot(Destination.INSIGHTS, "12-theme-plum-noir-insights", theme = AppTheme.PLUM_NOIR)
     @Test fun windDownAmber() = shot(Destination.WIND_DOWN, "13-theme-amber-wind-down", theme = AppTheme.AMBER)
+    @Test fun homeDark() = shot(Destination.HOME, "17-dark-home", dark = true)
+    @Test fun soundsDark() = shot(Destination.SOUNDS, "18-dark-sounds", dark = true)
+    @Test fun insightsDark() = shot(Destination.INSIGHTS, "19-dark-insights", dark = true)
+    @Test fun friendsDark() = shot(Destination.FRIENDS, "20-dark-friends", dark = true)
+    @Test fun checkInDark() = shot(Destination.CHECK_IN, "21-dark-check-in", dark = true)
+    @Test fun homeJadeDark() = shot(Destination.HOME, "22-dark-jade-home", theme = AppTheme.JADE, dark = true)
 
     /** Every friend, plus Pico's moods, sleeping and focus looks. */
     @Test fun characters() {
@@ -103,11 +110,12 @@ class ScreenshotTest {
         file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 
-    private fun shot(destination: Destination, name: String, seed: Boolean = true, theme: AppTheme? = null) {
+    private fun shot(destination: Destination, name: String, seed: Boolean = true, theme: AppTheme? = null, dark: Boolean = false) {
         val app = ApplicationProvider.getApplicationContext<SleepBetterApp>()
         if (seed) seedWeek(app)
         val vm = AppViewModel(app)
         theme?.let(vm::setTheme)
+        if (dark) vm.setAppearance(Appearance.DARK)
         compose.mainClock.autoAdvance = false
         compose.setContent { SleepBetterTheme { SleepBetterUi(vm, destination) {} } }
         compose.mainClock.advanceTimeBy(2_500)

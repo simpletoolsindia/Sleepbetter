@@ -160,7 +160,7 @@ private fun CategoryChip(label: String, on: Boolean, onClick: () -> Unit) {
     Text(
         label,
         style = Type.Label,
-        color = if (on) Color.White else Palette.Ink,
+        color = if (on) Palette.OnInk else Palette.Ink,
         modifier = Modifier
             .clip(RoundedCornerShape(18.dp))
             .background(if (on) Palette.Ink else Palette.Card)
@@ -174,7 +174,7 @@ private fun CategoryChip(label: String, on: Boolean, onClick: () -> Unit) {
 private fun SoundStack(mix: Mix, size: Int = 30) {
     Row(horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
         mix.layers.take(4).forEach { l ->
-            Box(Modifier.size(size.dp).clip(CircleShape).background(Color.White).border(2.dp, l.sound.tint(), CircleShape), contentAlignment = Alignment.Center) {
+            Box(Modifier.size(size.dp).clip(CircleShape).background(Palette.Card).border(2.dp, l.sound.tint(), CircleShape), contentAlignment = Alignment.Center) {
                 GlyphIcon(l.sound.glyph(), l.sound.deep(), size = (size * 0.55f).dp)
             }
         }
@@ -207,7 +207,7 @@ private fun SavedMixRow(saved: SavedMix, playing: Boolean, onPlay: () -> Unit, o
         }
         CircleButton(Glyph.SHARE, "Share ${saved.mix.name}", onShare, bg = Palette.Accent, size = 44.dp)
         Spacer(Modifier.width(6.dp))
-        CircleButton(Glyph.TRASH, "Delete ${saved.mix.name}", { confirmDelete = true }, bg = Color(0xFFF1ECEF), tint = Palette.InkSoft, size = 44.dp)
+        CircleButton(Glyph.TRASH, "Delete ${saved.mix.name}", { confirmDelete = true }, bg = Palette.Line, tint = Palette.InkSoft, size = 44.dp)
     }
     if (confirmDelete) {
         AlertDialog(
@@ -242,9 +242,9 @@ private fun TemplateCard(mix: Mix, blurb: String, emoji: String, playing: Boolea
             SoundStack(mix)
             Text(emoji, fontSize = 28.sp, modifier = Modifier.align(Alignment.BottomStart).floaty(amplitude = 3f, phase = mix.name.length / 9f))
             Box(
-                Modifier.align(Alignment.BottomEnd).size(34.dp).clip(CircleShape).background(if (playing) Palette.Ink else Color.White),
+                Modifier.align(Alignment.BottomEnd).size(34.dp).clip(CircleShape).background(if (playing) Palette.Ink else Palette.Card),
                 contentAlignment = Alignment.Center,
-            ) { GlyphIcon(if (playing) Glyph.SOUNDS else Glyph.PLAY, if (playing) Color.White else Palette.Ink, size = 16.dp) }
+            ) { GlyphIcon(if (playing) Glyph.SOUNDS else Glyph.PLAY, if (playing) Palette.OnInk else Palette.Ink, size = 16.dp) }
         }
         Text(mix.name, style = Type.Heading, color = Palette.Ink, maxLines = 2, modifier = Modifier.padding(start = 4.dp, top = 10.dp))
         Text(blurb, style = Type.Small, color = Palette.InkMuted, maxLines = 2, modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))

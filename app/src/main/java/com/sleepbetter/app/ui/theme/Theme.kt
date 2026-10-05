@@ -1,6 +1,14 @@
 package com.sleepbetter.app.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -100,26 +108,59 @@ enum class AppTheme(val label: String, val blurb: String, val colors: ThemeColor
  */
 object Palette {
     var theme by mutableStateOf(AppTheme.MOON_MILK)
+
+    /** Light, dark, or follow the phone. */
+    var appearance by mutableStateOf(Appearance.AUTO)
+
+    /**
+     * 0 = light, 1 = dark, animated in between, so switching modes morphs
+     * every colour in the app smoothly instead of snapping.
+     */
+    var darkness by mutableFloatStateOf(0f)
+
     private val c get() = theme.colors
+    private val d get() = theme.dark
 
-    val Paper get() = c.paper
-    val Card get() = c.card
-    val Ink get() = c.ink
-    val InkSoft get() = c.inkSoft
-    val InkMuted get() = c.inkMuted
-    val Line get() = c.line
+    /** Blends a light colour towards its dark partner by [darkness]. */
+    private fun m(light: Color, dark: Color): Color = when (val k = darkness) {
+        0f -> light
+        1f -> dark
+        else -> lerp(light, dark, k)
+    }
 
-    val Accent get() = c.accent
-    val AccentDeep get() = c.accentDeep
-    val Butter = Color(0xFFFFE08A)
-    val Sage = Color(0xFFBFD8A9)
-    val SageDeep = Color(0xFF4F7A3A)
-    val Peach = Color(0xFFFFC2A6)
-    val PeachDeep = Color(0xFFB4502A)
-    val Sky get() = c.sky
-    val Rose get() = c.rose
+    val Paper get() = m(c.paper, d.paper)
+    val Card get() = m(c.card, d.card)
+    val Ink get() = m(c.ink, d.ink)
+    val InkSoft get() = m(c.inkSoft, d.inkSoft)
+    val InkMuted get() = m(c.inkMuted, d.inkMuted)
+    val Line get() = m(c.line, d.line)
 
-    // Dusk scene (bedtime).
+    /** Text and icons on an [Ink] background. */
+    val OnInk get() = m(Color.White, Color(0xFF1A1626))
+
+    /** Always dark: text on the moon-yellow buttons and the white buttons over the night scene. */
+    val DarkInk = Color(0xFF2B2238)
+
+    val Accent get() = m(c.accent, d.accent)
+    val AccentDeep get() = m(c.accentDeep, d.accentDeep)
+    val Butter get() = m(BUTTER, darkTone(BUTTER))
+    val Sage get() = m(SAGE, darkTone(SAGE))
+    val SageDeep get() = m(Color(0xFF4F7A3A), Color(0xFFA6D98C))
+    val Peach get() = m(PEACH, darkTone(PEACH))
+    val PeachDeep get() = m(Color(0xFFB4502A), Color(0xFFFFA684))
+    val Sky get() = m(c.sky, d.sky)
+    val Rose get() = m(c.rose, d.rose)
+
+    /** A soft translucent layer for tracks and badges on coloured cards: white by day, a faint glow at night. */
+    fun veil(alpha: Float): Color = Color.White.copy(alpha = alpha * (1f - 0.75f * darkness))
+
+    /** A pastel tile colour (sounds, moods) adjusted for the current mode. */
+    fun tile(pastel: Color): Color = m(pastel, darkTone(pastel))
+
+    /** The text-safe partner of a tile colour, lifted for dark mode. */
+    fun onTile(deep: Color): Color = m(deep, lerp(deep, Color.White, 0.55f))
+
+    // Dusk scene (bedtime): already a night palette, the same in both modes.
     val DuskTop get() = c.duskTop
     val DuskMid get() = c.duskMid
     val DuskLow get() = c.duskLow
@@ -128,9 +169,48 @@ object Palette {
     val HillNear get() = c.hillNear
     val Night get() = c.night
     val Moon = Color(0xFFFFE6A3)
+
+    private val BUTTER = Color(0xFFFFE08A)
+    private val SAGE = Color(0xFFBFD8A9)
+    private val PEACH = Color(0xFFFFC2A6)
+
+    /** A pastel turned into a deep, muted tone that sits calmly on a dark page. */
+    private fun darkTone(pastel: Color) = lerp(theme.dark.paper, pastel, 0.3f)
 }
 
-fun SoundId.tint(): Color = when (this) {
+/** Light, dark, or follow the phone's setting. */
+enum class Appearance(val label: String, val emoji: String) {
+    AUTO("Auto", "🌗"),
+    LIGHT("Light", "☀️"),
+    DARK("Dark", "🌙"),
+}
+
+/** A calm dark palette made from a light theme: deep night paper tinted by the theme's own dusk, light ink, muted pastels. */
+private fun darkOf(l: ThemeColors): ThemeColors {
+    val paper = lerp(Color(0xFF0F0D17), l.duskTop, 0.38f)
+    fun tone(pastel: Color) = lerp(paper, pastel, 0.3f)
+    return l.copy(
+        paper = paper,
+        card = lerp(paper, Color.White, 0.07f),
+        ink = Color(0xFFF3F0FA),
+        inkSoft = Color(0xFFCBC5DA),
+        inkMuted = Color(0xFF9C95AF),
+        line = lerp(paper, Color.White, 0.14f),
+        accent = tone(l.accent),
+        accentDeep = lerp(l.accentDeep, Color.White, 0.5f),
+        sky = tone(l.sky),
+        rose = tone(l.rose),
+    )
+}
+
+private val darkCache = HashMap<AppTheme, ThemeColors>()
+
+/** This theme's dark palette. */
+val AppTheme.dark: ThemeColors get() = darkCache.getOrPut(this) { darkOf(colors) }
+
+fun SoundId.tint(): Color = Palette.tile(baseTint())
+
+private fun SoundId.baseTint(): Color = when (this) {
     SoundId.RAIN, SoundId.DOWNPOUR -> Color(0xFFBFD3FA)
     SoundId.THUNDER -> Color(0xFFD3C8FA)
     SoundId.TENT -> Color(0xFFFFD1B8)
@@ -144,8 +224,10 @@ fun SoundId.tint(): Color = when (this) {
     SoundId.SEA -> Color(0xFFB3E6EE)
 }
 
-/** Text-safe darker partner of [tint] for icons on the tint. */
-fun SoundId.deep(): Color = when (this) {
+/** Text-safe partner of [tint] for icons on the tint (lighter in dark mode). */
+fun SoundId.deep(): Color = Palette.onTile(baseDeep())
+
+private fun SoundId.baseDeep(): Color = when (this) {
     SoundId.RAIN, SoundId.DOWNPOUR -> Color(0xFF2F5BB8)
     SoundId.THUNDER -> Color(0xFF5B45C2)
     SoundId.TENT -> Color(0xFFA34B1F)
@@ -168,7 +250,7 @@ fun RiskLevel.tint(): Color = when (this) {
 
 fun RiskLevel.deep(): Color = when (this) {
     RiskLevel.GOOD -> Palette.SageDeep
-    RiskLevel.MEDIUM -> Color(0xFF7A5A00)
+    RiskLevel.MEDIUM -> Palette.onTile(Color(0xFF7A5A00))
     RiskLevel.AT_RISK -> Palette.PeachDeep
 }
 
@@ -193,16 +275,39 @@ object Type {
     val Small = TextStyle(fontFamily = Outfit, fontWeight = FontWeight(500), fontSize = 12.sp, lineHeight = 16.sp)
 }
 
+/**
+ * Applies the colour theme and light/dark mode. Switching modes animates
+ * [Palette.darkness], so every colour morphs across in a moment.
+ */
 @Composable
 fun SleepBetterTheme(content: @Composable () -> Unit) {
+    val systemDark = isSystemInDarkTheme()
+    val dark = when (Palette.appearance) {
+        Appearance.AUTO -> systemDark
+        Appearance.LIGHT -> false
+        Appearance.DARK -> true
+    }
+    val first = remember { mutableStateOf(true) }
+    LaunchedEffect(dark) {
+        val target = if (dark) 1f else 0f
+        if (first.value) {
+            Palette.darkness = target
+            first.value = false
+        } else {
+            androidx.compose.animation.core.animate(Palette.darkness, target, animationSpec = tween(520, easing = FastOutSlowInEasing)) { v, _ -> Palette.darkness = v }
+        }
+    }
+    val scheme = if (dark) darkColorScheme() else lightColorScheme()
     MaterialTheme(
-        colorScheme = lightColorScheme(
+        colorScheme = scheme.copy(
             primary = Palette.AccentDeep,
-            onPrimary = Color.White,
+            onPrimary = Palette.OnInk,
             background = Palette.Paper,
             onBackground = Palette.Ink,
             surface = Palette.Card,
             onSurface = Palette.Ink,
+            surfaceContainerLow = Palette.Card,
+            surfaceContainerHigh = Palette.Card,
         ),
         content = content,
     )

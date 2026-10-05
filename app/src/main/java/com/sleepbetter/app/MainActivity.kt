@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
@@ -96,6 +97,13 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) readSharedMix(intent)
         setContent {
             SleepBetterTheme {
+                // Status and navigation bar icons follow the app's mode, not just the phone's.
+                val dark = Palette.darkness > 0.5f
+                LaunchedEffect(dark) {
+                    val transparent = android.graphics.Color.TRANSPARENT
+                    val style = if (dark) SystemBarStyle.dark(transparent) else SystemBarStyle.light(transparent, transparent)
+                    enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                }
                 SleepBetterUi(vm, requested.value) { requested.value = null }
             }
         }
@@ -220,7 +228,7 @@ private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon
                 .height(72.dp)
                 .shadow(18.dp, RoundedCornerShape(36.dp), ambientColor = Color(0x332B2238), spotColor = Color(0x332B2238))
                 .clip(RoundedCornerShape(36.dp))
-                .background(Color.White)
+                .background(Palette.Card)
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -238,7 +246,7 @@ private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon
                 .size(64.dp)
                 .shadow(14.dp, CircleShape, ambientColor = Palette.AccentDeep, spotColor = Palette.AccentDeep)
                 .clip(CircleShape)
-                .background(Palette.Ink)
+                .background(Palette.DarkInk)
                 .pressable(onClick = onMoon)
                 .semantics { contentDescription = "Wind down and sleep" }
                 .align(Alignment.TopCenter),

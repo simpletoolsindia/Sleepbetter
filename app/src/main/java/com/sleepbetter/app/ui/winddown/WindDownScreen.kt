@@ -164,13 +164,13 @@ fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Uni
                         onCheckedChange = { on ->
                             if (on && Build.VERSION.SDK_INT >= 33) permission.launch(Manifest.permission.POST_NOTIFICATIONS) else vm.setReminders(on)
                         },
-                        colors = SwitchDefaults.colors(checkedTrackColor = Palette.Moon, checkedThumbColor = Palette.Ink),
+                        colors = SwitchDefaults.colors(checkedTrackColor = Palette.Moon, checkedThumbColor = Palette.DarkInk),
                     )
                 }
                 PrimaryButton("Start sleep mode 😴", {
                     burst.fire(listOf("🌙", "💤", "⭐", "✨"), Offset(0.5f, 0.9f), count = 20)
                     onStartSleep()
-                }, Modifier.fillMaxWidth().padding(top = 6.dp), color = Palette.Moon, textColor = Palette.Ink, glyph = Glyph.MOON)
+                }, Modifier.fillMaxWidth().padding(top = 6.dp), color = Palette.Moon, textColor = Palette.DarkInk, glyph = Glyph.MOON)
             }
             Spacer(Modifier.height(24.dp))
         }
