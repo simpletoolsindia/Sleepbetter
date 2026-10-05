@@ -69,6 +69,8 @@ def inspect(url):
         preview = m.group(1) if m else None
     if preview:
         preview = html.unescape(preview).strip()
+        # Freesound's og:audio sometimes carries the site prefix twice ("https://freesound.orghttps://cdn...").
+        preview = preview[preview.rfind("https://"):] if "https://" in preview else preview
         if preview.startswith("//"):
             preview = "https:" + preview
         elif preview.startswith("/"):
@@ -148,7 +150,6 @@ def main(out, report_path):
         with open(f"{out}/CREDITS.txt", "a") as fh:
             fh.write("\nRecordings dedicated to the public domain (CC0) on Freesound, processed the same way:\n\n")
             fh.write("\n".join(credits) + "\n")
-    report["debug"] = {"pages": DEBUG.get("pages", [])[:5]}
     with open(report_path, "w") as fh:
         json.dump(report, fh, indent=1)
 
