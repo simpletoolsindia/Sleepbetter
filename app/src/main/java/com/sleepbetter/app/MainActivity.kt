@@ -11,6 +11,17 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.graphicsLayer
+import com.sleepbetter.app.ui.components.BurstState
+import com.sleepbetter.app.ui.components.EmojiBurstHost
+import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.floaty
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -37,6 +48,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -126,10 +138,29 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
     val incoming by vm.incoming.collectAsStateWithLifecycle()
     incoming?.let { IncomingMixDialog(it, onAdd = vm::acceptIncoming, onDismiss = vm::dismissIncoming) }
 
+    val burst = remember { BurstState() }
+    CompositionLocalProvider(LocalBurst provides burst) {
+    EmojiBurstHost(burst, Modifier.fillMaxSize()) {
     Box(Modifier.fillMaxSize().background(Palette.Paper)) {
         AnimatedContent(
             targetState = dest,
-            transitionSpec = { (fadeIn() + scaleIn(spring(0.8f, 500f), initialScale = 0.97f)) togetherWith fadeOut() },
+            transitionSpec = {
+                val from = tabs.indexOf(initialState)
+                val to = tabs.indexOf(targetState)
+                when {
+                    // Between tabs: a shared-axis slide in the direction of travel.
+                    from >= 0 && to >= 0 -> {
+                        val dir = if (to > from) 1 else -1
+                        (slideInHorizontally(spring(0.85f, 380f)) { it / 5 * dir } + fadeIn(tween(220))) togetherWith
+                            (slideOutHorizontally(tween(200)) { -it / 6 * dir } + fadeOut(tween(160)))
+                    }
+                    // Into a full-screen flow: rise up like a sheet.
+                    targetState in fullScreen -> (slideInVertically(spring(0.8f, 300f)) { it / 3 } + fadeIn(tween(260))) togetherWith
+                        (fadeOut(tween(180)) + scaleOut(tween(220), targetScale = 0.94f))
+                    else -> (fadeIn(tween(260)) + scaleIn(spring(0.8f, 500f), initialScale = 1.04f)) togetherWith
+                        (slideOutVertically(tween(220)) { it / 4 } + fadeOut(tween(180)))
+                }
+            },
             label = "destination",
         ) { d ->
             val padded = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)
@@ -169,6 +200,8 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
             NavBar(dest, onSelect = { dest = it }, onMoon = { dest = Destination.WIND_DOWN })
         }
     }
+    }
+    }
 }
 
 /** Floating nav: four tabs and a raised moon in the middle that starts the bedtime flow. */
@@ -201,6 +234,7 @@ private fun NavBar(current: Destination, onSelect: (Destination) -> Unit, onMoon
         Box(
             Modifier
                 .offset(y = (-26).dp)
+                .floaty(amplitude = 2.5f, periodMs = 1800)
                 .size(64.dp)
                 .shadow(14.dp, CircleShape, ambientColor = Palette.AccentDeep, spotColor = Palette.AccentDeep)
                 .clip(CircleShape)
@@ -227,8 +261,24 @@ private fun NavItem(glyph: Glyph, label: String, on: Boolean, onClick: () -> Uni
             .padding(horizontal = 6.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // The icon hops and wiggles when its tab becomes selected.
+        val hop = remember { Animatable(0f) }
+        LaunchedEffect(on) {
+            if (on) {
+                hop.snapTo(0f)
+                hop.animateTo(1f, spring(0.3f, 380f))
+            }
+        }
         Box(Modifier.clip(RoundedCornerShape(14.dp)).background(pill).padding(horizontal = 14.dp, vertical = 4.dp)) {
-            GlyphIcon(glyph, tint, size = 22.dp)
+            GlyphIcon(
+                glyph, tint, size = 22.dp,
+                modifier = Modifier.graphicsLayer {
+                    val k = kotlin.math.sin(hop.value * Math.PI.toFloat())
+                    translationY = -8f * density * k
+                    rotationZ = 10f * k * (if (hop.value < 0.5f) 1f else -1f)
+                    scaleX = 1f + 0.15f * k; scaleY = 1f + 0.15f * k
+                },
+            )
         }
         Text(label, style = Type.Small, color = tint)
     }

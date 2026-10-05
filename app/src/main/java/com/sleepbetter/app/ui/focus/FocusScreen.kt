@@ -43,6 +43,7 @@ import com.sleepbetter.app.ui.components.BentoCard
 import com.sleepbetter.app.ui.components.CircleButton
 import com.sleepbetter.app.ui.components.Dots
 import com.sleepbetter.app.ui.components.Glyph
+import com.sleepbetter.app.ui.components.DriftingEmoji
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.MorphPlayButton
 import com.sleepbetter.app.ui.components.SoundTile
@@ -76,10 +77,12 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
             Spacer(Modifier.weight(1f))
             Dots(4, focus.session, Palette.AccentDeep, Modifier.clearAndSetSemantics { contentDescription = "Session ${focus.session} of 4" })
         }
-        Text("Deep work", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 14.dp))
+        Text("Deep work 🧠", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 14.dp))
         Text("Session ${focus.session} of 4, then a 5-minute break", style = Type.Body, color = Palette.InkSoft)
 
         Box(Modifier.fillMaxWidth().aspectRatio(1f).padding(top = 8.dp), contentAlignment = Alignment.Center) {
+            // Music notes float up while the focus music plays.
+            if (musicOn) DriftingEmoji(listOf("🎵", "🎶", "✨"), count = 7)
             Canvas(Modifier.fillMaxSize()) {
                 val c = center
                 val r = size.minDimension * 0.4f

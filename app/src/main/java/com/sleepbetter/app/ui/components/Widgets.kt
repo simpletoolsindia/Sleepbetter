@@ -42,6 +42,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.animation.core.Animatable
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.app.ui.theme.deep
@@ -196,13 +200,32 @@ fun SoundTile(id: SoundId, on: Boolean, level: Float, time: Float, onClick: () -
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        // Turning a sound on makes its icon jump and its emoji pop in.
+        val pop = remember { Animatable(1f) }
+        LaunchedEffect(on) {
+            if (on) {
+                pop.snapTo(0f)
+                pop.animateTo(1f, spring(0.35f, 420f))
+            }
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(40.dp).clip(CircleShape).background(if (on) Color.White.copy(alpha = 0.7f) else id.tint()),
+                Modifier
+                    .size(40.dp)
+                    .graphicsLayer {
+                        val k = kotlin.math.sin(pop.value * Math.PI.toFloat())
+                        translationY = -10f * density * k
+                        rotationZ = -12f * k
+                    }
+                    .clip(CircleShape)
+                    .background(if (on) Color.White.copy(alpha = 0.7f) else id.tint()),
                 contentAlignment = Alignment.Center,
             ) { GlyphIcon(id.glyph(), id.deep(), size = 22.dp) }
             Spacer(Modifier.weight(1f))
-            if (on) LevelBars(level, time, id.deep())
+            if (on) {
+                Text(id.emoji(), fontSize = 18.sp, modifier = Modifier.padding(end = 6.dp).graphicsLayer { scaleX = pop.value; scaleY = pop.value })
+                LevelBars(level, time, id.deep())
+            }
         }
         Text(id.label, style = Type.Label, color = Palette.Ink, maxLines = 1)
     }

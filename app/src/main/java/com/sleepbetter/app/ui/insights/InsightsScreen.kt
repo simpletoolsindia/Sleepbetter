@@ -83,7 +83,7 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Text("Insights", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
+        Text("Insights 📊", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
         if (night == null) {
             BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Accent) {
                 MochiAndToffee(Modifier.width(200.dp).align(Alignment.CenterHorizontally), sleeping = true)

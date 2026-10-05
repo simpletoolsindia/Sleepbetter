@@ -48,6 +48,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleepbetter.app.AppViewModel
 import com.sleepbetter.app.ui.components.CircleButton
 import com.sleepbetter.app.ui.components.Glyph
+import androidx.compose.ui.geometry.Offset
+import com.sleepbetter.app.ui.components.DriftingEmoji
+import com.sleepbetter.app.ui.components.LocalBurst
 import com.sleepbetter.app.ui.components.MochiAndToffee
 import com.sleepbetter.app.ui.components.PrimaryButton
 import com.sleepbetter.app.ui.components.hm
@@ -74,6 +77,7 @@ private fun breathAt(seconds: Float): Breath {
 /** Wind down: breathe with Mochi (it swells and settles with you), set the evening, then sleep. */
 @Composable
 fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Unit) {
+    val burst = LocalBurst.current
     val settings by vm.settings.collectAsStateWithLifecycle()
     val time by rememberClock()
     val still = rememberReduceMotion()
@@ -86,6 +90,8 @@ fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Uni
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Palette.DuskTop, Palette.DuskMid, Palette.DuskLow))),
     ) {
+        // Stars and Zs drifting up behind everything.
+        DriftingEmoji(listOf("✨", "⭐", "💤", "🌙"), count = 9)
         Column(
             Modifier
                 .fillMaxSize()
@@ -161,7 +167,10 @@ fun WindDownScreen(vm: AppViewModel, onBack: () -> Unit, onStartSleep: () -> Uni
                         colors = SwitchDefaults.colors(checkedTrackColor = Palette.Moon, checkedThumbColor = Palette.Ink),
                     )
                 }
-                PrimaryButton("Start sleep mode", onStartSleep, Modifier.fillMaxWidth().padding(top = 6.dp), color = Palette.Moon, textColor = Palette.Ink, glyph = Glyph.MOON)
+                PrimaryButton("Start sleep mode 😴", {
+                    burst.fire(listOf("🌙", "💤", "⭐", "✨"), Offset(0.5f, 0.9f), count = 20)
+                    onStartSleep()
+                }, Modifier.fillMaxWidth().padding(top = 6.dp), color = Palette.Moon, textColor = Palette.Ink, glyph = Glyph.MOON)
             }
             Spacer(Modifier.height(24.dp))
         }

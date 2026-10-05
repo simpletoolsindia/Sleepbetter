@@ -58,6 +58,10 @@ import com.sleepbetter.app.ui.theme.tint
 import com.sleepbetter.core.mix.Mix
 import com.sleepbetter.core.mix.MixCategory
 import com.sleepbetter.core.mix.MixCodec
+import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.floaty
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.sp
 import com.sleepbetter.core.mix.MixTemplates
 
 /**
@@ -72,6 +76,7 @@ fun MixesPanel(vm: AppViewModel) {
     var saving by remember { mutableStateOf(false) }
     var importing by remember { mutableStateOf(false) }
     var sharing by remember { mutableStateOf<Mix?>(null) }
+    val burst = LocalBurst.current
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -79,10 +84,13 @@ fun MixesPanel(vm: AppViewModel) {
             PrimaryButton("Add from a friend", { importing = true }, Modifier.weight(1f), color = Palette.Card, textColor = Palette.Ink)
         }
 
-        Text("Your mixes", style = Type.Title, color = Palette.Ink)
+        Text("Your mixes 💜", style = Type.Title, color = Palette.Ink)
         if (saved.isEmpty()) {
             BentoCard(Modifier.fillMaxWidth(), color = Palette.Accent) {
-                Text("Make it yours", style = Type.Heading, color = Palette.Ink)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Make it yours", style = Type.Heading, color = Palette.Ink, modifier = Modifier.weight(1f))
+                    Text("🎛️", fontSize = 26.sp, modifier = Modifier.floaty())
+                }
                 Text(
                     "Turn sounds on, place them where you like, then tap Save this mix. You can send any saved mix to a friend.",
                     style = Type.Body,
@@ -96,21 +104,27 @@ fun MixesPanel(vm: AppViewModel) {
                     m,
                     playing = state.playing && state.active == m.mix.sounds,
                     onPlay = { vm.playMix(m.mix) },
-                    onShare = { sharing = m.mix },
+                    onShare = {
+                        sharing = m.mix
+                        burst.fire(listOf("💌", "✈️", "✨"), Offset(0.8f, 0.45f), count = 10)
+                    },
                     onDelete = { vm.deleteMix(m.id) },
                 )
             }
         }
 
-        Text("Templates", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 4.dp))
+        Text("Templates 🎨", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 4.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            item { CategoryChip("All", category == null) { category = null } }
-            items(MixCategory.entries.toList()) { c -> CategoryChip(c.label, category == c) { category = c } }
+            item { CategoryChip("✨ All", category == null) { category = null } }
+            items(MixCategory.entries.toList()) { c -> CategoryChip("${c.emoji} ${c.label}", category == c) { category = c } }
         }
         MixTemplates.all.filter { category == null || it.category == category }.chunked(2).forEach { pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 pair.forEach { t ->
-                    TemplateCard(t.mix, t.blurb, playing = state.playing && state.active == t.mix.sounds, Modifier.weight(1f)) { vm.playMix(t.mix) }
+                    TemplateCard(t.mix, t.blurb, t.emoji, playing = state.playing && state.active == t.mix.sounds, Modifier.weight(1f)) {
+                        vm.playMix(t.mix)
+                        burst.fire(listOf(t.emoji, "✨", "🎶"), Offset(0.5f, 0.6f), count = 12)
+                    }
                 }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
@@ -124,11 +138,19 @@ fun MixesPanel(vm: AppViewModel) {
             onSave = { name ->
                 vm.saveCurrentMix(name)
                 saving = false
+                burst.fire(listOf("🎉", "✨", "💜", "🌙", "⭐"), Offset(0.5f, 0.35f), count = 22)
             },
         )
     }
     if (importing) {
-        ImportDialog(onDismiss = { importing = false }, onImport = { text -> vm.offerImport(text).also { if (it) importing = false } })
+        ImportDialog(onDismiss = { importing = false }, onImport = { text ->
+            vm.offerImport(text).also {
+                if (it) {
+                    importing = false
+                    burst.fire(listOf("🎁", "💌", "✨"), Offset(0.5f, 0.4f))
+                }
+            }
+        })
     }
     sharing?.let { mix -> ShareSheet(mix) { sharing = null } }
 }
@@ -200,7 +222,7 @@ private fun SavedMixRow(saved: SavedMix, playing: Boolean, onPlay: () -> Unit, o
 }
 
 @Composable
-private fun TemplateCard(mix: Mix, blurb: String, playing: Boolean, modifier: Modifier, onClick: () -> Unit) {
+private fun TemplateCard(mix: Mix, blurb: String, emoji: String, playing: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val tints = mix.layers.map { it.sound.tint() }
     Column(
         modifier
@@ -218,6 +240,7 @@ private fun TemplateCard(mix: Mix, blurb: String, playing: Boolean, modifier: Mo
                 .padding(10.dp),
         ) {
             SoundStack(mix)
+            Text(emoji, fontSize = 28.sp, modifier = Modifier.align(Alignment.BottomStart).floaty(amplitude = 3f, phase = mix.name.length / 9f))
             Box(
                 Modifier.align(Alignment.BottomEnd).size(34.dp).clip(CircleShape).background(if (playing) Palette.Ink else Color.White),
                 contentAlignment = Alignment.Center,
@@ -303,10 +326,10 @@ private fun ShareSheet(mix: Mix, onDismiss: () -> Unit) {
             SoundStack(mix, size = 40)
             Text("Share \"${mix.name}\"", style = Type.Title, color = Palette.Ink)
             Text("Your friend opens it with SleepBetter and the mix is added for them.", style = Type.Body, color = Palette.InkSoft)
-            ShareOption(Glyph.WIFI, "Quick Share", "Wi-Fi, to a phone nearby", Palette.Sky) {
+            ShareOption(Glyph.WIFI, "Quick Share 📶", "Wi-Fi, to a phone nearby", Palette.Sky) {
                 MixSharing.share(context, mix, MixSharing.Route.QUICK_SHARE); onDismiss()
             }
-            ShareOption(Glyph.BLUETOOTH, "Bluetooth", "Send the mix file over Bluetooth", Palette.Accent) {
+            ShareOption(Glyph.BLUETOOTH, "Bluetooth 🔵", "Send the mix file over Bluetooth", Palette.Accent) {
                 MixSharing.share(context, mix, MixSharing.Route.BLUETOOTH); onDismiss()
             }
             ShareOption(Glyph.SHARE, "Other apps", "Messages, email and more", Palette.Rose) {
@@ -344,7 +367,7 @@ private fun ShareOption(glyph: Glyph, title: String, subtitle: String, tint: Col
 fun IncomingMixDialog(mix: Mix, onAdd: (play: Boolean) -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("A mix for you", style = Type.Title) },
+        title = { Text("A mix for you 🎁", style = Type.Title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SoundStack(mix, size = 40)

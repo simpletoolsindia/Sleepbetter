@@ -44,6 +44,10 @@ import com.sleepbetter.app.ui.components.PrimaryButton
 import com.sleepbetter.app.ui.components.enter
 import com.sleepbetter.app.ui.components.hoursMinutes
 import com.sleepbetter.app.ui.components.pressable
+import com.sleepbetter.app.ui.components.BouncyEmoji
+import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.floaty
+import androidx.compose.ui.geometry.Offset
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.core.sleep.NightTag
@@ -65,6 +69,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
     val current = Mood.entries[index]
     val lower = Mood.entries[mood.toInt().coerceIn(0, 4)]
     val upper = Mood.entries[(mood.toInt() + 1).coerceIn(0, 4)]
+    val burst = LocalBurst.current
     val bg by animateColorAsState(lerp(lower.tint, upper.tint, mood - mood.toInt()), label = "bg")
 
     Column(
@@ -74,7 +79,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
             .padding(horizontal = 22.dp),
     ) {
         Spacer(Modifier.height(16.dp))
-        Text("Good morning", style = Type.Label, color = Palette.InkSoft)
+        Text("Good morning ☀️", style = Type.Label, color = Palette.InkSoft)
         Text("How did you sleep?", style = Type.Display, color = Palette.Ink)
         if (night != null) {
             val zone = ZoneId.systemDefault()
@@ -90,6 +95,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
         Box(Modifier.fillMaxWidth().padding(vertical = 18.dp).enter(0), contentAlignment = Alignment.Center) {
             Box(Modifier.size(240.dp).background(Color.White.copy(alpha = 0.55f), CircleShape))
             MochiView(Modifier.size(210.dp), mood = mood, tintBody = Color.White)
+            BouncyEmoji(current.emoji, Modifier.align(Alignment.TopEnd).padding(end = 18.dp).floaty(amplitude = 4f))
         }
         Text(current.label, style = Type.Title, color = Palette.Ink, modifier = Modifier.align(Alignment.CenterHorizontally))
         Slider(
@@ -100,8 +106,8 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
             modifier = Modifier.padding(top = 8.dp).semantics { stateDescription = current.label },
         )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Rough", style = Type.Small, color = Palette.InkSoft)
-            Text("Great", style = Type.Small, color = Palette.InkSoft)
+            Text("😫 Rough", style = Type.Small, color = Palette.InkSoft)
+            Text("Great 🤩", style = Type.Small, color = Palette.InkSoft)
         }
 
         Text("Anything different last night?", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 22.dp, bottom = 10.dp))
@@ -110,7 +116,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
                 val on = tag in tags
                 val chipBg by animateColorAsState(if (on) Palette.Ink else Color.White, label = "chip")
                 Text(
-                    tag.label,
+                    "${tag.emoji} ${tag.label}",
                     style = Type.Label,
                     color = if (on) Color.White else Palette.Ink,
                     modifier = Modifier
@@ -129,6 +135,7 @@ fun CheckInScreen(vm: AppViewModel, onDone: () -> Unit, modifier: Modifier = Mod
             "Save my morning",
             onClick = {
                 vm.rateLastNight(index + 1, tags)
+                burst.fire(current.confetti, Offset(0.5f, 0.85f), count = 20)
                 onDone()
             },
             modifier = Modifier.fillMaxWidth().padding(top = 24.dp, bottom = 24.dp),

@@ -71,12 +71,12 @@ fun Visitor.species(): Species = when (this) {
 }
 
 /** How Mochi feels. 0 = awful … 4 = great; values in between morph smoothly. */
-enum class Mood(val label: String, val tint: Color) {
-    AWFUL("Awful", Color(0xFFD9D6E2)),
-    POOR("Poor", Color(0xFFFFC2A6)),
-    OKAY("Okay", Color(0xFFFFE08A)),
-    GOOD("Good", Color(0xFFBFD8A9)),
-    GREAT("Great", Color(0xFFC9BCF7)),
+enum class Mood(val label: String, val tint: Color, val emoji: String, val confetti: List<String>) {
+    AWFUL("Awful", Color(0xFFD9D6E2), "😫", listOf("🫂", "💜", "🌧️")),
+    POOR("Poor", Color(0xFFFFC2A6), "😕", listOf("🫂", "🍵", "💜")),
+    OKAY("Okay", Color(0xFFFFE08A), "😐", listOf("🌤️", "👍", "✨")),
+    GOOD("Good", Color(0xFFBFD8A9), "🙂", listOf("😊", "🌿", "✨", "💚")),
+    GREAT("Great", Color(0xFFC9BCF7), "🤩", listOf("🎉", "🌟", "✨", "💜", "😴")),
 }
 
 /**

@@ -42,6 +42,11 @@ import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.enter
 import com.sleepbetter.app.ui.components.pressable
 import com.sleepbetter.app.ui.components.species
+import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.SpeechBubble
+import com.sleepbetter.app.ui.components.emoji
+import com.sleepbetter.app.ui.components.floaty
+import androidx.compose.ui.geometry.Offset
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.core.sleep.Visitor
@@ -58,6 +63,7 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
     val steady = remember(sessions, settings) { vm.repository.totalSteadyNights() }
     val progress = remember(steady, focusCount) { vm.repository.visitorProgress() }
     var selected by remember { mutableStateOf<Visitor?>(null) }
+    val burst = LocalBurst.current
 
     Column(
         modifier
@@ -65,7 +71,7 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Text("Friends", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
+        Text("Friends 🐾", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
         Text("Keep a steady bedtime and new friends move in. They sleep when you sleep.", style = Type.Body, color = Palette.InkSoft)
 
         progress.next?.let { next ->
@@ -73,7 +79,7 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MochiView(Modifier.size(64.dp), species = next.species(), silhouette = true)
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
-                        Text("Someone is on the way", style = Type.Heading, color = Palette.Ink)
+                        Text("Someone is on the way 🎁", style = Type.Heading, color = Palette.Ink)
                         Text(
                             if (progress.nightsToNext == 1) "1 more steady night" else "${progress.nightsToNext} more steady nights",
                             style = Type.Small,
@@ -96,17 +102,24 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             }
         }
 
-        Text(
-            selected?.blurb ?: "Tap a friend to say hello.",
-            style = Type.Body,
-            color = Palette.Ink,
-            modifier = Modifier.heightIn(min = 44.dp).semantics { liveRegion = LiveRegionMode.Polite },
-        )
+        // The friend you tapped says hello in a speech bubble.
+        val chosen = selected
+        if (chosen == null) {
+            Text("Tap a friend to say hello 👋", style = Type.Body, color = Palette.Ink, modifier = Modifier.heightIn(min = 44.dp))
+        } else {
+            Row(Modifier.heightIn(min = 60.dp), verticalAlignment = Alignment.CenterVertically) {
+                MochiView(Modifier.size(56.dp), species = chosen.species(), mood = 4f)
+                SpeechBubble("${chosen.species().emoji()} ${chosen.blurb}", Modifier.weight(1f))
+            }
+        }
 
         Visitor.entries.chunked(2).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 row.forEach { v ->
-                    FriendCard(v, v in progress.unlocked, selected == v, Modifier.weight(1f)) { selected = v }
+                    FriendCard(v, v in progress.unlocked, selected == v, Modifier.weight(1f)) {
+                        selected = v
+                        burst.fire(listOf("💖", "💕", v.species().emoji(), "✨"), Offset(0.5f, 0.55f), count = 14)
+                    }
                 }
                 if (row.size == 1) Spacer(Modifier.weight(1f))
             }
@@ -140,12 +153,12 @@ private fun FriendCard(visitor: Visitor, unlocked: Boolean, selected: Boolean, m
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         MochiView(
-            Modifier.size(104.dp).graphicsLayer { translationY = -50f * sin(hop.value * PI.toFloat()).coerceAtLeast(0f) },
+            Modifier.size(104.dp).then(if (unlocked) Modifier.floaty(amplitude = 3f, phase = visitor.ordinal * 0.37f) else Modifier).graphicsLayer { translationY = -50f * sin(hop.value * PI.toFloat()).coerceAtLeast(0f) },
             species = species,
             silhouette = !unlocked,
             mood = 3.5f,
         )
-        Text(if (unlocked) visitor.displayName else "Someone new", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
+        Text(if (unlocked) "${species.emoji()} ${visitor.displayName}" else "🔒 Someone new", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
         Text(
             when {
                 unlocked -> if (visitor.steadyNightsNeeded == 0 && visitor.focusSessionsNeeded == 0) "Here from day one" else "Lives with you"

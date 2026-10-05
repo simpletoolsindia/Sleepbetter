@@ -7,13 +7,13 @@ import java.time.ZoneId
 import kotlin.math.abs
 
 /** Things a user can tag on a night, shown as chips in the morning. */
-enum class NightTag(val label: String) {
-    LATE_COFFEE("Coffee after 2 pm"),
-    PHONE_IN_BED("Phone in bed"),
-    LATE_WORKOUT("Late workout"),
-    STRESS("Stressful day"),
-    ALCOHOL("Alcohol"),
-    NAP("Daytime nap"),
+enum class NightTag(val label: String, val emoji: String) {
+    LATE_COFFEE("Coffee after 2 pm", "☕"),
+    PHONE_IN_BED("Phone in bed", "📱"),
+    LATE_WORKOUT("Late workout", "🏋️"),
+    STRESS("Stressful day", "😵‍💫"),
+    ALCOHOL("Alcohol", "🍷"),
+    NAP("Daytime nap", "😴"),
 }
 
 /**

@@ -63,6 +63,14 @@ import com.sleepbetter.app.ui.components.rememberCountUp
 import com.sleepbetter.app.ui.components.rememberEngineFrame
 import com.sleepbetter.app.ui.components.rememberReduceMotion
 import com.sleepbetter.app.ui.components.todayLabel
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import com.sleepbetter.app.ui.components.EmojiChip
+import com.sleepbetter.app.ui.components.LocalBurst
+import com.sleepbetter.app.ui.components.MochiSays
+import com.sleepbetter.app.ui.components.floaty
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.app.ui.theme.deep
@@ -112,20 +120,31 @@ fun HomeScreen(
     ) {
         Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(todayLabel(), style = Type.Small, color = Palette.InkMuted)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(todayLabel(), style = Type.Small, color = Palette.InkMuted)
+                    WavingEmoji(if (now.hour in 5..17) "👋" else "🌙", Modifier.padding(start = 6.dp))
+                }
                 Text(greeting(now), style = Type.Display, color = Palette.Ink)
             }
             CircleButton(Glyph.PALETTE, "Colour theme", { picking = true }, size = 44.dp)
             Spacer(Modifier.width(8.dp))
-            Row(
-                Modifier.clip(RoundedCornerShape(22.dp)).background(Palette.Card).pressable(onClick = onFriends).padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                GlyphIcon(Glyph.MOON, Palette.AccentDeep, size = 18.dp)
-                Text("$steady", style = Type.Label, color = Palette.Ink)
+            // Steady bedtimes so far: a little flame that pulses.
+            EmojiChip("🔥", "$steady", Modifier.pressable(onClick = onFriends))
+        }
+
+        // Mochi chats: bedtime countdown, last night, a tip.
+        val lastNight = sessions.lastOrNull()
+        val lines = remember(untilBed, lastNight, steady) {
+            buildList {
+                add("Bedtime in ${durationLabel(untilBed)} 🌙")
+                if (lastNight != null) add("Last night you slept ${hoursMinutes(lastNight.minutes)} 😴")
+                if (steady > 0) add("$steady steady bedtimes so far! 🔥")
+                add("Pick a mix below and relax 🎧")
+                add("Dim the lights an hour before bed 💡")
+                add("Toffee says: no coffee after 2 pm ☕🚫")
             }
         }
+        MochiSays(lines, Modifier.enter(40))
 
         // Tonight: the dusk scene shows exactly what is in the mix.
         Box(
@@ -174,7 +193,11 @@ fun HomeScreen(
         SectionTitle("Mixes for tonight", Modifier.enter(200), action = "All mixes", onAction = onSounds)
         LazyRow(Modifier.enter(220), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             items(MixTemplates.featured) { t ->
-                PresetCard(t, playing = mix.playing && mix.active == t.mix.sounds) { vm.playMix(t.mix) }
+                val burst = LocalBurst.current
+                PresetCard(t, playing = mix.playing && mix.active == t.mix.sounds) {
+                    vm.playMix(t.mix)
+                    burst.fire(listOf(t.emoji, "✨", "🎶"), Offset(0.5f, 0.82f), count = 12)
+                }
             }
         }
         Spacer(Modifier.height(120.dp))
@@ -278,10 +301,17 @@ private fun PresetCard(template: MixTemplate, playing: Boolean, onClick: () -> U
                     }
                 }
             }
+            // The mix's emoji as a floating sticker.
+            Text(
+                template.emoji,
+                fontSize = 30.sp,
+                modifier = Modifier.align(Alignment.BottomStart).padding(10.dp).floaty(amplitude = 3f, phase = template.mix.name.length / 10f),
+            )
             if (playing) {
                 Box(Modifier.align(Alignment.BottomEnd).padding(10.dp)) {
                     MochiView(Modifier.size(44.dp), species = Species.MOCHI, sleeping = true)
                 }
+                EqualizerBadge(Modifier.align(Alignment.TopEnd).padding(10.dp))
             }
         }
         Text(template.mix.name, style = Type.Heading, color = Palette.Ink, maxLines = 1, modifier = Modifier.padding(start = 6.dp, top = 10.dp))
@@ -292,5 +322,41 @@ private fun PresetCard(template: MixTemplate, playing: Boolean, onClick: () -> U
             maxLines = 1,
             modifier = Modifier.padding(start = 6.dp, bottom = 4.dp),
         )
+    }
+}
+
+/** An emoji that waves hello every few seconds. */
+@Composable
+private fun WavingEmoji(emoji: String, modifier: Modifier = Modifier) {
+    val still = rememberReduceMotion()
+    val angle = remember { Animatable(0f) }
+    LaunchedEffect(still) {
+        if (still) return@LaunchedEffect
+        while (true) {
+            repeat(2) {
+                angle.animateTo(18f, tween(140))
+                angle.animateTo(-10f, tween(140))
+            }
+            angle.animateTo(0f, tween(160))
+            delay(3200)
+        }
+    }
+    Text(emoji, fontSize = 14.sp, modifier = modifier.graphicsLayer { rotationZ = angle.value; transformOrigin = TransformOrigin(0.7f, 0.9f) })
+}
+
+/** Three little bars that bounce while a mix is playing. */
+@Composable
+private fun EqualizerBadge(modifier: Modifier = Modifier) {
+    val time by rememberClock()
+    val still = rememberReduceMotion()
+    Row(
+        modifier.clip(RoundedCornerShape(10.dp)).background(Color.White).padding(horizontal = 7.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        repeat(3) { i ->
+            val h = if (still) 0.6f else 0.35f + 0.65f * kotlin.math.abs(kotlin.math.sin(time * (5f + i * 1.7f) + i))
+            Box(Modifier.width(3.dp).height((12 * h).dp).clip(RoundedCornerShape(2.dp)).background(Palette.AccentDeep))
+        }
     }
 }

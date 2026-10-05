@@ -102,7 +102,7 @@ fun SoundsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.Bottom) {
-            Text("Sounds", style = Type.Display, color = Palette.Ink, modifier = Modifier.weight(1f))
+            Text("Sounds 🎧", style = Type.Display, color = Palette.Ink, modifier = Modifier.weight(1f))
             Text(if (mix.active.isEmpty()) "Silent" else "${mix.active.size} playing", style = Type.Label, color = Palette.InkMuted)
         }
 
