@@ -56,68 +56,87 @@ fun DuskScene(
     val description = if (active.isEmpty()) "A quiet dusk landscape" else "Dusk landscape with " + active.joinToString(", ") { it.label.lowercase() }
 
     Canvas(modifier.semantics { contentDescription = description }) {
-        val k = size.width / 390f
-        val h = size.height / k
-        withTransform({ scale(k, k, pivot = Offset.Zero) }) {
-            drawRect(
-                Brush.verticalGradient(listOf(Palette.DuskTop, Palette.DuskMid, Palette.DuskLow), 0f, h),
-                Offset.Zero, Size(390f, h),
-            )
-            val rain = maxOf(a(SoundId.RAIN), a(SoundId.DOWNPOUR), a(SoundId.TENT), a(SoundId.CAR)).coerceIn(0f, 1f)
-            val heavy = a(SoundId.DOWNPOUR).coerceIn(0f, 1f)
-            val stormy = maxOf(rain, a(SoundId.THUNDER).coerceIn(0f, 1f))
-            // Wind sets the rain's slant and gusts now and then; brown noise makes it windier.
-            val windy = a(SoundId.BROWN_NOISE).coerceIn(0f, 1f)
-            val wind = 0.1f + 0.12f * heavy + 0.1f * windy + 0.06f * sin(t * 0.23f) + 0.04f * sin(t * 0.61f + 1f)
-            drawStars(t, h, 1f - 0.85f * stormy)
-            drawMoon(h)
-            // Rain clouds dim the whole sky.
-            if (stormy > 0.01f) drawRect(Palette.Night.copy(alpha = 0.28f * stormy), Offset.Zero, Size(390f, h))
-            if (showMochi) {
-                // Toffee dozes against the moon, Mochi curled up on top.
-                withTransform({ translate(214f, h * 0.2f + 8f); scale(0.56f, 0.56f, pivot = Offset.Zero) }) {
-                    val breath = 1f + 0.03f * sin(t * 2.2f + 1.3f)
-                    scale(1f, breath, pivot = Offset(60f, 96f)) {
-                        drawCharacter(Species.TOFFEE, Species.TOFFEE.body, Species.TOFFEE.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
-                    }
-                }
-                withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
-                    val breath = 1f + 0.03f * sin(t * 2.2f)
-                    scale(1f, breath, pivot = Offset(60f, 96f)) {
-                        drawCharacter(Species.MOCHI, Color.White, Color(0xFFE4DDF7), sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
-                    }
-                }
-                drawZs(t, h)
-            }
-            drawClouds(t, h, stormy)
-            if (windy > 0.01f) drawWind(t, h, windy)
-            if (a(SoundId.BIRDS) > 0.01f) drawBirds(t, h, a(SoundId.BIRDS).coerceAtMost(1f) * (1f - 0.6f * rain))
+        drawDuskScene(active, ::a, t, time, flashAt, showMochi, dim)
+    }
+}
 
-            val sinceFlash = time - flashAt
-            if (SoundId.THUNDER in active && sinceFlash in 0f..0.9f) {
-                drawLightning(h, sinceFlash, seed = (flashAt * 1000f).toInt(), dim = dim)
+/**
+ * Draws the whole scene, scaled to fill this DrawScope. [appear] says how
+ * visible each sound's element is (0..1). [t] drives ambient motion, [time]
+ * and [flashAt] time the lightning. Used on screen and to render
+ * notification frames offscreen.
+ */
+internal fun DrawScope.drawDuskScene(
+    active: Set<SoundId>,
+    appear: (SoundId) -> Float,
+    t: Float,
+    time: Float,
+    flashAt: Float,
+    showMochi: Boolean,
+    dim: Float,
+) {
+    fun a(id: SoundId) = appear(id)
+    val k = size.width / 390f
+    val h = size.height / k
+    withTransform({ scale(k, k, pivot = Offset.Zero) }) {
+        drawRect(
+            Brush.verticalGradient(listOf(Palette.DuskTop, Palette.DuskMid, Palette.DuskLow), 0f, h),
+            Offset.Zero, Size(390f, h),
+        )
+        val rain = maxOf(a(SoundId.RAIN), a(SoundId.DOWNPOUR), a(SoundId.TENT), a(SoundId.CAR)).coerceIn(0f, 1f)
+        val heavy = a(SoundId.DOWNPOUR).coerceIn(0f, 1f)
+        val stormy = maxOf(rain, a(SoundId.THUNDER).coerceIn(0f, 1f))
+        // Wind sets the rain's slant and gusts now and then; brown noise makes it windier.
+        val windy = a(SoundId.BROWN_NOISE).coerceIn(0f, 1f)
+        val wind = 0.1f + 0.12f * heavy + 0.1f * windy + 0.06f * sin(t * 0.23f) + 0.04f * sin(t * 0.61f + 1f)
+        drawStars(t, h, 1f - 0.85f * stormy)
+        drawMoon(h)
+        // Rain clouds dim the whole sky.
+        if (stormy > 0.01f) drawRect(Palette.Night.copy(alpha = 0.28f * stormy), Offset.Zero, Size(390f, h))
+        if (showMochi) {
+            // Toffee dozes against the moon, Mochi curled up on top.
+            withTransform({ translate(214f, h * 0.2f + 8f); scale(0.56f, 0.56f, pivot = Offset.Zero) }) {
+                val breath = 1f + 0.03f * sin(t * 2.2f + 1.3f)
+                scale(1f, breath, pivot = Offset(60f, 96f)) {
+                    drawCharacter(Species.TOFFEE, Species.TOFFEE.body, Species.TOFFEE.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
+                }
             }
-
-            drawHills(h)
-            // Rain falls in front of the far hills and splashes on them.
-            if (rain > 0.01f) drawRain(t, h, rain, heavy, wind)
-            pop(a(SoundId.TENT), Offset(96f, h - 92f)) { drawTent(t, h) }
-            pop(a(SoundId.CAR), Offset(300f, h - 64f)) { drawCar(h) }
-            pop(a(SoundId.STREAM), Offset(205f, h - 60f)) { drawStream(t, h) }
-            pop(a(SoundId.WATER_DROPS), Offset(330f, h - 118f)) { drawPond(t, h) }
-            pop(a(SoundId.CAMPFIRE), Offset(160f, h - 40f)) { drawFire(t, h) }
-            if (a(SoundId.NIGHT_FOREST) > 0.01f) {
-                drawTrees(h, a(SoundId.NIGHT_FOREST).coerceAtMost(1f))
-                drawFireflies(t, h, a(SoundId.NIGHT_FOREST).coerceAtMost(1f))
+            withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
+                val breath = 1f + 0.03f * sin(t * 2.2f)
+                scale(1f, breath, pivot = Offset(60f, 96f)) {
+                    drawCharacter(Species.MOCHI, Color.White, Color(0xFFE4DDF7), sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
+                }
             }
-            if (a(SoundId.FOCUS_MUSIC) > 0.01f) drawNotes(t, h, a(SoundId.FOCUS_MUSIC).coerceAtMost(1f))
-            // Mist rises off wet ground.
-            if (rain > 0.01f) drawRect(
-                Brush.verticalGradient(listOf(Color.Transparent, Color.White.copy(alpha = (0.06f + 0.08f * heavy) * rain)), h * 0.55f, h),
-                Offset(0f, h * 0.55f), Size(390f, h * 0.45f),
-            )
-            if (dim > 0f) drawRect(Palette.Night.copy(alpha = dim), Offset.Zero, Size(390f, h))
+            drawZs(t, h)
         }
+        drawClouds(t, h, stormy)
+        if (windy > 0.01f) drawWind(t, h, windy)
+        if (a(SoundId.BIRDS) > 0.01f) drawBirds(t, h, a(SoundId.BIRDS).coerceAtMost(1f) * (1f - 0.6f * rain))
+
+        val sinceFlash = time - flashAt
+        if (SoundId.THUNDER in active && sinceFlash in 0f..0.9f) {
+            drawLightning(h, sinceFlash, seed = (flashAt * 1000f).toInt(), dim = dim)
+        }
+
+        drawHills(h)
+        // Rain falls in front of the far hills and splashes on them.
+        if (rain > 0.01f) drawRain(t, h, rain, heavy, wind)
+        pop(a(SoundId.TENT), Offset(96f, h - 92f)) { drawTent(t, h) }
+        pop(a(SoundId.CAR), Offset(300f, h - 64f)) { drawCar(h) }
+        pop(a(SoundId.STREAM), Offset(205f, h - 60f)) { drawStream(t, h) }
+        pop(a(SoundId.WATER_DROPS), Offset(330f, h - 118f)) { drawPond(t, h) }
+        pop(a(SoundId.CAMPFIRE), Offset(160f, h - 40f)) { drawFire(t, h) }
+        if (a(SoundId.NIGHT_FOREST) > 0.01f) {
+            drawTrees(h, a(SoundId.NIGHT_FOREST).coerceAtMost(1f))
+            drawFireflies(t, h, a(SoundId.NIGHT_FOREST).coerceAtMost(1f))
+        }
+        if (a(SoundId.FOCUS_MUSIC) > 0.01f) drawNotes(t, h, a(SoundId.FOCUS_MUSIC).coerceAtMost(1f))
+        // Mist rises off wet ground.
+        if (rain > 0.01f) drawRect(
+            Brush.verticalGradient(listOf(Color.Transparent, Color.White.copy(alpha = (0.06f + 0.08f * heavy) * rain)), h * 0.55f, h),
+            Offset(0f, h * 0.55f), Size(390f, h * 0.45f),
+        )
+        if (dim > 0f) drawRect(Palette.Night.copy(alpha = dim), Offset.Zero, Size(390f, h))
     }
 }
 

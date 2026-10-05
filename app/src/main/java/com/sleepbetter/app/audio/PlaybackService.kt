@@ -8,7 +8,11 @@ import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.graphics.Bitmap
+import android.support.v4.media.MediaMetadataCompat
 import androidx.core.app.NotificationCompat
+import com.sleepbetter.app.ui.components.SceneFrames
+import com.sleepbetter.core.audio.SoundId
 import androidx.core.app.ServiceCompat
 import com.sleepbetter.app.MainActivity
 import com.sleepbetter.app.R
@@ -48,6 +52,7 @@ class PlaybackService : Service() {
         engine.onFinished = { scope.launch { handle(ACTION_STOP) } }
         scope.launch {
             engine.state.collect { s ->
+                if (s.active != artFor) updateArtwork(s.active)
                 updateSession(s.playing)
                 if (s.playing || hasStarted) postNotification(s.playing)
             }
@@ -55,6 +60,23 @@ class PlaybackService : Service() {
     }
 
     private var hasStarted = false
+
+    /** The scene for the current sounds, shown as the media artwork and the notification picture. */
+    private var art: Bitmap? = null
+    private var artFor: Set<SoundId>? = null
+
+    private fun updateArtwork(active: Set<SoundId>) {
+        artFor = active
+        art = runCatching { SceneFrames.still(active, 360, 360) }.getOrNull()
+        val names = active.joinToString(", ") { it.label }.ifEmpty { "SleepBetter" }
+        session.setMetadata(
+            MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, names)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "SleepBetter")
+                .apply { art?.let { putBitmap(MediaMetadataCompat.METADATA_KEY_ART, it); putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, it) } }
+                .build(),
+        )
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val action = intent?.action ?: ACTION_PLAY
@@ -131,6 +153,7 @@ class PlaybackService : Service() {
             .setSmallIcon(R.drawable.ic_moon)
             .setContentTitle(if (playing) "Your sounds are playing" else "Paused")
             .setContentText(names)
+            .setLargeIcon(art)
             .setContentIntent(open)
             .setOngoing(playing)
             .setSilent(true)

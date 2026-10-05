@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -15,6 +16,8 @@ import androidx.core.graphics.drawable.toBitmap
 import com.sleepbetter.app.MainActivity
 import com.sleepbetter.app.R
 import com.sleepbetter.app.SleepBetterApp
+import com.sleepbetter.app.ui.components.SceneFrames
+import com.sleepbetter.core.audio.SoundId
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -71,15 +74,40 @@ class ReminderReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val pip = ContextCompat.getDrawable(context, R.drawable.ic_launcher_foreground)?.toBitmap(256, 256)
-        val notification = NotificationCompat.Builder(context, SleepBetterApp.CHANNEL_REMINDERS)
+        val title = "Mochi is getting sleepy 😴"
+        val text = "Bedtime is ${settings.bedtimeLabel}. Your sounds are ready when you are 🌙"
+        val builder = NotificationCompat.Builder(context, SleepBetterApp.CHANNEL_REMINDERS)
             .setSmallIcon(R.drawable.ic_moon)
             .setLargeIcon(pip)
-            .setContentTitle("Mochi is getting sleepy")
-            .setContentText("Bedtime is ${settings.bedtimeLabel}. Your sounds are ready when you are.")
+            .setContentTitle(title)
+            .setContentText(text)
             .setContentIntent(open)
             .setAutoCancel(true)
             .addAction(0, "Start wind-down", open)
-            .build()
+        animatedScene(context, app.engine.state.value.active, title, text)?.let { big ->
+            builder.setStyle(NotificationCompat.DecoratedCustomViewStyle()).setCustomBigContentView(big)
+        }
+        val notification = builder.build()
         NotificationManagerCompat.from(context).notify(42, notification)
     }
 }
+
+/**
+ * The reminder's expanded view: a short flip-book of the dusk scene (rain
+ * falling, stars twinkling, a lightning flash if Thunder is in the mix) that
+ * the system plays in a loop. Small RGB_565 frames keep it well under the
+ * size the system accepts. Null if rendering fails; the plain reminder is used then.
+ */
+private fun animatedScene(context: Context, active: Set<SoundId>, title: String, text: String): RemoteViews? = runCatching {
+    val sounds = active.ifEmpty { setOf(SoundId.RAIN, SoundId.TENT, SoundId.NIGHT_FOREST) }
+    val times = List(6) { 2f + it * 0.15f }
+    val strike = if (SoundId.THUNDER in sounds) times[1] else -10f
+    val frames = SceneFrames.frames(sounds, 320, 140, times, lightningAt = strike)
+    RemoteViews(context.packageName, R.layout.notification_scene).apply {
+        setTextViewText(R.id.scene_title, title)
+        setTextViewText(R.id.scene_text, text)
+        frames.forEach { frame ->
+            addView(R.id.scene_flipper, RemoteViews(context.packageName, R.layout.notification_frame).apply { setImageViewBitmap(R.id.frame, frame) })
+        }
+    }
+}.getOrNull()

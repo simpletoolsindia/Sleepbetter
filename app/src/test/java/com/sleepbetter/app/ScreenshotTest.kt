@@ -14,7 +14,9 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.sleepbetter.app.ui.components.MochiAndToffee
 import com.sleepbetter.app.ui.components.MochiView
+import com.sleepbetter.app.ui.components.SceneFrames
 import com.sleepbetter.app.ui.components.Species
+import com.sleepbetter.core.audio.SoundId
 import com.sleepbetter.app.ui.theme.AppTheme
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
@@ -78,6 +80,21 @@ class ScreenshotTest {
         }
         compose.mainClock.advanceTimeBy(1_000)
         compose.onRoot().captureRoboImage("build/screenshots/14-characters.png")
+    }
+
+    /** The reminder notification's flip-book frames and the playback artwork, as the system will get them. */
+    @Test fun notificationFrames() {
+        val sounds = setOf(SoundId.RAIN, SoundId.THUNDER, SoundId.TENT, SoundId.NIGHT_FOREST)
+        val times = List(6) { 2f + it * 0.15f }
+        SceneFrames.frames(sounds, 320, 140, times, lightningAt = times[1]).forEachIndexed { i, frame ->
+            save(frame, "15-notification-frame-$i.png")
+        }
+        save(SceneFrames.still(sounds, 360, 360), "16-playback-artwork.png")
+    }
+
+    private fun save(bitmap: android.graphics.Bitmap, name: String) {
+        val file = java.io.File("build/screenshots/$name").apply { parentFile?.mkdirs() }
+        file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
     }
 
     private fun shot(destination: Destination, name: String, seed: Boolean = true, theme: AppTheme? = null) {
