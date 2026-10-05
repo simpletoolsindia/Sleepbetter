@@ -289,9 +289,11 @@ fun DriftingEmoji(emojis: List<String>, modifier: Modifier = Modifier, count: In
                 fontSize = (12 + (i % 3) * 4).sp,
                 modifier = Modifier.graphicsLayer {
                     translationX = sx * (w - 40f) + sin(t * 0.5f + i) * 10f
-                    // Rise slowly and wrap around.
-                    translationY = (((sy * h - t * (12f + i * 3f)) % h) + h) % h
-                    alpha = 0.6f
+                    // Rise slowly and wrap around, fading in at the bottom and out at the top.
+                    val y = (((sy * h - t * (12f + i * 3f)) % h) + h) % h
+                    translationY = y
+                    val edge = (minOf(y, h - y) / (h * 0.18f)).coerceIn(0f, 1f)
+                    alpha = 0.6f * edge
                     rotationZ = sin(t * 0.8f + i) * 12f
                 },
             )
