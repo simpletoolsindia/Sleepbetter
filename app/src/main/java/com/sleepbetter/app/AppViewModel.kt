@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.sleepbetter.app.audio.TimerChoice
 import com.sleepbetter.app.reminders.ReminderScheduler
 import com.sleepbetter.app.ui.components.Haptics
-import com.sleepbetter.core.audio.Preset
+import com.sleepbetter.core.mix.Mix
+import com.sleepbetter.core.mix.MixCodec
+import com.sleepbetter.core.mix.MixLayer
 import com.sleepbetter.core.audio.SoundId
 import com.sleepbetter.core.sleep.NightTag
 import com.sleepbetter.core.sleep.SleepSession
@@ -51,7 +53,47 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleSound(id: SoundId) = engine.toggle(id)
     fun moveSound(id: SoundId, x: Float, y: Float) = engine.setPosition(id, x, y)
-    fun applyPreset(preset: Preset) = engine.setOnly(preset.sounds)
+    val savedMixes = repository.savedMixes
+
+    /** Turns on exactly this mix's sounds, each in its place. */
+    fun applyMix(mix: Mix) {
+        mix.layers.forEach { engine.setPosition(it.sound, it.x, it.y) }
+        engine.setOnly(mix.sounds)
+    }
+
+    fun playMix(mix: Mix) {
+        applyMix(mix)
+        if (!this.mix.value.playing) engine.play()
+    }
+
+    /** The current sounds and their places, as a mix with [name]. */
+    fun currentMix(name: String): Mix {
+        val s = mix.value
+        return Mix.of(name, s.active.map { id -> val p = s.positions[id] ?: (id.stageX to id.stageY); MixLayer(id, p.first, p.second) })
+    }
+
+    fun saveCurrentMix(name: String) = repository.saveMix(currentMix(name))
+    fun deleteMix(id: String) = repository.deleteMix(id)
+
+    /** A mix that arrived from someone else, waiting for the user to accept it. */
+    private val _incoming = MutableStateFlow<Mix?>(null)
+    val incoming: StateFlow<Mix?> = _incoming.asStateFlow()
+
+    /** Looks for a mix in shared text, a link or a file's contents. Returns false if none was found. */
+    fun offerImport(text: String): Boolean {
+        val found = MixCodec.findIn(text) ?: return false
+        _incoming.value = found
+        return true
+    }
+
+    fun acceptIncoming(play: Boolean) {
+        val m = _incoming.value ?: return
+        repository.saveMix(m)
+        if (play) playMix(m)
+        _incoming.value = null
+    }
+
+    fun dismissIncoming() { _incoming.value = null }
     fun setTimer(choice: TimerChoice) = engine.setTimer(choice)
     fun togglePlay() = engine.togglePlay()
     fun extendTimer(seconds: Int) = engine.extendTimer(seconds)

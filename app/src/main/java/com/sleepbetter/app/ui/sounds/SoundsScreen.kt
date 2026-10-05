@@ -81,7 +81,7 @@ import java.time.LocalTime
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-private enum class SoundView(val label: String) { MIX("Pick sounds"), SPACE("Place them") }
+private enum class SoundView(val label: String) { MIXES("Mixes"), MIX("Pick sounds"), SPACE("Place them") }
 
 /**
  * Sounds: pick what plays (tiles light up with live level bars), then place
@@ -93,7 +93,7 @@ fun SoundsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
     val frame by rememberEngineFrame(vm.engine)
     val time by rememberClock()
     val still = rememberReduceMotion()
-    var view by rememberSaveable { mutableStateOf(SoundView.MIX) }
+    var view by rememberSaveable { mutableStateOf(SoundView.MIXES) }
 
     Column(
         modifier
@@ -138,6 +138,7 @@ fun SoundsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
             label = "view",
         ) { v ->
             when (v) {
+                SoundView.MIXES -> MixesPanel(vm)
                 SoundView.MIX -> Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     SoundId.entries.chunked(2).forEach { pair ->
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

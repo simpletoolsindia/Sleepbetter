@@ -24,6 +24,7 @@ import com.sleepbetter.core.audio.SoundId
 enum class Glyph {
     HOME, SOUNDS, MOON, CHART, FRIENDS, PLAY, PAUSE, BACK, FOCUS, BREATH, BELL, PLUS, MINUS, CHECK, SPARK, CLOCK,
     RAIN, DOWNPOUR, THUNDER, TENT, CAR, FIRE, FOREST, BIRDS, DROP, STREAM, NOISE, MUSIC,
+    SHARE, TRASH, WIFI, BLUETOOTH, LINK,
 }
 
 fun SoundId.glyph(): Glyph = when (this) {
@@ -112,5 +113,19 @@ private fun DrawScope.drawGlyph(g: Glyph, c: Color, w: Float) {
             line(p { moveTo(9f, 17f); lineTo(9f, 5.5f); lineTo(19f, 3.5f); lineTo(19f, 15f) })
             fill(p { addOval(Rect(Offset(6.5f, 17f), 2.8f)); addOval(Rect(Offset(16.5f, 15f), 2.8f)) })
         }
+        Glyph.SHARE -> {
+            line(p { addOval(Rect(Offset(17.5f, 5.5f), 2.5f)); addOval(Rect(Offset(6.5f, 12f), 2.5f)); addOval(Rect(Offset(17.5f, 18.5f), 2.5f)) })
+            line(p { moveTo(8.8f, 10.8f); lineTo(15.2f, 6.8f); moveTo(8.8f, 13.2f); lineTo(15.2f, 17.2f) })
+        }
+        Glyph.TRASH -> line(p { moveTo(4.5f, 7f); lineTo(19.5f, 7f); moveTo(9.5f, 7f); lineTo(9.5f, 4.5f); lineTo(14.5f, 4.5f); lineTo(14.5f, 7f); moveTo(6.5f, 7f); lineTo(7.5f, 19f); quadraticBezierTo(7.6f, 20f, 8.6f, 20f); lineTo(15.4f, 20f); quadraticBezierTo(16.4f, 20f, 16.5f, 19f); lineTo(17.5f, 7f); moveTo(10.5f, 11f); lineTo(10.5f, 16f); moveTo(13.5f, 11f); lineTo(13.5f, 16f) })
+        Glyph.WIFI -> {
+            line(p { moveTo(3f, 9.5f); quadraticBezierTo(12f, 1.5f, 21f, 9.5f); moveTo(6f, 12.8f); quadraticBezierTo(12f, 7.5f, 18f, 12.8f); moveTo(9f, 16f); quadraticBezierTo(12f, 13.5f, 15f, 16f) })
+            fill(p { addOval(Rect(Offset(12f, 19f), 1.5f)) })
+        }
+        Glyph.BLUETOOTH -> line(p { moveTo(7f, 7.5f); lineTo(17f, 16f); lineTo(12f, 20.5f); lineTo(12f, 3.5f); lineTo(17f, 8f); lineTo(7f, 16.5f) })
+        Glyph.LINK -> line(p {
+            moveTo(10.5f, 13.5f); quadraticBezierTo(12f, 15f, 13.8f, 13.6f); lineTo(17.6f, 9.8f); quadraticBezierTo(19.4f, 7.6f, 17.5f, 5.8f); quadraticBezierTo(15.6f, 4.2f, 13.6f, 6f); lineTo(12.2f, 7.4f)
+            moveTo(13.5f, 10.5f); quadraticBezierTo(12f, 9f, 10.2f, 10.4f); lineTo(6.4f, 14.2f); quadraticBezierTo(4.6f, 16.4f, 6.5f, 18.2f); quadraticBezierTo(8.4f, 19.8f, 10.4f, 18f); lineTo(11.8f, 16.6f)
+        })
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleepbetter.app.AppViewModel
 import com.sleepbetter.app.ui.components.BentoCard
+import com.sleepbetter.app.ui.components.Species
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.enter
 import com.sleepbetter.app.ui.components.pressable
@@ -119,7 +120,11 @@ private fun FriendCard(visitor: Visitor, unlocked: Boolean, selected: Boolean, m
     val hop = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val species = visitor.species()
-    val bg = if (unlocked) lerp(Color.White, species.body, 0.35f) else Palette.Card
+    val bg = when {
+        !unlocked -> Palette.Card
+        species == Species.MOCHI -> Palette.Lavender // Mochi is white; a white card would hide it
+        else -> lerp(Color.White, species.body, 0.35f)
+    }
     Column(
         modifier
             .clip(RoundedCornerShape(if (selected) 22.dp else 28.dp))

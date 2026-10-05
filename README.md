@@ -18,16 +18,25 @@ The design mixes two concepts (see the [UI concept](https://claude.ai/artifact/L
 | Last night | Story cards in the style of Spotify Wrapped: hours slept, bedtime, the week as moon phases, a morning check-in, and your level (Good / Medium risk / At risk) with a tip |
 | Visitors | The collection: Pip, Ember the fox, Hoot, Dozy and more, unlocked by steady bedtimes |
 
+## Mixes and sharing
+
+- **20 ready-made mixes** in five groups (Rain, Storms, Nature, Cozy, Focus): Light rain, Heavy rain, Rain drops only, Heavy rain and thunder, Thunderstorm, Forest rain and thunder, Forest and thunder, Distant storm, Rain on the tent, Rain on the car, Campfire in the rain, Deep focus and more. Tap one to play it.
+- **Your own mixes:** pick sounds, drag them closer or further away on the stage, then "Save this mix". Saved mixes can be played, shared or deleted.
+- **Share with a friend:** Quick Share (Wi-Fi Direct, nearby phones), Bluetooth, any other app, or copy a link. A mix travels as a tiny text file holding a `sleepbetter://mix/...` link (name, sounds and their places; about 60 characters). No account or internet needed.
+- **Receive:** open the file or link with SleepBetter, share text to it, or paste a link under "Add from a friend". Incoming mixes are checked and cleaned before you add them.
+
 ## Project layout
 
 ```
 core/   Pure Kotlin, no Android: the sound engine and the sleep logic (unit-tested)
   audio/  DSP, procedural nature sounds, spatial mixer, sleep timer
   sleep/  sessions, sleep score and risk level, tips, visitor unlocks
+  mix/    mixes, the 20 templates, the share code (MixCodec)
 app/    The Android app
   audio/      AudioEngine (AudioTrack thread), PlaybackService (foreground, mediaPlayback)
   data/       SleepRepository (on-device only)
   reminders/  bedtime reminders (inexact alarms, no special permission)
+  share/      sending mixes (Quick Share, Bluetooth, any app) and reading received ones
   ui/         Compose screens, characters, island scene, sound stage
 ```
 

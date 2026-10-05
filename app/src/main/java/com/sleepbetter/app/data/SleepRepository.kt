@@ -1,6 +1,9 @@
 package com.sleepbetter.app.data
 
 import android.content.Context
+import com.sleepbetter.core.audio.SoundId
+import com.sleepbetter.core.mix.Mix
+import com.sleepbetter.core.mix.MixLayer
 import com.sleepbetter.core.sleep.NightTag
 import com.sleepbetter.core.sleep.SleepReport
 import com.sleepbetter.core.sleep.SleepScoreCalculator
@@ -26,6 +29,8 @@ data class SleepSettings(
     val bedtimeLabel: String get() = "%02d:%02d".format(bedtimeMinute / 60, bedtimeMinute % 60)
 }
 
+data class SavedMix(val id: String, val mix: Mix)
+
 /**
  * Everything the app remembers, stored on the device only (no account, no
  * cloud). Kept deliberately simple: a small JSON list in SharedPreferences.
@@ -42,6 +47,50 @@ class SleepRepository(context: Context) {
 
     private val _focusSessions = MutableStateFlow(prefs.getInt("focus_sessions", 0))
     val focusSessions: StateFlow<Int> = _focusSessions.asStateFlow()
+
+    private val _savedMixes = MutableStateFlow(loadMixes())
+
+    /** Mixes the user saved or received, newest first. */
+    val savedMixes: StateFlow<List<SavedMix>> = _savedMixes.asStateFlow()
+
+    fun saveMix(mix: Mix): SavedMix {
+        val saved = SavedMix(java.util.UUID.randomUUID().toString(), mix)
+        storeMixes(listOf(saved) + _savedMixes.value.filterNot { it.mix.name == mix.name })
+        return saved
+    }
+
+    fun deleteMix(id: String) = storeMixes(_savedMixes.value.filterNot { it.id == id })
+
+    private fun storeMixes(list: List<SavedMix>) {
+        val json = JSONArray()
+        list.take(100).forEach { m ->
+            json.put(
+                JSONObject().put("id", m.id).put("name", m.mix.name).put(
+                    "layers",
+                    JSONArray(m.mix.layers.map { JSONObject().put("s", it.sound.code).put("x", it.x.toDouble()).put("y", it.y.toDouble()) }),
+                ),
+            )
+        }
+        prefs.edit().putString("mixes", json.toString()).apply()
+        _savedMixes.value = list
+    }
+
+    private fun loadMixes(): List<SavedMix> {
+        val raw = prefs.getString("mixes", null) ?: return emptyList()
+        val byCode = SoundId.entries.associateBy { it.code }
+        return runCatching {
+            val arr = JSONArray(raw)
+            (0 until arr.length()).mapNotNull { i ->
+                val o = arr.getJSONObject(i)
+                val layers = o.getJSONArray("layers")
+                val list = (0 until layers.length()).mapNotNull { j ->
+                    val l = layers.getJSONObject(j)
+                    byCode[l.optString("s")]?.let { MixLayer(it, l.optDouble("x", 0.0).toFloat(), l.optDouble("y", 0.0).toFloat()) }
+                }
+                if (list.isEmpty()) null else SavedMix(o.getString("id"), Mix.of(o.optString("name"), list))
+            }
+        }.getOrDefault(emptyList())
+    }
 
     /** When the user tapped "Start sleep mode", if they have not woken up yet. */
     val sleepStartedAt: Instant?

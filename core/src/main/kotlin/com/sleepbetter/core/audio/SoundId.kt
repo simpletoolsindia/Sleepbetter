@@ -16,19 +16,21 @@ enum class SoundId(
      * -21 dBFS for sparse sounds). SoundCalibrationTest keeps these honest.
      */
     val gain: Float,
+    /** Stable two-letter code used in shared mix links. Never change these. */
+    val code: String,
 ) {
-    RAIN("Rain", 0xFF5B8CFF, 0.02f, -0.35f, 2.54f),
-    DOWNPOUR("Downpour", 0xFF3E6BFF, 0f, -0.5f, 1.41f),
-    THUNDER("Thunder", 0xFF9B6BFF, 0.5f, -0.45f, 2.89f),
-    TENT("Tent", 0xFFFF9F6B, -0.4f, 0.2f, 2.83f),
-    CAR("Car", 0xFFFF6B8B, 0.4f, 0.3f, 2.76f),
-    CAMPFIRE("Campfire", 0xFFFFB547, 0.15f, 0.4f, 2.65f),
-    NIGHT_FOREST("Night forest", 0xFF3FD3A0, -0.5f, -0.35f, 3.99f),
-    BIRDS("Birds", 0xFFA6E35D, -0.2f, -0.55f, 4.03f),
-    WATER_DROPS("Water drops", 0xFF4FD1E8, -0.5f, 0.4f, 2.62f),
-    STREAM("Stream", 0xFF6BB8FF, 0.55f, 0.1f, 2.48f),
-    BROWN_NOISE("Brown noise", 0xFFC9B39A, 0f, 0.55f, 1.26f),
-    FOCUS_MUSIC("Focus music", 0xFFFF7AD9, -0.5f, 0f, 1.99f),
+    RAIN("Rain", 0xFF5B8CFF, 0.02f, -0.35f, 2.54f, "RN"),
+    DOWNPOUR("Downpour", 0xFF3E6BFF, 0f, -0.5f, 1.41f, "DP"),
+    THUNDER("Thunder", 0xFF9B6BFF, 0.5f, -0.45f, 2.89f, "TH"),
+    TENT("Tent", 0xFFFF9F6B, -0.4f, 0.2f, 2.83f, "TE"),
+    CAR("Car", 0xFFFF6B8B, 0.4f, 0.3f, 2.76f, "CA"),
+    CAMPFIRE("Campfire", 0xFFFFB547, 0.15f, 0.4f, 2.65f, "CF"),
+    NIGHT_FOREST("Night forest", 0xFF3FD3A0, -0.5f, -0.35f, 3.99f, "NF"),
+    BIRDS("Birds", 0xFFA6E35D, -0.2f, -0.55f, 4.03f, "BI"),
+    WATER_DROPS("Water drops", 0xFF4FD1E8, -0.5f, 0.4f, 2.62f, "WD"),
+    STREAM("Stream", 0xFF6BB8FF, 0.55f, 0.1f, 2.48f, "ST"),
+    BROWN_NOISE("Brown noise", 0xFFC9B39A, 0f, 0.55f, 1.26f, "BN"),
+    FOCUS_MUSIC("Focus music", 0xFFFF7AD9, -0.5f, 0f, 1.99f, "FM"),
     ;
 
     fun createSource(sampleRate: Int, seed: Long): SoundSource = when (this) {
@@ -45,15 +47,4 @@ enum class SoundId(
         BROWN_NOISE -> NoiseSource(seed, NoiseColor.BROWN)
         FOCUS_MUSIC -> FocusMusicSource(sampleRate, seed)
     }
-}
-
-/** Ready-made mixes, matching the plan's presets. */
-enum class Preset(val label: String, val sounds: Set<SoundId>) {
-    COZY_TENT("Cozy tent", setOf(SoundId.TENT, SoundId.THUNDER, SoundId.NIGHT_FOREST)),
-    DEEP_FOCUS("Deep focus", setOf(SoundId.RAIN, SoundId.BROWN_NOISE)),
-    ROAD_TRIP_NAP("Road-trip nap", setOf(SoundId.CAR, SoundId.BROWN_NOISE)),
-    CAMPFIRE_READING("Campfire reading", setOf(SoundId.CAMPFIRE, SoundId.NIGHT_FOREST, SoundId.RAIN)),
-    STORM_SLEEPER("Storm sleeper", setOf(SoundId.DOWNPOUR, SoundId.THUNDER)),
-    MORNING_STUDY("Morning study", setOf(SoundId.BIRDS, SoundId.RAIN, SoundId.FOCUS_MUSIC)),
-    CAVE_CALM("Cave calm", setOf(SoundId.WATER_DROPS, SoundId.BROWN_NOISE)),
 }

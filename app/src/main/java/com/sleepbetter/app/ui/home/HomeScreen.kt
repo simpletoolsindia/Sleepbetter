@@ -67,7 +67,8 @@ import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.Type
 import com.sleepbetter.app.ui.theme.deep
 import com.sleepbetter.app.ui.theme.tint
-import com.sleepbetter.core.audio.Preset
+import com.sleepbetter.core.mix.MixTemplate
+import com.sleepbetter.core.mix.MixTemplates
 import com.sleepbetter.core.sleep.RiskLevel
 import kotlinx.coroutines.delay
 import java.time.LocalTime
@@ -166,13 +167,10 @@ fun HomeScreen(
             }
         }
 
-        SectionTitle("Mixes for tonight", Modifier.enter(200), action = "All sounds", onAction = onSounds)
+        SectionTitle("Mixes for tonight", Modifier.enter(200), action = "All mixes", onAction = onSounds)
         LazyRow(Modifier.enter(220), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(Preset.entries.toList()) { preset ->
-                PresetCard(preset, playing = mix.playing && mix.active == preset.sounds) {
-                    vm.applyPreset(preset)
-                    if (!mix.playing) vm.togglePlay()
-                }
+            items(MixTemplates.featured) { t ->
+                PresetCard(t, playing = mix.playing && mix.active == t.mix.sounds) { vm.playMix(t.mix) }
             }
         }
         Spacer(Modifier.height(120.dp))
@@ -251,8 +249,9 @@ private fun BreathingRings(time: Float, still: Boolean) {
 }
 
 @Composable
-private fun PresetCard(preset: Preset, playing: Boolean, onClick: () -> Unit) {
-    val tints = preset.sounds.map { it.tint() }
+private fun PresetCard(template: MixTemplate, playing: Boolean, onClick: () -> Unit) {
+    val sounds = template.mix.layers.map { it.sound }
+    val tints = sounds.map { it.tint() }
     Column(
         Modifier
             .width(168.dp)
@@ -269,7 +268,7 @@ private fun PresetCard(preset: Preset, playing: Boolean, onClick: () -> Unit) {
                 .background(Brush.linearGradient(if (tints.size > 1) tints else tints + Palette.Lavender)),
         ) {
             Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy((-8).dp)) {
-                preset.sounds.forEach { id ->
+                sounds.forEach { id ->
                     Box(Modifier.size(34.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
                         GlyphIcon(id.glyph(), id.deep(), size = 18.dp)
                     }
@@ -281,9 +280,9 @@ private fun PresetCard(preset: Preset, playing: Boolean, onClick: () -> Unit) {
                 }
             }
         }
-        Text(preset.label, style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(start = 6.dp, top = 10.dp))
+        Text(template.mix.name, style = Type.Heading, color = Palette.Ink, maxLines = 1, modifier = Modifier.padding(start = 6.dp, top = 10.dp))
         Text(
-            preset.sounds.joinToString(", ") { it.label },
+            template.blurb,
             style = Type.Small,
             color = Palette.InkMuted,
             maxLines = 1,

@@ -51,6 +51,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleepbetter.app.ui.checkin.CheckInScreen
 import com.sleepbetter.app.ui.components.Glyph
 import com.sleepbetter.app.ui.components.GlyphIcon
@@ -60,6 +61,8 @@ import com.sleepbetter.app.ui.friends.FriendsScreen
 import com.sleepbetter.app.ui.home.HomeScreen
 import com.sleepbetter.app.ui.insights.InsightsScreen
 import com.sleepbetter.app.ui.sleep.SleepModeScreen
+import com.sleepbetter.app.share.MixSharing
+import com.sleepbetter.app.ui.sounds.IncomingMixDialog
 import com.sleepbetter.app.ui.sounds.SoundsScreen
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
@@ -78,6 +81,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         readDestination(intent)
+        if (savedInstanceState == null) readSharedMix(intent)
         setContent {
             SleepBetterTheme {
                 SleepBetterUi(vm, requested.value) { requested.value = null }
@@ -88,6 +92,13 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         readDestination(intent)
+        readSharedMix(intent)
+    }
+
+    /** A mix shared by a friend (Quick Share, Bluetooth, a link or shared text). */
+    private fun readSharedMix(intent: Intent?) {
+        val text = MixSharing.textFrom(this, intent ?: return) ?: return
+        if (vm.offerImport(text)) requested.value = Destination.SOUNDS
     }
 
     private fun readDestination(intent: Intent?) {
@@ -111,6 +122,9 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
     BackHandler(enabled = dest != Destination.HOME && dest != Destination.SLEEP) {
         dest = if (dest == Destination.CHECK_IN) Destination.INSIGHTS else Destination.HOME
     }
+
+    val incoming by vm.incoming.collectAsStateWithLifecycle()
+    incoming?.let { IncomingMixDialog(it, onAdd = vm::acceptIncoming, onDismiss = vm::dismissIncoming) }
 
     Box(Modifier.fillMaxSize().background(Palette.Paper)) {
         AnimatedContent(
