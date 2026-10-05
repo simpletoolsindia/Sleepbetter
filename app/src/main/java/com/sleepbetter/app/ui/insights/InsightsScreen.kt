@@ -1,5 +1,6 @@
 package com.sleepbetter.app.ui.insights
 
+import com.sleepbetter.app.ui.components.floaty
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
@@ -146,12 +147,12 @@ fun InsightsScreen(vm: AppViewModel, onWindDown: () -> Unit, onFriends: () -> Un
             }
         }
 
-        Text("Try next", style = Type.Title, color = Palette.Ink)
+        Text("Try next 💡", style = Type.Title, color = Palette.Ink)
         tips.forEachIndexed { i, tip ->
             BentoCard(Modifier.fillMaxWidth().enter(60 * i)) {
                 Row {
                     Box(Modifier.size(40.dp).background(listOf(Palette.Accent, Palette.Sky, Palette.Rose, Palette.Sage)[i % 4], CircleShape), contentAlignment = Alignment.Center) {
-                        GlyphIcon(Glyph.SPARK, Palette.Ink, size = 18.dp)
+                        Text(listOf("🌙", "☕", "📵", "🛁", "🚶", "🌿")[i % 6], fontSize = 20.sp, modifier = Modifier.floaty(amplitude = 2f, phase = i * 0.3f))
                     }
                     Column(Modifier.padding(start = 12.dp)) {
                         Text(tip.title, style = Type.Heading, color = Palette.Ink)

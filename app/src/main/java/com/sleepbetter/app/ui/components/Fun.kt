@@ -226,9 +226,17 @@ fun MochiSays(lines: List<String>, modifier: Modifier = Modifier, everyMs: Long 
         hop.snapTo(0f)
         hop.animateTo(1f, spring(0.4f, 300f))
     }
+    val burst = LocalBurst.current
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
+        // Tap the character to hear the next line.
         MochiView(
-            Modifier.size(58.dp).graphicsLayer { translationY = -14f * sin(hop.value * PI.toFloat()).coerceAtLeast(0f) },
+            Modifier
+                .size(58.dp)
+                .pressable {
+                    index = (index + 1) % lines.size
+                    burst.fire(listOf("💜", "✨", species.emoji()), Offset(0.15f, 0.16f), count = 8)
+                }
+                .graphicsLayer { translationY = -14f * sin(hop.value * PI.toFloat()).coerceAtLeast(0f) },
             species = species,
             mood = 3.6f,
         )

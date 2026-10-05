@@ -1,5 +1,7 @@
 package com.sleepbetter.app.ui.friends
 
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -93,8 +95,11 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
                     val segments = needed.coerceAtMost(14)
+                    // The progress fills in segment by segment.
+                    val grow = remember { Animatable(0f) }
+                    LaunchedEffect(Unit) { grow.animateTo(1f, tween(900)) }
                     repeat(segments) { i ->
-                        val filled = i < steady * segments / needed
+                        val filled = i < (steady * segments / needed) * grow.value
                         Box(Modifier.weight(1f).height(10.dp).background(if (filled) Palette.Ink else Color.White.copy(alpha = 0.7f), RoundedCornerShape(5.dp)))
                     }
                 }

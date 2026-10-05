@@ -80,8 +80,8 @@ fun MixesPanel(vm: AppViewModel) {
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            PrimaryButton("Save this mix", { saving = true }, Modifier.weight(1f), glyph = Glyph.PLUS)
-            PrimaryButton("Add from a friend", { importing = true }, Modifier.weight(1f), color = Palette.Card, textColor = Palette.Ink)
+            PrimaryButton("Save mix", { saving = true }, Modifier.weight(1f), glyph = Glyph.PLUS)
+            PrimaryButton("🎁 Get a mix", { importing = true }, Modifier.weight(1f), color = Palette.Card, textColor = Palette.Ink)
         }
 
         Text("Your mixes 💜", style = Type.Title, color = Palette.Ink)
@@ -92,7 +92,7 @@ fun MixesPanel(vm: AppViewModel) {
                     Text("🎛️", fontSize = 26.sp, modifier = Modifier.floaty())
                 }
                 Text(
-                    "Turn sounds on, place them where you like, then tap Save this mix. You can send any saved mix to a friend.",
+                    "Turn sounds on, place them where you like, then tap Save mix. Send any saved mix to a friend 💌",
                     style = Type.Body,
                     color = Palette.InkSoft,
                     modifier = Modifier.padding(top = 4.dp),

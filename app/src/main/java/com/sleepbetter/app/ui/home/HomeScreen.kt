@@ -1,5 +1,6 @@
 package com.sleepbetter.app.ui.home
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -178,14 +179,14 @@ fun HomeScreen(
         Row(Modifier.enter(140), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             BentoCard(Modifier.weight(1f), color = Palette.Sky, onClick = onFocus) {
                 MochiView(Modifier.size(64.dp), headphones = true, mood = 3.5f)
-                Text("Focus", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
+                Text("Focus 🎧", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
                 Text("25 min with music", style = Type.Small, color = Palette.InkSoft)
             }
             BentoCard(Modifier.weight(1f), color = Palette.Rose, onClick = onWindDown) {
                 Box(Modifier.size(64.dp), contentAlignment = Alignment.Center) {
                     BreathingRings(time, still)
                 }
-                Text("Breathe", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
+                Text("Breathe 🫧", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 6.dp))
                 Text("4-7-8 to slow down", style = Type.Small, color = Palette.InkSoft)
             }
         }
@@ -251,6 +252,10 @@ private fun LastNightCard(minutes: Int?, week: List<Int>, modifier: Modifier, on
 /** Rounded pill bars; full height = 9 hours, the dashed line marks 7 hours. */
 @Composable
 fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.AccentDeep, goalLine: Color = Color.White) {
+    // Bars grow up one after another when the card appears.
+    val still = rememberReduceMotion()
+    val grow = remember { Animatable(if (still) 1f else 0f) }
+    LaunchedEffect(Unit) { grow.animateTo(1f, tween(1100, easing = FastOutSlowInEasing)) }
     Canvas(modifier.semantics { contentDescription = minutes.joinToString { hoursMinutes(it) } }) {
         val n = 7
         val gap = size.width * 0.04f
@@ -258,7 +263,9 @@ fun WeekBars(minutes: List<Int>, modifier: Modifier, bar: Color = Palette.Accent
         val goalY = size.height * (1f - 7f / 9f)
         drawLine(goalLine, Offset(0f, goalY), Offset(size.width, goalY), 2f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6f, 6f)))
         minutes.takeLast(n).forEachIndexed { i, m ->
-            val hgt = (m / 540f).coerceIn(0.08f, 1f) * size.height
+            val p = ((grow.value * 1.6f) - i * 0.09f).coerceIn(0f, 1f)
+            val ease = 1f - (1f - p) * (1f - p)
+            val hgt = (m / 540f).coerceIn(0.08f, 1f) * size.height * ease.coerceAtLeast(0.02f)
             drawRoundRect(bar, Offset(i * (w + gap), size.height - hgt), Size(w, hgt), CornerRadius(w / 2f))
         }
     }
