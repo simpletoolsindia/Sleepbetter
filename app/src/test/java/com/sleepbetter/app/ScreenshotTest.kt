@@ -14,6 +14,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.sleepbetter.app.ui.components.BestFriends
 import com.sleepbetter.app.ui.components.DinoEgg
+import com.sleepbetter.app.ui.components.DinoWalker
 import com.sleepbetter.app.ui.components.MochiView
 import com.sleepbetter.app.ui.components.SceneFrames
 import com.sleepbetter.app.ui.components.Species
@@ -79,6 +80,7 @@ class ScreenshotTest {
                     Row {
                         listOf(0.2f, 0.6f, 0.95f).forEach { DinoEgg(it, Modifier.size(70.dp)) }
                     }
+                    DinoWalker(Species.PICO)
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.sleepbetter.app.ui.friends
 
+import com.sleepbetter.app.ui.components.DinoWalker
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.animation.core.Animatable
@@ -77,6 +78,8 @@ fun FriendsScreen(vm: AppViewModel, modifier: Modifier = Modifier) {
     ) {
         Text("Friends 🐾", style = Type.Display, color = Palette.Ink, modifier = Modifier.padding(top = 12.dp))
         Text("Keep a steady bedtime and new friends move in. They sleep when you sleep.", style = Type.Body, color = Palette.InkSoft)
+        // Lulu out for a walk across the top of the page.
+        DinoWalker(Species.LULU, height = 76.dp)
 
         progress.next?.let { next ->
             BentoCard(Modifier.fillMaxWidth().enter(0), color = Palette.Butter) {

@@ -21,9 +21,9 @@
     <path android:fillColor="#FFFFD98A" android:strokeColor="#FF3A2622" android:strokeWidth="2"
         android:pathData="M57,49 Q58,38 63,38 Q68,38 69,49 Z" />
     <!-- Pico: shaded underside, then the mint head, then one outline -->
-    <path android:fillColor="#FF7DCBAA"
+    <path android:fillColor="#FF6DBB55"
         android:pathData="M30,65 C30,50 41,43 54,43 C67,43 78,50 78,65 C78,75 69,80 54,80 C39,80 30,75 30,65 Z" />
-    <path android:fillColor="#FFA3E4C8"
+    <path android:fillColor="#FF8BD46E"
         android:pathData="M31,63.5 C31,49.5 41.5,43 54,43 C66.5,43 77,49.5 77,63.5 C77,72 68.5,76.5 54,76.5 C39.5,76.5 31,72 31,63.5 Z" />
     <path android:strokeColor="#FF3A2622" android:strokeWidth="2.2"
         android:pathData="M30,65 C30,50 41,43 54,43 C67,43 78,50 78,65 C78,75 69,80 54,80 C39,80 30,75 30,65 Z" />

@@ -95,16 +95,16 @@ internal fun DrawScope.drawDuskScene(
         if (stormy > 0.01f) drawRect(Palette.Night.copy(alpha = 0.28f * stormy), Offset.Zero, Size(390f, h))
         if (showMochi) {
             // Lulu dozes against the moon, Pico curled up on top.
-            withTransform({ translate(214f, h * 0.2f + 8f); scale(0.56f, 0.56f, pivot = Offset.Zero) }) {
+            withTransform({ translate(214f, h * 0.2f - 4f); scale(0.3f, 0.3f, pivot = Offset.Zero) }) {
                 val breath = 1f + 0.03f * sin(t * 2.2f + 1.3f)
                 scale(1f, breath, pivot = Offset(60f, 96f)) {
-                    drawCharacter(Species.LULU, Species.LULU.body, Species.LULU.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t + 2f, headphones = false, withBody = false)
+                    drawDinoFront(Species.LULU, Species.LULU.dinoPalette()!!, DinoMotion(breath = 0.5f + 0.5f * sin(t * 2.2f + 1.3f), tilt = -6f, sleeping = true))
                 }
             }
-            withTransform({ translate(258f, h * 0.2f - 6f); scale(0.62f, 0.62f, pivot = Offset.Zero) }) {
+            withTransform({ translate(256f, h * 0.2f - 22f); scale(0.36f, 0.36f, pivot = Offset.Zero) }) {
                 val breath = 1f + 0.03f * sin(t * 2.2f)
                 scale(1f, breath, pivot = Offset(60f, 96f)) {
-                    drawCharacter(Species.PICO, Species.PICO.body, Species.PICO.shade, sleeping = true, mood = 3f, blink = 1f, wobble = t, headphones = false, withBody = false)
+                    drawDinoFront(Species.PICO, Species.PICO.dinoPalette()!!, DinoMotion(breath = 0.5f + 0.5f * sin(t * 2.2f), tilt = 5f, sleeping = true))
                 }
             }
             drawZs(t, h)

@@ -51,7 +51,7 @@ import kotlin.math.sin
  * one family. Original designs, drawn in code.
  */
 enum class Species(val body: Color, val shade: Color, val description: String) {
-    PICO(Color(0xFFA3E4C8), Color(0xFF7DCBAA), "Pico the baby dino"),
+    PICO(Color(0xFF8BD46E), Color(0xFF6DBB55), "Pico the baby dino"),
     LULU(Color(0xFFFFC6D8), Color(0xFFF2A4BE), "Lulu the baby dino"),
     MOCHI(Color(0xFFFFFFFF), Color(0xFFE4DDF7), "Mochi the panda"),
     REX(Color(0xFFFFB3A0), Color(0xFFF08F7B), "Rex the T. rex"),
@@ -136,6 +136,32 @@ fun MochiView(
         val k = size.width / 120f
         val b = if (still) 0f else breath
         val nod = if (still || beat == null) 0f else sin(beat * PI.toFloat()) * 3f
+        // Dinos are illustrated: a layered drawing, each part animated.
+        val pal = species.dinoPalette()
+        if (pal != null) {
+            val u = size.height / 200f
+            val waveAmt = if (sleeping || silhouette || still) 0f else ((sin(wobble) - 0.55f) / 0.45f).coerceIn(0f, 1f)
+            withTransform({
+                translate(left = (size.width - 200f * u) / 2f, top = nod * 3f * u)
+                scale(u, u, Offset.Zero)
+            }) {
+                drawDinoFront(
+                    species, pal,
+                    DinoMotion(
+                        breath = b,
+                        tilt = if (still) 0f else 4f * sin(wobble * 1.3f),
+                        wag = if (still) 0f else 7f * sin(wobble * 3f),
+                        blink = if (still) 1f else blink,
+                        wave = -130f * waveAmt + 14f * sin(wobble * 14f) * waveAmt,
+                        sleeping = sleeping,
+                        mood = moodAnim,
+                        headphones = headphones,
+                        silhouette = silhouette,
+                    ),
+                )
+            }
+            return@Canvas
+        }
         withTransform({
             scale(k, k, pivot = Offset.Zero)
             translate(top = nod)

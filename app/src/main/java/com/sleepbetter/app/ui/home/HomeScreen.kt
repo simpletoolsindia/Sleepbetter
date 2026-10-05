@@ -1,5 +1,6 @@
 package com.sleepbetter.app.ui.home
 
+import com.sleepbetter.app.ui.components.DinoWalker
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -207,7 +208,9 @@ fun HomeScreen(
                 }
             }
         }
-        Spacer(Modifier.height(120.dp))
+        // Pico strolls along the bottom and waves at each end.
+        DinoWalker(Species.PICO, Modifier.padding(top = 4.dp))
+        Spacer(Modifier.height(110.dp))
     }
 }
 
