@@ -265,20 +265,67 @@ internal fun DrawScope.drawCharacter(
         )
     }
     val dino = species.isDino
-    if (withBody) {
-        if (dino && species != Species.PTERO) {
-            // A stubby tail curling out behind, with a tip that wags.
-            val wag = 3f * sin(wobble * 2f)
-            shape(Path().apply { moveTo(80f, 84f); quadraticBezierTo(100f, 88f, 106f + wag, 70f); quadraticBezierTo(98f, 80f, 81f, 72f); close() }, body)
-            // Anky's tail ends in a round club.
-            if (species == Species.ANKY) oval(Offset(100f + wag, 62f), Size(13f, 12f), shade)
+    if (withBody && dino) {
+        // A proper little dinosaur: a pear-shaped sitting body with a cream
+        // striped belly, chubby thighs with white toes, a curvy tail with
+        // plates along it, spots, and a friendly wave every few seconds.
+        val plate = dinoPlate(species)
+        val belly = when (species) {
+            Species.LULU -> Color(0xFFFFEDF4)
+            Species.PICO -> Color(0xFFFFF0B8)
+            else -> Color(0xFFFFF4DC)
         }
-        if (species == Species.PTERO) {
-            // Wings instead of arms, flapping gently.
+        val wag = 4f * sin(wobble * 2f)
+        if (species != Species.PTERO) {
+            // Plates first, so the tail and back cover their bases.
+            listOf(Triple(88f, 66f, 9f), Triple(98f, 76f, 8f), Triple(108f, 70f + wag * 0.5f, 7f)).forEach { (x, y, r) ->
+                if (species == Species.STEGO) shape(heartPath(Offset(x, y - 3f), r * 2.2f), if (face) plate else body)
+                else shape(Path().apply { moveTo(x - r, y + 3f); quadraticBezierTo(x - r * 0.4f, y - r * 1.3f, x + 1f, y - r * 1.2f); quadraticBezierTo(x + r * 0.6f, y - r * 0.6f, x + r, y + 3f); close() }, if (face) plate else body)
+            }
+            shape(Path().apply { moveTo(76f, 92f); cubicTo(96f, 94f, 110f, 86f, 116f + wag, 64f); cubicTo(108f, 76f, 96f, 80f, 80f, 74f); close() }, body)
+            if (species == Species.ANKY) oval(Offset(109f + wag, 57f), Size(13f, 12f), shade)
+        } else {
+            // Petra has wings instead of a tail, flapping gently.
             val flap = 7f * sin(wobble * 5f)
             shape(Path().apply { moveTo(40f, 66f); quadraticBezierTo(18f, 50f - flap, 6f, 58f - flap); quadraticBezierTo(18f, 70f, 26f, 84f); quadraticBezierTo(34f, 76f, 40f, 78f); close() }, shade)
             shape(Path().apply { moveTo(80f, 66f); quadraticBezierTo(102f, 50f - flap, 114f, 58f - flap); quadraticBezierTo(102f, 70f, 94f, 84f); quadraticBezierTo(86f, 76f, 80f, 78f); close() }, shade)
         }
+        // The pear-shaped body.
+        shape(Path().apply { moveTo(42f, 60f); cubicTo(30f, 68f, 28f, 95f, 46f, 96f); lineTo(74f, 96f); cubicTo(92f, 95f, 90f, 68f, 78f, 60f); close() }, body)
+        // Cream belly with soft stripes.
+        val bellyPath = Path().apply { addOval(Rect(Offset(46f, 64f), Size(28f, 31f))) }
+        drawPath(bellyPath, if (face) belly else body)
+        if (face) {
+            listOf(74f to 9f, 80f to 11f, 86f to 10f).forEach { (y, w) -> drawLine(shade.copy(alpha = 0.45f), Offset(60f - w, y), Offset(60f + w, y), 1.4f, StrokeCap.Round) }
+            // A few spots on the back.
+            if (species != Species.ANKY) listOf(Offset(36f, 74f), Offset(39f, 82f), Offset(84f, 76f)).forEach { drawCircle(shade.copy(alpha = 0.7f), 2.4f, it) }
+            else listOf(Offset(38f, 72f), Offset(36f, 82f), Offset(84f, 74f), Offset(86f, 84f)).forEach { drawCircle(shade, 3f, it) }
+        }
+        // Chubby thighs with white toes.
+        listOf(30f, 66f).forEach { x ->
+            oval(Offset(x, 79f), Size(24f, 17f), body)
+            if (face) listOf(x + 5f, x + 11f, x + 17f).forEach { tx ->
+                drawCircle(Color.White, 2.4f, Offset(tx, 95f))
+                drawCircle(line, 2.4f, Offset(tx, 95f), style = Stroke(1.1f))
+            }
+        }
+        // Arms: resting on the belly, and the right one waves hello now and then.
+        if (species != Species.PTERO) {
+            val small = species == Species.REX // famous tiny arms
+            val aw = if (small) 7f else 10f
+            val ah = if (small) 10f else 15f
+            val waveAmt = if (face && !sleeping) ((sin(wobble) - 0.55f) / 0.45f).coerceIn(0f, 1f) else 0f
+            val wiggle = 14f * sin(wobble * 14f) * waveAmt
+            rotate(25f, pivot = Offset(44f, 66f)) {
+                oval(Offset(39f, 64f), Size(aw, ah), body)
+                if (face) drawCircle(Color.White, 1.7f, Offset(44f, 64f + ah - 1f))
+            }
+            rotate(-25f - 130f * waveAmt + wiggle, pivot = Offset(76f, 66f)) {
+                oval(Offset(76f - aw / 2f, 64f), Size(aw, ah), body)
+                if (face) drawCircle(Color.White, 1.7f, Offset(76f, 64f + ah - 1f))
+            }
+        }
+    } else if (withBody) {
         // Feet first, so the body sits on them and only their soles show.
         oval(Offset(39f, 86f), Size(16f, 10f), if (panda) Patch else shade)
         oval(Offset(65f, 86f), Size(16f, 10f), if (panda) Patch else shade)
@@ -289,30 +336,19 @@ internal fun DrawScope.drawCharacter(
             },
             body,
         )
-        if (species == Species.OWL || dino) drawOval(Color(0x66FFFFFF), Offset(46f, 70f), Size(28f, 18f))
-        when (species) {
-            Species.REX -> {
-                // Famous tiny arms, waving.
-                val wave = 28f * sin(wobble * 4f)
-                rotate(-20f + wave, pivot = Offset(42f, 68f)) { oval(Offset(34f, 66f), Size(10f, 7f), limb) }
-                rotate(20f - wave, pivot = Offset(78f, 68f)) { oval(Offset(76f, 66f), Size(10f, 7f), limb) }
-            }
-            Species.PTERO -> Unit
-            else -> {
-                // Stubby arms resting in front.
-                oval(Offset(31f, 70f), Size(14f, 11f), limb)
-                oval(Offset(75f, 70f), Size(14f, 11f), limb)
-            }
-        }
-        if (species == Species.ANKY && face) {
-            listOf(48f to 66f, 60f to 64f, 72f to 66f).forEach { (x, y) -> drawCircle(shade, 3f, Offset(x, y)) }
-        }
+        if (species == Species.OWL) drawOval(Color(0x66FFFFFF), Offset(46f, 70f), Size(28f, 18f))
+        // Stubby arms resting in front.
+        oval(Offset(31f, 70f), Size(14f, 11f), limb)
+        oval(Offset(75f, 70f), Size(14f, 11f), limb)
     }
 
     withTransform({
         if (bronto) {
             translate(left = sway, top = -lift)
             scale(0.72f, 0.72f, pivot = Offset(60f, headY + 30f))
+        } else if (dino && withBody) {
+            // A curious little head tilt.
+            rotate(3.5f * sin(wobble * 1.3f), pivot = Offset(60f, headY + 28f))
         }
     }) {
 
@@ -417,6 +453,11 @@ internal fun DrawScope.drawCharacter(
             drawPath(blobPath(wobble, cy = headY, rx = headRx, ry = headRy), body)
         }
         drawPath(head, line, style = stroke)
+        if (dino && face) {
+            // A glossy shine on the head and a few spots.
+            rotate(-18f, pivot = Offset(40f, headY - 20f)) { drawOval(Color.White.copy(alpha = 0.5f), Offset(32f, headY - 25f), Size(16f, 8f)) }
+            if (species != Species.ANKY) listOf(Offset(84f, headY - 18f), Offset(91f, headY - 9f), Offset(79f, headY - 24f)).forEach { drawCircle(shade.copy(alpha = 0.6f), 2.3f, it) }
+        }
 
         if (species == Species.TRIKE) {
             // Three soft horns: two over the eyes, a little one on the nose.
@@ -532,8 +573,11 @@ internal fun DrawScope.drawCharacter(
                 for (x in listOf(lx, rx)) {
                     // A light ring separates the pupil from a panda patch.
                     if (panda) drawOval(Color(0xFFFFF6EC), Offset(x - 6.5f, eyeY - 7.5f), Size(13f, 15f))
-                    drawOval(Outline, Offset(x - 5.5f, eyeY - 6.5f), Size(11f, 13f))
-                    drawCircle(Color.White, 2.4f, Offset(x + 1.8f, eyeY - 2.6f))
+                    // Dinos get bigger, glossier eyes.
+                    val ew = if (dino) 13f else 11f
+                    val eh = if (dino) 15f else 13f
+                    drawOval(Outline, Offset(x - ew / 2f, eyeY - eh / 2f), Size(ew, eh))
+                    drawCircle(Color.White, if (dino) 3f else 2.4f, Offset(x + 1.8f, eyeY - 2.6f))
                     drawCircle(Color.White, 1.1f, Offset(x - 2f, eyeY + 2.8f))
                 }
             }
@@ -568,6 +612,11 @@ internal fun DrawScope.drawCharacter(
                 val open = Path().apply { moveTo(53f, mouthY - 2f); lineTo(67f, mouthY - 2f); quadraticBezierTo(67f, mouthY + 8f, 60f, mouthY + 8f); quadraticBezierTo(53f, mouthY + 8f, 53f, mouthY - 2f); close() }
                 drawPath(open, Outline)
                 drawOval(Color(0xFFFF7A8A), Offset(56f, mouthY + 2.5f), Size(8f, 4.5f))
+            }
+            dino && smile >= -0.2f && species != Species.REX -> {
+                // A simple, happy curve of a smile.
+                val d = 3.5f + 3f * smile.coerceAtLeast(0f)
+                drawPath(Path().apply { moveTo(54f, mouthY - 1f); quadraticBezierTo(60f, mouthY + d, 66f, mouthY - 1f) }, Outline, style = mouth)
             }
             smile >= -0.2f -> {
                 // The cat-like "ω" mouth; deeper when happier.
@@ -610,4 +659,13 @@ private fun heartPath(c: Offset, size: Float): Path {
         cubicTo(c.x + 11f * k, c.y - 2f * k, c.x + 9f * k, c.y + 3f * k, c.x, c.y + 9f * k)
         close()
     }
+}
+
+/** The colour of each dino's back plates. */
+private fun dinoPlate(species: Species): Color = when (species) {
+    Species.PICO -> Color(0xFFFFD98A)
+    Species.LULU -> Color(0xFFCDB9F7)
+    Species.STEGO -> Color(0xFFFF9DB0)
+    Species.REX -> Color(0xFFFFE08A)
+    else -> species.shade
 }
