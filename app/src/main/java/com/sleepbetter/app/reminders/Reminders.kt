@@ -101,9 +101,10 @@ class ReminderReceiver : BroadcastReceiver() {
  */
 private fun animatedScene(context: Context, active: Set<SoundId>, title: String, text: String): RemoteViews? = runCatching {
     val sounds = active.ifEmpty { setOf(SoundId.RAIN, SoundId.TENT, SoundId.NIGHT_FOREST) }
-    val times = List(6) { 2f + it * 0.15f }
-    val strike = if (SoundId.THUNDER in sounds) times[1] else -10f
-    val frames = SceneFrames.frames(sounds, 300, 200, times, lightningAt = strike)
+    // Eight frames 0.07 s apart: rain moves in small steps instead of jumping.
+    val times = List(8) { 2f + it * 0.07f }
+    val strike = if (SoundId.THUNDER in sounds) times[2] else -10f
+    val frames = SceneFrames.frames(sounds, 270, 180, times, lightningAt = strike)
     RemoteViews(context.packageName, R.layout.notification_scene).apply {
         setTextViewText(R.id.scene_title, title)
         setTextViewText(R.id.scene_text, text)

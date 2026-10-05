@@ -7,6 +7,8 @@ plugins {
 }
 
 android {
+    // Recordings are read with openFd, which needs them stored uncompressed (Vorbis is already compressed).
+    androidResources { noCompress += "ogg" }
     namespace = "com.sleepbetter.app"
     compileSdk = 36
 

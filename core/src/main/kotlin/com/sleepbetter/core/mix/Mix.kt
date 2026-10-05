@@ -63,6 +63,9 @@ object MixTemplates {
         t("Distant storm", "🌫️", MixCategory.STORM, "Thunder far away, nothing else", l(SoundId.THUNDER, 0f, -0.75f), l(SoundId.RAIN, 0f, -0.6f)),
         t("Night forest", "🦉", MixCategory.NATURE, "Crickets, wind and the odd owl", l(SoundId.NIGHT_FOREST, 0f, -0.2f)),
         t("Morning birds", "🐦", MixCategory.NATURE, "Birdsong by a stream", l(SoundId.BIRDS, -0.2f, -0.3f), l(SoundId.STREAM, 0.4f, 0f)),
+        t("Ocean waves", "🌊", MixCategory.NATURE, "Waves rolling onto the shore", l(SoundId.SEA, 0f, -0.2f)),
+        t("Rainy beach", "🏖️", MixCategory.NATURE, "Soft rain over the sea", l(SoundId.SEA, 0f, -0.25f), l(SoundId.RAIN, -0.3f, -0.5f)),
+        t("Storm at sea", "🌊", MixCategory.STORM, "Big waves, rain and thunder", l(SoundId.SEA, 0f, -0.15f), l(SoundId.DOWNPOUR, -0.3f, -0.4f), l(SoundId.THUNDER, 0.5f, -0.55f)),
         t("River", "🏞️", MixCategory.NATURE, "Water over stones", l(SoundId.STREAM, 0f, -0.15f)),
         t("Cave drips", "🪨", MixCategory.NATURE, "Echoing drops in a cave", l(SoundId.WATER_DROPS, 0f, -0.2f), l(SoundId.BROWN_NOISE, 0f, 0.7f)),
         t("Cozy tent", "🏕️", MixCategory.COZY, "Tent, thunder and crickets", l(SoundId.TENT, -0.2f, 0.1f), l(SoundId.THUNDER, 0.5f, -0.5f), l(SoundId.NIGHT_FOREST, -0.5f, -0.35f)),
@@ -74,6 +77,6 @@ object MixTemplates {
     )
 
     /** A short list for the home screen. */
-    val featured: List<MixTemplate> = listOf("Heavy rain and thunder", "Cozy tent", "Forest rain and thunder", "Rain drops only", "Campfire night", "Deep focus")
+    val featured: List<MixTemplate> = listOf("Heavy rain and thunder", "Ocean waves", "Cozy tent", "Forest rain and thunder", "Rain drops only", "Campfire night", "Deep focus")
         .mapNotNull { name -> all.firstOrNull { it.mix.name == name } }
 }

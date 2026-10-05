@@ -31,6 +31,7 @@ enum class SoundId(
     STREAM("Stream", 0xFF6BB8FF, 0.55f, 0.1f, 2.48f, "ST"),
     BROWN_NOISE("Brown noise", 0xFFC9B39A, 0f, 0.55f, 1.26f, "BN"),
     FOCUS_MUSIC("Focus music", 0xFFFF7AD9, -0.5f, 0f, 1.99f, "FM"),
+    SEA("Sea waves", 0xFF2EC4D6, 0f, -0.55f, 1.38f, "SW"),
     ;
 
     fun createSource(sampleRate: Int, seed: Long): SoundSource = when (this) {
@@ -46,5 +47,9 @@ enum class SoundId(
         STREAM -> StreamSource(sampleRate, seed)
         BROWN_NOISE -> NoiseSource(seed, NoiseColor.BROWN)
         FOCUS_MUSIC -> FocusMusicSource(sampleRate, seed)
+        SEA -> SeaSource(sampleRate, seed)
     }
+
+    /** Sounds that are synthetic by nature and never use recordings. */
+    val alwaysGenerated: Boolean get() = this == BROWN_NOISE || this == FOCUS_MUSIC
 }

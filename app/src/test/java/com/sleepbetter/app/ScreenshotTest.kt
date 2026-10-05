@@ -91,8 +91,8 @@ class ScreenshotTest {
     /** The reminder notification's flip-book frames and the playback artwork, as the system will get them. */
     @Test fun notificationFrames() {
         val sounds = setOf(SoundId.RAIN, SoundId.THUNDER, SoundId.TENT, SoundId.NIGHT_FOREST)
-        val times = List(6) { 2f + it * 0.15f }
-        SceneFrames.frames(sounds, 300, 200, times, lightningAt = times[1]).forEachIndexed { i, frame ->
+        val times = List(8) { 2f + it * 0.07f }
+        SceneFrames.frames(sounds, 270, 180, times, lightningAt = times[2]).forEachIndexed { i, frame ->
             save(frame, "15-notification-frame-$i.png")
         }
         save(SceneFrames.still(sounds, 360, 360), "16-playback-artwork.png")

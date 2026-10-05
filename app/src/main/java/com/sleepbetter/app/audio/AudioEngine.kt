@@ -50,6 +50,9 @@ data class EngineFrame(
 class AudioEngine(private val context: Context) {
     private val sampleRate = 48_000
     private val mixer = Mixer(sampleRate)
+    private val library = RecordingLibrary(context)
+    private val loader = java.util.concurrent.Executors.newSingleThreadExecutor { Thread(it, "SleepBetterDecode") }
+    private val delivered = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<SoundId, Boolean>())
     private val audioManager = context.getSystemService(AudioManager::class.java)
 
     private val _state = MutableStateFlow(MixState())
@@ -76,8 +79,17 @@ class AudioEngine(private val context: Context) {
     fun toggle(id: SoundId) = setActive(id, id !in _state.value.active)
 
     fun setActive(id: SoundId, active: Boolean) {
-        mixer.setActive(id, active)
         _state.update { it.copy(active = if (active) it.active + id else it.active - id) }
+        if (active && library.has(id) && id !in delivered) {
+            // Decode the real recording first (a fraction of a second), then start it.
+            loader.execute {
+                library.load(id)?.let { mixer.useRecording(id, it) }
+                delivered += id
+                if (id in _state.value.active) mixer.setActive(id, true)
+            }
+            return
+        }
+        mixer.setActive(id, active)
     }
 
     fun setOnly(ids: Set<SoundId>) {

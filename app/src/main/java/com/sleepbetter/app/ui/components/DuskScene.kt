@@ -125,6 +125,8 @@ internal fun DrawScope.drawDuskScene(
         drawHills(h)
         // Rain falls in front of the far hills and splashes on them.
         if (rain > 0.01f) drawRain(t, h, rain, heavy, wind)
+        // The sea rolls in across the front of the scene.
+        if (a(SoundId.SEA) > 0.01f) drawSea(t, h, a(SoundId.SEA).coerceIn(0f, 1f))
         pop(a(SoundId.TENT), Offset(96f, h - 92f)) { drawTent(t, h) }
         pop(a(SoundId.CAR), Offset(300f, h - 64f)) { drawCar(h) }
         pop(a(SoundId.STREAM), Offset(205f, h - 60f)) { drawStream(t, h) }
@@ -566,4 +568,54 @@ private fun DrawScope.drawPetra(t: Float, h: Float, a: Float) {
         drawPath(Path().apply { moveTo(5f, -2f); lineTo(13f, -1f); lineTo(6f, 1f); close() }, c)
         drawPath(Path().apply { moveTo(5f, -2f); lineTo(0f, -7f); lineTo(3f, -1f); close() }, c)
     }
+}
+
+/**
+ * A moonlit sea in front of the hills: layered swells sliding sideways at
+ * different speeds, a shimmering moon path, and a wave that breaks every
+ * few seconds and washes foam up the shore before draining back.
+ */
+private fun DrawScope.drawSea(t: Float, h: Float, a: Float) {
+    val top = h - 52f
+    drawRect(
+        Brush.verticalGradient(listOf(Color(0xFF3B5BA8).copy(alpha = 0.95f * a), Color(0xFF1C2D63).copy(alpha = a)), top, h),
+        Offset(0f, top), Size(390f, h - top),
+    )
+    // The moon's reflection: short bright dashes that flicker.
+    for (i in 0..9) {
+        val y = top + 6f + i * 4.2f
+        val w = 18f - i * 1.1f + 4f * sin(t * 2.3f + i * 1.7f)
+        val x = 300f + 6f * sin(t * 0.8f + i)
+        drawLine(Palette.Moon.copy(alpha = (0.55f - i * 0.04f) * a), Offset(x - w / 2f, y), Offset(x + w / 2f, y), 1.6f, StrokeCap.Round)
+    }
+    // Swells: soft crest lines, each row at its own speed.
+    for (row in 0..2) {
+        val y = top + 8f + row * 13f
+        val speed = 10f + row * 7f
+        val amp = 2f + row * 0.8f
+        val path = Path()
+        var x = -10f
+        path.moveTo(x, y)
+        while (x <= 400f) {
+            path.lineTo(x, y + amp * sin((x + t * speed) / (26f + row * 6f)) + 0.8f * sin((x - t * speed * 0.6f) / 11f))
+            x += 6f
+        }
+        drawPath(path, Color.White.copy(alpha = (0.18f + row * 0.08f) * a), style = Stroke(1.4f + row * 0.4f, cap = StrokeCap.Round))
+    }
+    // A breaking wave: foam washes up the shore and drains back, every 8 seconds.
+    val period = 8f
+    val p = (t % period) / period
+    val reach = if (p < 0.45f) (p / 0.45f).let { 1f - (1f - it) * (1f - it) } else 1f - ((p - 0.45f) / 0.55f).let { it * it }
+    val foamY = h - 4f - reach * 22f
+    val foam = Path().apply {
+        moveTo(-10f, h)
+        var x = -10f
+        while (x <= 400f) {
+            lineTo(x, foamY + 2.5f * sin(x / 13f + t * 1.4f) + 1.5f * sin(x / 5f - t * 2f))
+            x += 5f
+        }
+        lineTo(400f, h)
+        close()
+    }
+    drawPath(foam, Color.White.copy(alpha = (0.18f + 0.25f * (1f - p)) * a))
 }

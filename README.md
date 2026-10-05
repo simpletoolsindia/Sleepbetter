@@ -77,6 +77,10 @@ The `core` module also builds on any machine with a JDK, without the Android SDK
 cd core && gradle test
 ```
 
+## Sound recordings
+
+Rain (Rain, Downpour, Tent, Car) and Thunder play real recordings from `app/src/main/assets/sounds`, chosen by the owner from Pixabay and used under the Pixabay Content License, processed by `tools/sounds/process.py`: the steadiest stretch of each rain recording becomes a seamless 60-second loop (equal-power crossfade), everything is normalised to the same loudness, and thunder gets extra weight below 120 Hz and is split into separate strikes that the app plays at random, in sync with the lightning. Credits are in `assets/sounds/CREDITS.txt`. Every other sound (and any sound whose recording is missing) is generated live, including the new Sea waves.
+
 ## Fonts
 
 Outfit is bundled under the SIL Open Font License; see `licenses/`.

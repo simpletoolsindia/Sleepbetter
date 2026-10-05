@@ -24,7 +24,7 @@ import com.sleepbetter.core.audio.SoundId
 enum class Glyph {
     HOME, SOUNDS, MOON, CHART, FRIENDS, PLAY, PAUSE, BACK, FOCUS, BREATH, BELL, PLUS, MINUS, CHECK, SPARK, CLOCK,
     RAIN, DOWNPOUR, THUNDER, TENT, CAR, FIRE, FOREST, BIRDS, DROP, STREAM, NOISE, MUSIC,
-    SHARE, TRASH, WIFI, BLUETOOTH, LINK, PALETTE,
+    SHARE, TRASH, WIFI, BLUETOOTH, LINK, PALETTE, WAVE,
 }
 
 fun SoundId.glyph(): Glyph = when (this) {
@@ -40,6 +40,7 @@ fun SoundId.glyph(): Glyph = when (this) {
     SoundId.STREAM -> Glyph.STREAM
     SoundId.BROWN_NOISE -> Glyph.NOISE
     SoundId.FOCUS_MUSIC -> Glyph.MUSIC
+    SoundId.SEA -> Glyph.WAVE
 }
 
 @Composable
@@ -123,6 +124,11 @@ private fun DrawScope.drawGlyph(g: Glyph, c: Color, w: Float) {
             fill(p { addOval(Rect(Offset(12f, 19f), 1.5f)) })
         }
         Glyph.BLUETOOTH -> line(p { moveTo(7f, 7.5f); lineTo(17f, 16f); lineTo(12f, 20.5f); lineTo(12f, 3.5f); lineTo(17f, 8f); lineTo(7f, 16.5f) })
+        Glyph.WAVE -> line(p {
+            // A curling wave over a calm line of water.
+            moveTo(3f, 15f); quadraticBezierTo(6f, 8f, 12f, 8f); quadraticBezierTo(17f, 8f, 17f, 12f); quadraticBezierTo(17f, 15f, 13.5f, 14.5f)
+            moveTo(3f, 19.5f); quadraticBezierTo(6.5f, 17.5f, 10f, 19.5f); quadraticBezierTo(13.5f, 21.5f, 17f, 19.5f); quadraticBezierTo(19f, 18.5f, 21f, 19.5f)
+        })
         Glyph.PALETTE -> {
             line(p { moveTo(12f, 3.5f); quadraticBezierTo(20.5f, 3.5f, 20.5f, 11.5f); quadraticBezierTo(20.5f, 15.5f, 16.5f, 15.5f); lineTo(14.8f, 15.5f); quadraticBezierTo(13f, 15.5f, 13.6f, 17.5f); quadraticBezierTo(14.3f, 20.5f, 12f, 20.5f); quadraticBezierTo(3.5f, 20.5f, 3.5f, 12f); quadraticBezierTo(3.5f, 3.5f, 12f, 3.5f); close() })
             fill(p { addOval(Rect(Offset(8f, 10f), 1.4f)); addOval(Rect(Offset(12f, 7.5f), 1.4f)); addOval(Rect(Offset(16f, 10f), 1.4f)); addOval(Rect(Offset(8.5f, 14.5f), 1.4f)) })

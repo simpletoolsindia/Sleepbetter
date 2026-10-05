@@ -141,6 +141,7 @@ fun SoundId.tint(): Color = when (this) {
     SoundId.WATER_DROPS, SoundId.STREAM -> Color(0xFFBDE6EE)
     SoundId.BROWN_NOISE -> Color(0xFFE5D6C6)
     SoundId.FOCUS_MUSIC -> Color(0xFFF4C7E8)
+    SoundId.SEA -> Color(0xFFB3E6EE)
 }
 
 /** Text-safe darker partner of [tint] for icons on the tint. */
@@ -155,6 +156,7 @@ fun SoundId.deep(): Color = when (this) {
     SoundId.WATER_DROPS, SoundId.STREAM -> Color(0xFF16687A)
     SoundId.BROWN_NOISE -> Color(0xFF6B4E33)
     SoundId.FOCUS_MUSIC -> Color(0xFF9A2F83)
+    SoundId.SEA -> Color(0xFF0F6E80)
 }
 
 /** Level colours always come with an icon and a word, never colour alone. */

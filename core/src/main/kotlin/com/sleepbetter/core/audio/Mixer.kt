@@ -35,6 +35,9 @@ object Spatial {
  * audio path. Readable state for the UI ([levels], [thunderStrikes], ...) is
  * written by the audio thread and read without locks; it only drives visuals.
  */
+/** Recordings are normalised to about -20 dBFS RMS; this lifts them to the -18 dBFS the generated sounds sit at. */
+private const val RECORDING_GAIN = 1.26f
+
 class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
     private sealed interface Command {
         data class SetActive(val id: SoundId, val active: Boolean) : Command
@@ -42,9 +45,10 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
         data class SetMaster(val volume: Float) : Command
         data class SetTimer(val seconds: Int?, val fadeSeconds: Int) : Command
         data class ExtendTimer(val seconds: Int) : Command
+        class UseRecording(val id: SoundId, val recording: Recording) : Command
     }
 
-    private class Layer(val source: SoundSource, x: Float, y: Float) {
+    private class Layer(var source: SoundSource, x: Float, y: Float) {
         var active = false
         var x = x
         var y = y
@@ -56,6 +60,8 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
     private val commands = ConcurrentLinkedQueue<Command>()
     private val layers = EnumMap<SoundId, Layer>(SoundId::class.java)
     private var mono = FloatArray(0)
+    private var stereoRight = FloatArray(0)
+    private val recordings = EnumMap<SoundId, Recording>(SoundId::class.java)
     private val master = SmoothedValue(0.8f)
     private val timer = PlaybackTimer(sampleRate)
 
@@ -87,6 +93,13 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
     /** Positive adds time, negative removes it (down to one second). */
     fun extendTimer(seconds: Int) = commands.add(Command.ExtendTimer(seconds))
 
+    /**
+     * Plays [recording] for [id] from now on instead of the generated sound.
+     * Send it before activating the sound; a sound already playing switches
+     * the next time it is started.
+     */
+    fun useRecording(id: SoundId, recording: Recording) = commands.add(Command.UseRecording(id, recording))
+
     /** Fills [out] with [frames] stereo frames (2 floats each). */
     fun render(out: FloatArray, frames: Int) {
         applyCommands()
@@ -98,8 +111,16 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
                 levels[id.ordinal] *= 0.8f
                 continue
             }
-            layer.source.render(mono, frames)
-            val calibration = id.gain
+            val src = layer.source
+            val stereo = src is StereoSource
+            if (stereo) {
+                if (stereoRight.size < frames) stereoRight = FloatArray(frames)
+                (src as StereoSource).renderStereo(mono, stereoRight, frames)
+            } else {
+                src.render(mono, frames)
+            }
+            // Recordings are normalised at build time; generated sounds carry their own calibration.
+            val calibration = if (stereo) RECORDING_GAIN else id.gain
             var energy = 0f
             var lastPan = Float.NaN
             var left = 0f
@@ -114,16 +135,28 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
                     right = sin(angle)
                     lastPan = p
                 }
-                val s = mono[i] * g * calibration
-                out[2 * i] += s * left
-                out[2 * i + 1] += s * right
-                energy += s * s
+                if (stereo) {
+                    // Keep the recording's own stereo image; the stage position becomes a balance.
+                    val l = mono[i] * g * calibration
+                    val r = stereoRight[i] * g * calibration
+                    val bl = (1f - p).coerceAtMost(1f)
+                    val br = (1f + p).coerceAtMost(1f)
+                    out[2 * i] += l * bl
+                    out[2 * i + 1] += r * br
+                    energy += (l * l + r * r) * 0.5f
+                } else {
+                    val s = mono[i] * g * calibration
+                    out[2 * i] += s * left
+                    out[2 * i + 1] += s * right
+                    energy += s * s
+                }
             }
             val rms = sqrt(energy / frames)
             layer.level = layer.level * 0.7f + rms * 0.3f
             levels[id.ordinal] = (layer.level * 4f).coerceAtMost(1f)
-            when (val src = layer.source) {
+            when (src) {
                 is ThunderSource -> thunderStrikes = src.eventCount
+                is SampledThunderSource -> thunderStrikes = src.eventCount
                 is FocusMusicSource -> {
                     musicBeats = src.eventCount
                     beatPhase = src.beatPhase
@@ -141,22 +174,29 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
         finished = timer.finished
     }
 
+    private fun sourceFor(id: SoundId): SoundSource {
+        val s = seed + id.ordinal * 7919L
+        return when (val r = recordings[id]) {
+            is Recording.Loop -> LoopSource(r.clip, s)
+            is Recording.Strikes -> SampledThunderSource(r.clips, sampleRate, s)
+            null -> id.createSource(sampleRate, s)
+        }
+    }
+
     private fun applyCommands() {
         while (true) {
             when (val c = commands.poll() ?: break) {
                 is Command.SetActive -> {
-                    val layer = layers.getOrPut(c.id) {
-                        Layer(c.id.createSource(sampleRate, seed + c.id.ordinal * 7919L), c.id.stageX, c.id.stageY)
-                    }
+                    val layer = layers.getOrPut(c.id) { Layer(sourceFor(c.id), c.id.stageX, c.id.stageY) }
+                    // A silent layer picks up a recording that arrived since it last played.
+                    if (c.active && !layer.active && layer.gain.current == 0f) layer.source = sourceFor(c.id)
                     layer.active = c.active
                     // Fade in over 3 s, out over 1.5 s.
                     val ramp = if (c.active) 3 * sampleRate else sampleRate * 3 / 2
                     layer.gain.setTarget(if (c.active) Spatial.gain(layer.x, layer.y) else 0f, ramp)
                 }
                 is Command.SetPosition -> {
-                    val layer = layers.getOrPut(c.id) {
-                        Layer(c.id.createSource(sampleRate, seed + c.id.ordinal * 7919L), c.x, c.y)
-                    }
+                    val layer = layers.getOrPut(c.id) { Layer(sourceFor(c.id), c.x, c.y) }
                     val (x, y) = Spatial.clampToStage(c.x, c.y)
                     layer.x = x
                     layer.y = y
@@ -170,6 +210,7 @@ class Mixer(private val sampleRate: Int, private val seed: Long = 7L) {
                     finished = false
                 }
                 is Command.ExtendTimer -> timer.extend(c.seconds)
+                is Command.UseRecording -> recordings[c.id] = c.recording
             }
         }
     }

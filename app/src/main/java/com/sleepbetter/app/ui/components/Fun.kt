@@ -76,6 +76,7 @@ fun SoundId.emoji(): String = when (this) {
     SoundId.STREAM -> "🏞️"
     SoundId.BROWN_NOISE -> "🟤"
     SoundId.FOCUS_MUSIC -> "🎹"
+    SoundId.SEA -> "🌊"
 }
 
 /** One shower of emoji confetti. Its start time is set on the first frame it is drawn. */
