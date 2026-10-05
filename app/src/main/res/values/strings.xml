@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SleepBetter</string>
+    <string name="channel_playback">Playing sounds</string>
+    <string name="channel_reminders">Bedtime reminders</string>
+</resources>

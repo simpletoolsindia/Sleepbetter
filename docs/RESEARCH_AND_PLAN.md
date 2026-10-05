@@ -535,3 +535,19 @@ Concept page "Sound Stage (v3)": <https://claude.ai/artifact/L4TygS6m3ERHeBY1VPr
 * 2026 UI trends: <https://trends.daisyui.com/>, <https://line25.com/articles/web-design-trends-2026/>
 * Haptics: <https://developer.android.com/develop/ui/views/haptics/custom-haptic-effects>
 * Nothing Glyph Matrix: <https://design-milk.com/the-nothing-phone-3s-glyph-matrix-turns-notifications-into-pixel-art/>
+
+---
+
+## 10. Build status (v0.1, "Night Island + Sound Stage")
+
+Built: the `core` engine and sleep logic, plus the full Compose app (Tonight with Island/Stage views, Focus, Wind down, Sleep mode, Last night story, Visitors), playback service, bedtime reminders and on-device storage.
+
+Differences from the plan, on purpose:
+* **Sounds are generated in code for now** (no recordings yet), so the app works with no licensing step. Field recordings can replace any generator later.
+* **Characters are drawn in Compose code** (breathing, blinking, nodding on the beat) instead of Rive files, until an illustrator delivers the final cast.
+* **Storage is SharedPreferences + JSON**; Room is not needed yet.
+* **Not yet built:** Health Connect, the Google Sleep API, the smart wake alarm, the Android 16 Live Update notification and home-screen widgets.
+
+Checks run:
+* `core`: 25 unit tests pass. They cover every sound being finite, bounded, click-free and loudness-calibrated; panning and distance; the mixer never clipping with every sound on; the sleep timer fading out; the score, risk levels and midnight wrap; tips; and visitor unlocks.
+* `app`: every Kotlin file was type-checked against Compose Multiplatform 1.6 and 1.7 with stubs for the Android-only APIs. A full Android build has not run yet, because Google's Android download servers are blocked from the build environment.
