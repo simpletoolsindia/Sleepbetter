@@ -83,6 +83,8 @@ fun AutoSetupScreen(
     onAllow: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    restricted: Boolean = false,
+    onOpenAppInfo: () -> Unit = {},
 ) {
     // Arriving back from Settings with access: confetti, once.
     val burst = LocalBurst.current
@@ -109,7 +111,7 @@ fun AutoSetupScreen(
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
                 Hero(allowed, Modifier.enter(0))
                 Spacer(Modifier.height(22.dp))
-                if (allowed) Success(nightsFound) else Intro()
+                if (allowed) Success(nightsFound) else Intro(restricted, onOpenAppInfo)
                 Spacer(Modifier.height(24.dp))
             }
         }
@@ -239,7 +241,7 @@ private fun PhoneMock(allowed: Boolean, t: Float) {
 }
 
 @Composable
-private fun Intro() {
+private fun Intro(restricted: Boolean, onOpenAppInfo: () -> Unit) {
     Text("Sleep tracking,\non autopilot", style = Type.Display, color = Palette.Ink, modifier = Modifier.enter(60))
     Text(
         "Put your phone down and sleep. SleepBetter works out your bedtime and wake-up from when your screen was off.",
@@ -253,7 +255,8 @@ private fun Intro() {
         Benefit("🔒", "Never leaves your phone", Palette.Sage, Modifier.weight(1f))
     }
 
-    Text("Just one switch to flip", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 26.dp).enter(180))
+    if (restricted) Unlock(onOpenAppInfo, Modifier.padding(top = 22.dp).enter(170))
+    Text(if (restricted) "Then flip the switch" else "Just one switch to flip", style = Type.Title, color = Palette.Ink, modifier = Modifier.padding(top = 26.dp).enter(180))
     Text("Tap Allow access, then turn this on for SleepBetter:", style = Type.Body, color = Palette.InkSoft, modifier = Modifier.padding(top = 4.dp).enter(200))
     SettingsPreview(Modifier.padding(top = 12.dp).enter(220))
     FindIt(Modifier.padding(top = 14.dp).enter(260))
@@ -324,6 +327,49 @@ private fun FakeSwitch(on: Float) {
     val track = androidx.compose.ui.graphics.lerp(Palette.Line, Palette.AccentDeep, on)
     Box(Modifier.size(width = 52.dp, height = 30.dp).clip(CircleShape).background(track).padding(4.dp)) {
         Box(Modifier.offset(x = (22 * on).dp).size(22.dp).clip(CircleShape).background(Color.White))
+    }
+}
+
+/**
+ * Android 13+ greys out Usage access ("Controlled by restricted setting") for
+ * apps installed from a file. One extra unlock on the app's info page fixes it.
+ */
+@Composable
+private fun Unlock(onOpenAppInfo: () -> Unit, modifier: Modifier) {
+    Column(
+        modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp)).background(Palette.Peach).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("🔓", fontSize = 24.sp)
+            Column(Modifier.padding(start = 10.dp)) {
+                Text("First, unlock the switch", style = Type.Heading, color = Palette.Ink)
+                Text("Android blocks it for apps installed from a file and says \"Controlled by restricted setting\".", style = Type.Small, color = Palette.InkSoft)
+            }
+        }
+        MiniStep(1, "Tap Open App info below")
+        MiniStep(2, "Tap ⋮ at the top right")
+        MiniStep(3, "Choose Allow restricted settings and confirm")
+        Text(
+            "Don't see ⋮ option? Try the switch in Usage access once first, then come back.",
+            style = Type.Small, color = Palette.InkSoft,
+        )
+        Row(
+            Modifier.clip(RoundedCornerShape(18.dp)).background(Palette.Ink).pressable(onClick = onOpenAppInfo).padding(horizontal = 16.dp, vertical = 11.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Open App info  ›", style = Type.Label, color = Palette.OnInk)
+        }
+    }
+}
+
+@Composable
+private fun MiniStep(n: Int, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(24.dp).clip(CircleShape).background(Palette.veil(0.8f)), contentAlignment = Alignment.Center) {
+            Text("$n", style = Type.Small, color = Palette.Ink)
+        }
+        Text(text, style = Type.Body, color = Palette.Ink, modifier = Modifier.padding(start = 10.dp))
     }
 }
 

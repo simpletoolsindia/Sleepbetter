@@ -40,6 +40,31 @@ object PhoneUsage {
             .recoverCatching { context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
     }
 
+    /**
+     * Android 13+ blocks Usage access for apps installed from a file (not a
+     * store) until the user allows "restricted settings" on the app's info
+     * page. True when that block is likely: Android 13+ and no store installer.
+     */
+    fun likelyRestricted(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < 33) return false
+        val installer = runCatching {
+            context.packageManager.getInstallSourceInfo(context.packageName).installingPackageName
+        }.getOrNull()
+        return installer == null || installer !in STORES
+    }
+
+    private val STORES = setOf("com.android.vending", "com.sec.android.app.samsungapps", "com.huawei.appmarket", "com.xiaomi.market", "com.amazon.venezia")
+
+    /** SleepBetter's App info page, where ⋮ › "Allow restricted settings" lives. */
+    fun openAppInfo(context: Context) {
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.parse("package:${context.packageName}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }
+    }
+
     /** Screen-on stretches between [from] and [to]; empty without access. */
     fun uses(context: Context, from: Instant, to: Instant): List<PhoneUse> = runCatching {
         val usm = context.getSystemService(UsageStatsManager::class.java)

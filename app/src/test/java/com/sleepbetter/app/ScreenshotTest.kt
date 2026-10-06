@@ -137,12 +137,13 @@ class ScreenshotTest {
     @Test fun autoSetup() = setupShot(false, "24-auto-setup")
     @Test fun autoSetupDone() = setupShot(true, "25-auto-setup-done")
     @Test fun autoSetupDark() = setupShot(false, "26-dark-auto-setup", dark = true)
+    @Test fun autoSetupRestricted() = setupShot(false, "27-auto-setup-restricted", restricted = true)
 
-    private fun setupShot(allowed: Boolean, name: String, dark: Boolean = false) {
+    private fun setupShot(allowed: Boolean, name: String, dark: Boolean = false, restricted: Boolean = false) {
         Palette.theme = AppTheme.MOON_MILK
         Palette.appearance = if (dark) Appearance.DARK else Appearance.LIGHT
         compose.mainClock.autoAdvance = false
-        compose.setContent { SleepBetterTheme { AutoSetupScreen(allowed, 5, {}, {}, Modifier.fillMaxSize()) } }
+        compose.setContent { SleepBetterTheme { AutoSetupScreen(allowed, 5, {}, {}, Modifier.fillMaxSize(), restricted = restricted) } }
         compose.mainClock.advanceTimeBy(2_000)
         compose.onRoot().captureRoboImage("build/screenshots/$name.png")
     }

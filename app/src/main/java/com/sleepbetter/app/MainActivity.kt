@@ -212,6 +212,8 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
                         nightsFound = sessions.count { it.auto },
                         onAllow = vm::openUsageAccess,
                         onClose = { dest = Destination.HOME },
+                        restricted = vm.usageRestricted,
+                        onOpenAppInfo = vm::openAppInfo,
                         modifier = padded,
                     )
                 }

@@ -174,6 +174,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun openUsageAccess() = PhoneUsage.openSettings(getApplication())
 
+    /** Installed from a file on Android 13+: Usage access needs "Allow restricted settings" first. */
+    val usageRestricted: Boolean = PhoneUsage.likelyRestricted(application)
+
+    fun openAppInfo() = PhoneUsage.openAppInfo(getApplication())
+
     fun turnOffAutoSleep() {
         repository.updateSettings { it.copy(autoTrack = false) }
         MorningCheck.cancel(getApplication())
