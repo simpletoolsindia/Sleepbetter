@@ -2,6 +2,8 @@ package com.sleepbetter.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -116,15 +118,13 @@ class ScreenshotTest {
         compose.mainClock.autoAdvance = false
         compose.setContent {
             SleepBetterTheme {
-                Row(Modifier.fillMaxSize().background(Palette.Paper)) {
-                    Column(Modifier.weight(1f).padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AutoSleepCard(true, true, summary, {}, {}, {}, {}, {})
-                        AutoSleepCard(false, false, null, {}, {}, {}, {}, {})
-                    }
-                    Column(Modifier.weight(1f).padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AutoSleepCard(true, false, null, {}, {}, {}, {}, {})
-                        AutoSleepCard(true, true, null, {}, {}, {}, {}, {})
-                    }
+                Column(
+                    Modifier.fillMaxSize().background(Palette.Paper).verticalScroll(rememberScrollState()).padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    AutoSleepCard(true, true, summary, {}, {}, {}, {}, {})
+                    AutoSleepCard(false, false, null, {}, {}, {}, {}, {})
+                    AutoSleepCard(true, false, null, {}, {}, {}, {}, {})
                 }
             }
         }
