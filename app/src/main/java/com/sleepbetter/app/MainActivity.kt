@@ -109,6 +109,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Back from the usage access screen, or a new morning: look for last night.
+        vm.refreshAutoSleep()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         readDestination(intent)
@@ -180,6 +186,7 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
                     onSounds = { dest = Destination.SOUNDS },
                     onInsights = { dest = Destination.INSIGHTS },
                     onFriends = { dest = Destination.FRIENDS },
+                    onCheckIn = { dest = Destination.CHECK_IN },
                     modifier = padded,
                 )
                 Destination.SOUNDS -> SoundsScreen(vm, padded)

@@ -26,6 +26,8 @@ data class SleepSession(
     val rating: Int? = null,
     val tags: Set<NightTag> = emptySet(),
     val minutesToFallAsleep: Int? = null,
+    /** Worked out from phone use rather than started in the app. */
+    val auto: Boolean = false,
 ) {
     init {
         require(!end.isBefore(start)) { "end must not be before start" }

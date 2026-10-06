@@ -94,6 +94,7 @@ fun HomeScreen(
     onSounds: () -> Unit,
     onInsights: () -> Unit,
     onFriends: () -> Unit,
+    onCheckIn: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val mix by vm.mix.collectAsStateWithLifecycle()
@@ -104,6 +105,8 @@ fun HomeScreen(
     val still = rememberReduceMotion()
     val report = remember(sessions, settings) { vm.repository.report() }
     val steady = remember(sessions, settings) { vm.repository.totalSteadyNights() }
+    val lastAuto by vm.lastAuto.collectAsStateWithLifecycle()
+    val usageAccess by vm.usageAccess.collectAsStateWithLifecycle()
 
     var now by remember { mutableStateOf(LocalTime.now()) }
     LaunchedEffect(Unit) {
@@ -182,6 +185,18 @@ fun HomeScreen(
             ScoreCard(report.score, report.level, report.enoughData, Modifier.weight(1f), onInsights)
             LastNightCard(sessions.lastOrNull()?.minutes, sessions.takeLast(7).map { it.minutes }, Modifier.weight(1f), onInsights)
         }
+
+        AutoSleepCard(
+            enabled = settings.autoTrack,
+            hasAccess = usageAccess,
+            summary = lastAuto,
+            onTurnOn = vm::turnOnAutoSleep,
+            onOpenAccess = vm::openUsageAccess,
+            onTurnOff = vm::turnOffAutoSleep,
+            onRate = onCheckIn,
+            onNotRight = vm::dismissAutoNight,
+            modifier = Modifier.enter(110),
+        )
 
         Row(Modifier.enter(140), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             BentoCard(Modifier.weight(1f), color = Palette.Sky, onClick = onFocus) {

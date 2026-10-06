@@ -1,6 +1,7 @@
 package com.sleepbetter.app
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +24,11 @@ import com.sleepbetter.app.ui.theme.AppTheme
 import com.sleepbetter.app.ui.theme.Appearance
 import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
+import com.sleepbetter.app.data.AutoSummary
+import com.sleepbetter.app.ui.home.AutoSleepCard
+import com.sleepbetter.core.sleep.AutoSleepDetector
 import com.sleepbetter.core.sleep.NightTag
+import com.sleepbetter.core.sleep.PhoneUse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,6 +98,38 @@ class ScreenshotTest {
         }
         compose.mainClock.advanceTimeBy(1_000)
         compose.onRoot().captureRoboImage("build/screenshots/14-characters.png")
+    }
+
+    /** The auto sleep tracking card in each state, light and dark. */
+    @Test fun autoSleep() {
+        Palette.theme = AppTheme.MOON_MILK
+        val zone = ZoneId.systemDefault()
+        val morning = LocalDate.now()
+        fun at(day: LocalDate, h: Int, m: Int) = day.atTime(h, m).atZone(zone).toInstant()
+        val eve = morning.minusDays(1)
+        val uses = listOf(
+            PhoneUse(at(eve, 20, 5), at(eve, 20, 40)), PhoneUse(at(eve, 21, 30), at(eve, 21, 55)),
+            PhoneUse(at(eve, 22, 40), at(eve, 23, 22)), PhoneUse(at(morning, 2, 48), at(morning, 2, 50)),
+            PhoneUse(at(morning, 7, 4), at(morning, 7, 30)), PhoneUse(at(morning, 8, 10), at(morning, 8, 25)),
+        )
+        val summary = AutoSummary(AutoSleepDetector.detect(uses, morning, zone)!!, uses)
+        compose.mainClock.autoAdvance = false
+        compose.setContent {
+            SleepBetterTheme {
+                Row(Modifier.fillMaxSize().background(Palette.Paper)) {
+                    Column(Modifier.weight(1f).padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AutoSleepCard(true, true, summary, {}, {}, {}, {}, {})
+                        AutoSleepCard(false, false, null, {}, {}, {}, {}, {})
+                    }
+                    Column(Modifier.weight(1f).padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AutoSleepCard(true, false, null, {}, {}, {}, {}, {})
+                        AutoSleepCard(true, true, null, {}, {}, {}, {}, {})
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.onRoot().captureRoboImage("build/screenshots/23-auto-sleep.png")
     }
 
     /** The reminder notification's flip-book frames and the playback artwork, as the system will get them. */

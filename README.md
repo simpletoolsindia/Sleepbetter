@@ -79,7 +79,9 @@ cd core && gradle test
 
 ## Sound recordings
 
-Rain (Rain, Downpour, Tent, Car) and Thunder play real recordings from `app/src/main/assets/sounds`, chosen by the owner from Pixabay and used under the Pixabay Content License, processed by `tools/sounds/process.py`: the steadiest stretch of each rain recording becomes a seamless 60-second loop (equal-power crossfade), everything is normalised to the same loudness, and thunder gets extra weight below 120 Hz and is split into separate strikes that the app plays at random, in sync with the lightning. Credits are in `assets/sounds/CREDITS.txt`. Every other sound (and any sound whose recording is missing) is generated live, including the new Sea waves.
+Rain (Rain, Downpour, Tent, Car) and Thunder play real recordings from `app/src/main/assets/sounds`, chosen by the owner from Pixabay and used under the Pixabay Content License, processed by `tools/sounds/process.py`: the steadiest stretch of each rain recording becomes a seamless 60-second loop (equal-power crossfade), everything is normalised to the same loudness, and thunder gets extra weight below 120 Hz and is split into separate strikes that the app plays at random, in sync with the lightning.
+
+Sea waves, Campfire, Night forest, Birds, Stream and Water drops are fetched at build time by `tools/sounds/fetch.py` (the CI workflow runs it): it searches Freesound for CC0 (public domain) recordings, checks the licence on each sound's page, and processes them the same way. The build publishes `fetched-sounds.json` saying which recording each sound got. Credits for everything are in `assets/sounds/CREDITS.txt`. Any sound without a recording (and Brown noise and Focus music) is generated live.
 
 ## Fonts
 
@@ -88,6 +90,8 @@ Outfit is bundled under the SIL Open Font License; see `licenses/`.
 ## Privacy
 
 Sleep data stays on the device in app storage. There is no account and no network access.
+
+**Auto sleep tracking** (off until the user turns it on) reads when the screen was on and off, from Android's usage history ("Usage access", granted in system Settings). `AutoSleepDetector` treats the longest quiet stretch of the night as the sleep, and short checks of the phone (up to 3 minutes, or up to 15 with an hour of quiet on both sides) as wake-ups. Only these times are used, only on the phone. A night logged with sleep mode always wins, and "Not right" removes a guess for good.
 
 ## Docs
 

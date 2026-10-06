@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.sleepbetter.app.audio.TimerChoice
 import com.sleepbetter.app.reminders.ReminderScheduler
+import com.sleepbetter.app.sleep.PhoneUsage
 import com.sleepbetter.app.ui.components.Haptics
 import com.sleepbetter.app.ui.theme.AppTheme
 import com.sleepbetter.app.ui.theme.Appearance
@@ -13,8 +14,10 @@ import com.sleepbetter.core.mix.Mix
 import com.sleepbetter.core.mix.MixCodec
 import com.sleepbetter.core.mix.MixLayer
 import com.sleepbetter.core.audio.SoundId
+import com.sleepbetter.core.sleep.AutoSleepDetector
 import com.sleepbetter.core.sleep.NightTag
 import com.sleepbetter.core.sleep.SleepSession
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +25,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 enum class Destination {
     HOME, SOUNDS, INSIGHTS, FRIENDS, FOCUS, WIND_DOWN, SLEEP, CHECK_IN,
@@ -139,6 +146,37 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun rateLastNight(rating: Int?, tags: Set<NightTag>) = repository.rateLastNight(rating, tags)
+
+    // Auto sleep tracking from phone use.
+    val lastAuto = repository.lastAuto
+    private val _usageAccess = MutableStateFlow(PhoneUsage.hasAccess(application))
+    val usageAccess: StateFlow<Boolean> = _usageAccess.asStateFlow()
+
+    /** Looks at the last week of screen-on history for nights not logged yet. Cheap; runs whenever the app comes back. */
+    fun refreshAutoSleep() {
+        val ctx = getApplication<Application>()
+        _usageAccess.value = PhoneUsage.hasAccess(ctx)
+        if (!settings.value.autoTrack || !_usageAccess.value) return
+        viewModelScope.launch(Dispatchers.Default) {
+            val zone = ZoneId.systemDefault()
+            val today = LocalDate.now(zone)
+            val mornings = (0L..6L).map { today.minusDays(it) }
+            val uses = PhoneUsage.uses(ctx, AutoSleepDetector.windowFor(mornings.last(), zone).first, Instant.now())
+            val nights = mornings.mapNotNull { AutoSleepDetector.detect(uses, it, zone) }
+            withContext(Dispatchers.Main) { repository.applyAutoNights(nights, uses) }
+        }
+    }
+
+    fun turnOnAutoSleep() {
+        repository.updateSettings { it.copy(autoTrack = true) }
+        if (PhoneUsage.hasAccess(getApplication())) refreshAutoSleep() else PhoneUsage.openSettings(getApplication())
+    }
+
+    fun openUsageAccess() = PhoneUsage.openSettings(getApplication())
+
+    fun turnOffAutoSleep() = repository.updateSettings { it.copy(autoTrack = false) }
+
+    fun dismissAutoNight() = repository.dismissLastAuto()
 
     fun shiftBedtime(minutes: Int) {
         repository.updateSettings { it.copy(bedtimeMinute = Math.floorMod(it.bedtimeMinute + minutes, 1440)) }

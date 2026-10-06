@@ -176,6 +176,7 @@ private fun NightView(night: SleepSession) {
         Text("You slept", style = Type.Label, color = Palette.InkSoft)
         Text(hoursMinutes(minutes), style = Type.Numeral, color = Palette.Ink)
         Text("%02d:%02d to %02d:%02d".format(from.hour, from.minute, to.hour, to.minute), style = Type.Body, color = Palette.InkSoft)
+        if (night.auto) Text("📱 Tracked automatically from your phone", style = Type.Small, color = Palette.InkSoft, modifier = Modifier.padding(top = 2.dp))
         Text("Your night, estimated", style = Type.Heading, color = Palette.Ink, modifier = Modifier.padding(top = 16.dp))
         Text("From your sleep times. Connect a watch for measured stages.", style = Type.Small, color = Palette.InkSoft)
         EstimatedCycles(night.minutes, Modifier.fillMaxWidth().height(120.dp).padding(top = 10.dp))
