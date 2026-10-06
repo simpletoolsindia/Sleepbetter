@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleepbetter.app.AppViewModel
+import com.sleepbetter.app.ui.components.rememberAskNotifications
 import com.sleepbetter.app.ui.components.BentoCard
 import com.sleepbetter.app.ui.components.CircleButton
 import com.sleepbetter.app.ui.components.DuskScene
@@ -186,12 +187,25 @@ fun HomeScreen(
             LastNightCard(sessions.lastOrNull()?.minutes, sessions.takeLast(7).map { it.minutes }, Modifier.weight(1f), onInsights)
         }
 
+        var guide by remember { mutableStateOf(false) }
+        val askNotifications = rememberAskNotifications()
+        if (guide) UsageAccessSheet(onOpenSettings = { guide = false; vm.openUsageAccess() }, onDismiss = { guide = false })
+        // Back from Settings with access allowed: a little celebration.
+        val burst = LocalBurst.current
+        var hadAccess by remember { mutableStateOf(usageAccess) }
+        LaunchedEffect(usageAccess) {
+            if (usageAccess && !hadAccess && settings.autoTrack) burst.fire(listOf("🎉", "😴", "✨", "🌙"), Offset(0.5f, 0.6f), count = 16)
+            hadAccess = usageAccess
+        }
         AutoSleepCard(
             enabled = settings.autoTrack,
             hasAccess = usageAccess,
             summary = lastAuto,
-            onTurnOn = vm::turnOnAutoSleep,
-            onOpenAccess = vm::openUsageAccess,
+            onTurnOn = {
+                askNotifications() // for the good-morning summary
+                if (vm.turnOnAutoSleep()) guide = true
+            },
+            onOpenAccess = { guide = true },
             onTurnOff = vm::turnOffAutoSleep,
             onRate = onCheckIn,
             onNotRight = vm::dismissAutoNight,

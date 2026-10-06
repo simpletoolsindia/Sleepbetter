@@ -83,6 +83,17 @@ Rain (Rain, Downpour, Tent, Car) and Thunder play real recordings from `app/src/
 
 Sea waves, Campfire, Night forest, Birds, Stream and Water drops are fetched at build time by `tools/sounds/fetch.py` (the CI workflow runs it): it searches Freesound for CC0 (public domain) recordings, checks the licence on each sound's page, and processes them the same way. The build publishes `fetched-sounds.json` saying which recording each sound got. Credits for everything are in `assets/sounds/CREDITS.txt`. Any sound without a recording (and Brown noise and Focus music) is generated live.
 
+## Notifications
+
+- **Playing sounds:** media controls, the scene as artwork, and the sleep timer as a live countdown ("Fading out in 1 h 12 min") with a **+15 min** button.
+- **Focus:** a countdown with a progress bar while a session runs, and "Focus session done 🎉" with a break suggestion when it ends.
+- **Good morning:** with auto tracking on, a check a few times each morning sends one summary of last night ("You slept 7h 12m") with a button to rate it, unless it's already rated.
+- **Bedtime reminder:** the animated wind-down nudge (optional).
+
+## App icon
+
+Pico asleep in a crescent-moon cradle under the stars. `tools/icon/gen.py` writes the adaptive icon layers (`res/drawable/ic_launcher_*.xml`, with a themed monochrome layer) and `docs/icon/icon.svg` from one list of shapes; `docs/icon/icon-512.png` is the store-size render.
+
 ## Fonts
 
 Outfit is bundled under the SIL Open Font License; see `licenses/`.

@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -32,6 +33,7 @@ class PlaybackService : Service() {
         const val ACTION_PAUSE = "com.sleepbetter.app.PAUSE"
         const val ACTION_PLAY = "com.sleepbetter.app.PLAY"
         const val ACTION_STOP = "com.sleepbetter.app.STOP"
+        const val ACTION_EXTEND = "com.sleepbetter.app.EXTEND"
         private const val NOTIFICATION_ID = 7
     }
 
@@ -57,7 +59,24 @@ class PlaybackService : Service() {
                 if (s.playing || hasStarted) postNotification(s.playing)
             }
         }
+        // The sleep timer counts down in the mixer; keep the notification's countdown in step
+        // with it (a new timer, +15 min from the app, or the moment playback started).
+        scope.launch {
+            while (true) {
+                delay(2_000)
+                val s = engine.state.value
+                if (!s.playing || !hasStarted) continue
+                val end = timerEnd()
+                if ((end == null) != (shownEnd == null) || (end != null && kotlin.math.abs(end - shownEnd!!) > 3_000)) postNotification(true)
+            }
+        }
     }
+
+    /** When the sleep timer will end (wall clock), or null with no timer. */
+    private fun timerEnd(): Long? = engine.frame().remainingSeconds?.let { System.currentTimeMillis() + it * 1000L }
+
+    /** The end time the posted notification is counting down to. */
+    private var shownEnd: Long? = null
 
     private var hasStarted = false
 
@@ -102,6 +121,7 @@ class PlaybackService : Service() {
                 engine.stopAudio()
                 ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
             }
+            ACTION_EXTEND -> engine.extendTimer(15 * 60)
             ACTION_STOP -> {
                 hasStarted = false // so the state change below does not re-post a notification
                 engine.stopAudio()
@@ -148,11 +168,31 @@ class PlaybackService : Service() {
         val stop = PendingIntent.getService(
             this, 2, Intent(this, PlaybackService::class.java).setAction(ACTION_STOP), PendingIntent.FLAG_IMMUTABLE,
         )
+        val extend = PendingIntent.getService(
+            this, 4, Intent(this, PlaybackService::class.java).setAction(ACTION_EXTEND), PendingIntent.FLAG_IMMUTABLE,
+        )
         val names = engine.state.value.active.joinToString(", ") { it.label }.ifEmpty { "Nothing playing" }
-        return NotificationCompat.Builder(this, SleepBetterApp.CHANNEL_PLAYBACK)
+        val left = engine.frame().remainingSeconds
+        val end = if (playing) timerEnd() else null
+        shownEnd = end
+        val title = when {
+            playing && left != null -> "Fading out in ${leftLabel(left)} 🌙"
+            playing -> "Playing all night 🌙"
+            left != null -> "Paused · ${leftLabel(left)} left on the timer"
+            else -> "Paused"
+        }
+        val builder = NotificationCompat.Builder(this, SleepBetterApp.CHANNEL_PLAYBACK)
             .setSmallIcon(R.drawable.ic_moon)
-            .setContentTitle(if (playing) "Your sounds are playing" else "Paused")
+            .setContentTitle(title)
             .setContentText(names)
+            .setOnlyAlertOnce(true)
+        if (end != null) {
+            // The shade shows a live countdown to the fade-out.
+            builder.setUsesChronometer(true).setChronometerCountDown(true).setWhen(end).setShowWhen(true).setSubText("Sleep timer")
+        } else {
+            builder.setShowWhen(false)
+        }
+        return builder
             .setLargeIcon(art)
             .setContentIntent(open)
             .setOngoing(playing)
@@ -160,12 +200,18 @@ class PlaybackService : Service() {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .addAction(0, if (playing) "Pause" else "Play", toggle)
             .addAction(0, "Stop", stop)
+            .apply { if (playing && left != null) addAction(0, "+15 min", extend) }
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(session.sessionToken)
                     .setShowActionsInCompactView(0, 1),
             )
             .build()
+    }
+
+    private fun leftLabel(seconds: Int): String {
+        val m = (seconds + 59) / 60
+        return if (m >= 60) "${m / 60} h ${m % 60} min" else "$m min"
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

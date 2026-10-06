@@ -98,6 +98,19 @@ class SleepRepository(context: Context) {
         }
     }
 
+    /**
+     * True once per morning, the first time it's asked, if that night is
+     * tracked and not rated yet: the "good morning" notification goes out once.
+     */
+    fun claimMorningNotice(morning: LocalDate): Boolean {
+        if (prefs.getString("morning_notice", null) == morning.toString()) return false
+        val (from, to) = AutoSleepDetector.windowFor(morning, zone)
+        val night = _sessions.value.lastOrNull { it.end.isAfter(from) && !it.end.isAfter(to) } ?: return false
+        if (night.rating != null) return false
+        prefs.edit().putString("morning_notice", morning.toString()).apply()
+        return true
+    }
+
     /** "That's not right": removes the latest tracked night and doesn't guess that morning again. */
     fun dismissLastAuto() {
         val summary = _lastAuto.value ?: return

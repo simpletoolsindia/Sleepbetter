@@ -69,5 +69,9 @@
         <receiver
             android:name=".reminders.ReminderReceiver"
             android:exported="false" />
+
+        <receiver
+            android:name=".sleep.MorningCheckReceiver"
+            android:exported="false" />
     </application>
 </manifest>

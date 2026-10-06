@@ -5,6 +5,7 @@ import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Process
 import android.provider.Settings
@@ -31,9 +32,12 @@ object PhoneUsage {
 
     /** Opens the system screen where the user allows usage access for SleepBetter. */
     fun openSettings(context: Context) {
-        runCatching {
-            context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
+        val list = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // Android 10+ can open SleepBetter's own switch directly; older phones and some brands only show the list.
+        val direct = Intent(list).setData(Uri.parse("package:${context.packageName}"))
+        if (Build.VERSION.SDK_INT >= 29 && runCatching { context.startActivity(direct) }.isSuccess) return
+        runCatching { context.startActivity(list) }
+            .recoverCatching { context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
     }
 
     /** Screen-on stretches between [from] and [to]; empty without access. */

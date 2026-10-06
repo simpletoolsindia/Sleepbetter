@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sleepbetter.app.AppViewModel
+import com.sleepbetter.app.ui.components.rememberAskNotifications
 import com.sleepbetter.app.FOCUS_SECONDS
 import com.sleepbetter.app.ui.components.BentoCard
 import com.sleepbetter.app.ui.components.CircleButton
@@ -62,6 +63,7 @@ import kotlin.math.sin
 /** Focus: a 25-minute session. The ring of bars and Pico move on the music's real beat. */
 @Composable
 fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modifier) {
+    val askNotifications = rememberAskNotifications()
     val focus by vm.focus.collectAsStateWithLifecycle()
     val mix by vm.mix.collectAsStateWithLifecycle()
     val frame by rememberEngineFrame(vm.engine)
@@ -118,7 +120,7 @@ fun FocusScreen(vm: AppViewModel, onBack: () -> Unit, modifier: Modifier = Modif
                     Text("Soft piano and pads at 72 BPM, made live", style = Type.Small, color = Palette.InkMuted)
                 }
                 Spacer(Modifier.width(12.dp))
-                MorphPlayButton(focus.running, vm::toggleFocus, color = Palette.AccentDeep)
+                MorphPlayButton(focus.running, { if (!focus.running) askNotifications(); vm.toggleFocus() }, color = Palette.AccentDeep)
             }
             Text("Add underneath", style = Type.Label, color = Palette.InkSoft, modifier = Modifier.padding(top = 16.dp, bottom = 8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

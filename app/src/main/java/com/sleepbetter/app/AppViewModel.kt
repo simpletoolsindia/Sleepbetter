@@ -5,6 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.sleepbetter.app.audio.TimerChoice
 import com.sleepbetter.app.reminders.ReminderScheduler
+import com.sleepbetter.app.notify.Notifier
+import com.sleepbetter.app.sleep.AutoSleepTracker
+import com.sleepbetter.app.sleep.MorningCheck
 import com.sleepbetter.app.sleep.PhoneUsage
 import com.sleepbetter.app.ui.components.Haptics
 import com.sleepbetter.app.ui.theme.AppTheme
@@ -14,7 +17,6 @@ import com.sleepbetter.core.mix.Mix
 import com.sleepbetter.core.mix.MixCodec
 import com.sleepbetter.core.mix.MixLayer
 import com.sleepbetter.core.audio.SoundId
-import com.sleepbetter.core.sleep.AutoSleepDetector
 import com.sleepbetter.core.sleep.NightTag
 import com.sleepbetter.core.sleep.SleepSession
 import kotlinx.coroutines.Dispatchers
@@ -25,10 +27,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 
 enum class Destination {
     HOME, SOUNDS, INSIGHTS, FRIENDS, FOCUS, WIND_DOWN, SLEEP, CHECK_IN,
@@ -115,17 +113,24 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             focusJob?.cancel()
             _focus.update { it.copy(running = false) }
             if (mix.value.playing) engine.pause()
+            Notifier.focus(getApplication(), _focus.value.remainingSeconds, _focus.value.session, running = false)
             return
         }
         if (SoundId.FOCUS_MUSIC !in mix.value.active) engine.setActive(SoundId.FOCUS_MUSIC, true)
         if (!mix.value.playing) engine.play()
         _focus.update { it.copy(running = true) }
+        Notifier.focus(getApplication(), _focus.value.remainingSeconds, _focus.value.session, running = true)
         focusJob = viewModelScope.launch {
             while (_focus.value.remainingSeconds > 0) {
                 delay(1000)
                 _focus.update { it.copy(remainingSeconds = it.remainingSeconds - 1) }
+                // Refresh the shade every half minute (its progress bar; and if permission came late).
+                if (_focus.value.remainingSeconds % 30 == 0) {
+                    Notifier.focus(getApplication(), _focus.value.remainingSeconds, _focus.value.session, running = true)
+                }
             }
             Haptics.sessionDone(getApplication())
+            Notifier.focusDone(getApplication(), _focus.value.session)
             repository.addFocusSession()
             _focus.update { FocusState(session = it.session % 4 + 1) }
         }
@@ -154,27 +159,25 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Looks at the last week of screen-on history for nights not logged yet. Cheap; runs whenever the app comes back. */
     fun refreshAutoSleep() {
-        val ctx = getApplication<Application>()
-        _usageAccess.value = PhoneUsage.hasAccess(ctx)
+        _usageAccess.value = PhoneUsage.hasAccess(getApplication())
         if (!settings.value.autoTrack || !_usageAccess.value) return
-        viewModelScope.launch(Dispatchers.Default) {
-            val zone = ZoneId.systemDefault()
-            val today = LocalDate.now(zone)
-            val mornings = (0L..6L).map { today.minusDays(it) }
-            val uses = PhoneUsage.uses(ctx, AutoSleepDetector.windowFor(mornings.last(), zone).first, Instant.now())
-            val nights = mornings.mapNotNull { AutoSleepDetector.detect(uses, it, zone) }
-            withContext(Dispatchers.Main) { repository.applyAutoNights(nights, uses) }
-        }
+        viewModelScope.launch(Dispatchers.Default) { AutoSleepTracker.refresh(app) }
     }
 
-    fun turnOnAutoSleep() {
+    /** Turns tracking on; returns true if Android's usage access still has to be allowed. */
+    fun turnOnAutoSleep(): Boolean {
         repository.updateSettings { it.copy(autoTrack = true) }
-        if (PhoneUsage.hasAccess(getApplication())) refreshAutoSleep() else PhoneUsage.openSettings(getApplication())
+        MorningCheck.schedule(getApplication())
+        refreshAutoSleep()
+        return !_usageAccess.value
     }
 
     fun openUsageAccess() = PhoneUsage.openSettings(getApplication())
 
-    fun turnOffAutoSleep() = repository.updateSettings { it.copy(autoTrack = false) }
+    fun turnOffAutoSleep() {
+        repository.updateSettings { it.copy(autoTrack = false) }
+        MorningCheck.cancel(getApplication())
+    }
 
     fun dismissAutoNight() = repository.dismissLastAuto()
 
@@ -196,6 +199,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun setTheme(theme: AppTheme) {
         Palette.theme = theme
         repository.updateSettings { it.copy(theme = theme.name) }
+    }
+
+    override fun onCleared() {
+        // The focus countdown lives here; don't leave a stale one in the shade.
+        Notifier.clearFocus(getApplication())
+        super.onCleared()
     }
 
     fun setReminders(on: Boolean) {

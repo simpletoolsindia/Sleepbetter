@@ -3,4 +3,6 @@
     <string name="app_name">SleepBetter</string>
     <string name="channel_playback">Playing sounds</string>
     <string name="channel_reminders">Bedtime reminders</string>
+    <string name="channel_timers">Focus timer</string>
+    <string name="channel_alerts">Focus done and good-morning summary</string>
 </resources>

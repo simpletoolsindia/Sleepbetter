@@ -73,10 +73,10 @@ fun AutoSleepCard(
             !hasAccess -> {
                 Header("🔐", "One more step", null)
                 Text(
-                    "Allow \"Usage access\" for SleepBetter so we can see when the screen was on. Find SleepBetter in the list and switch it on.",
+                    "Allow \"Usage access\" for SleepBetter so we can see when the screen was on. It's one switch in Settings.",
                     style = Type.Small, color = Palette.InkSoft, modifier = Modifier.padding(top = 8.dp),
                 )
-                PrimaryButton("Open settings", onOpenAccess, Modifier.padding(top = 14.dp).fillMaxWidth())
+                PrimaryButton("Show me how 👆", onOpenAccess, Modifier.padding(top = 14.dp).fillMaxWidth())
                 TurnOff(onTurnOff)
             }
             summary == null -> {
