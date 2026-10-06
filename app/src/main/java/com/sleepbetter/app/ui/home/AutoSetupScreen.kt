@@ -119,7 +119,7 @@ fun AutoSetupScreen(
             if (hasAccess) {
                 PrimaryButton("Done", onClose, Modifier.fillMaxWidth(), glyph = Glyph.CHECK)
             } else {
-                PrimaryButton("Allow access", onAllow, Modifier.fillMaxWidth(), color = Palette.AccentDeep, textColor = Color.White, glyph = Glyph.SPARK)
+                PrimaryButton("Allow access", onAllow, Modifier.fillMaxWidth(), color = Palette.AccentDeep, textColor = if (Palette.darkness > 0.5f) Palette.DarkInk else Color.White, glyph = Glyph.SPARK)
                 Text(
                     "Not now",
                     style = Type.Label, color = Palette.InkMuted,
@@ -169,7 +169,7 @@ private fun Hero(allowed: Boolean, modifier: Modifier) {
                 Brush.radialGradient(listOf(Color(0x55FFE6A3), Color.Transparent), center = Offset(size.width * 0.3f, size.height * 0.55f), radius = size.width * 0.45f),
                 radius = size.width * 0.45f, center = Offset(size.width * 0.3f, size.height * 0.55f),
             )
-            val stars = listOf(0.08f to 0.14f, 0.22f to 0.32f, 0.41f to 0.1f, 0.62f to 0.18f, 0.86f to 0.12f, 0.93f to 0.42f, 0.55f to 0.36f, 0.15f to 0.7f)
+            val stars = listOf(0.06f to 0.32f, 0.22f to 0.36f, 0.6f to 0.08f, 0.62f to 0.18f, 0.86f to 0.12f, 0.93f to 0.42f, 0.55f to 0.36f, 0.15f to 0.7f)
             stars.forEachIndexed { i, (x, y) ->
                 val a = 0.35f + 0.65f * (0.5f + 0.5f * sin(t * (1.2f + i * 0.31f) + i))
                 drawCircle(Color.White.copy(alpha = a), radius = (1.4f + (i % 3)).dp.toPx(), center = Offset(x * size.width, y * size.height))
@@ -177,8 +177,8 @@ private fun Hero(allowed: Boolean, modifier: Modifier) {
         }
         // Pico, asleep.
         MochiView(Modifier.align(Alignment.BottomStart).padding(start = 12.dp, bottom = 6.dp).size(170.dp), sleeping = true)
-        Text("z", fontSize = 26.sp, color = Color.White.copy(alpha = 0.8f), modifier = Modifier.align(Alignment.TopStart).padding(start = 128.dp, top = 54.dp).floaty(5f, 2400))
-        Text("z", fontSize = 18.sp, color = Color.White.copy(alpha = 0.6f), modifier = Modifier.align(Alignment.TopStart).padding(start = 150.dp, top = 34.dp).floaty(5f, 2900, 0.5f))
+        Text("z", fontSize = 26.sp, color = Color.White.copy(alpha = 0.8f), modifier = Modifier.align(Alignment.TopStart).padding(start = 128.dp, top = 80.dp).floaty(5f, 2400))
+        Text("z", fontSize = 18.sp, color = Color.White.copy(alpha = 0.6f), modifier = Modifier.align(Alignment.TopStart).padding(start = 152.dp, top = 62.dp).floaty(5f, 2900, 0.5f))
 
         // The phone: glowing on and off, or resting with a check.
         Box(Modifier.align(Alignment.CenterEnd).padding(end = 30.dp)) {
