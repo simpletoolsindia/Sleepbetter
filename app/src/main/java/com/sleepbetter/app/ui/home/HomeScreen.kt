@@ -96,6 +96,7 @@ fun HomeScreen(
     onInsights: () -> Unit,
     onFriends: () -> Unit,
     onCheckIn: () -> Unit = {},
+    onAutoSetup: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val mix by vm.mix.collectAsStateWithLifecycle()
@@ -187,25 +188,16 @@ fun HomeScreen(
             LastNightCard(sessions.lastOrNull()?.minutes, sessions.takeLast(7).map { it.minutes }, Modifier.weight(1f), onInsights)
         }
 
-        var guide by remember { mutableStateOf(false) }
         val askNotifications = rememberAskNotifications()
-        if (guide) UsageAccessSheet(onOpenSettings = { guide = false; vm.openUsageAccess() }, onDismiss = { guide = false })
-        // Back from Settings with access allowed: a little celebration.
-        val burst = LocalBurst.current
-        var hadAccess by remember { mutableStateOf(usageAccess) }
-        LaunchedEffect(usageAccess) {
-            if (usageAccess && !hadAccess && settings.autoTrack) burst.fire(listOf("🎉", "😴", "✨", "🌙"), Offset(0.5f, 0.6f), count = 16)
-            hadAccess = usageAccess
-        }
         AutoSleepCard(
             enabled = settings.autoTrack,
             hasAccess = usageAccess,
             summary = lastAuto,
             onTurnOn = {
                 askNotifications() // for the good-morning summary
-                if (vm.turnOnAutoSleep()) guide = true
+                if (vm.turnOnAutoSleep()) onAutoSetup()
             },
-            onOpenAccess = { guide = true },
+            onOpenAccess = onAutoSetup,
             onTurnOff = vm::turnOffAutoSleep,
             onRate = onCheckIn,
             onNotRight = vm::dismissAutoNight,

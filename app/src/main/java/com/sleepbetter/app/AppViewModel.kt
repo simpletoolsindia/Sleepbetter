@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 enum class Destination {
-    HOME, SOUNDS, INSIGHTS, FRIENDS, FOCUS, WIND_DOWN, SLEEP, CHECK_IN,
+    HOME, SOUNDS, INSIGHTS, FRIENDS, FOCUS, WIND_DOWN, SLEEP, CHECK_IN, AUTO_SETUP,
 }
 
 data class FocusState(

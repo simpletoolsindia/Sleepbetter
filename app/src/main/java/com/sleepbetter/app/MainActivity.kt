@@ -71,6 +71,7 @@ import com.sleepbetter.app.ui.components.GlyphIcon
 import com.sleepbetter.app.ui.components.pressable
 import com.sleepbetter.app.ui.focus.FocusScreen
 import com.sleepbetter.app.ui.friends.FriendsScreen
+import com.sleepbetter.app.ui.home.AutoSetupScreen
 import com.sleepbetter.app.ui.home.HomeScreen
 import com.sleepbetter.app.ui.insights.InsightsScreen
 import com.sleepbetter.app.ui.sleep.SleepModeScreen
@@ -134,7 +135,7 @@ class MainActivity : ComponentActivity() {
 }
 
 private val tabs = listOf(Destination.HOME, Destination.SOUNDS, Destination.INSIGHTS, Destination.FRIENDS)
-private val fullScreen = setOf(Destination.FOCUS, Destination.WIND_DOWN, Destination.SLEEP, Destination.CHECK_IN)
+private val fullScreen = setOf(Destination.FOCUS, Destination.WIND_DOWN, Destination.SLEEP, Destination.CHECK_IN, Destination.AUTO_SETUP)
 
 @Composable
 fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: () -> Unit) {
@@ -187,6 +188,7 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
                     onInsights = { dest = Destination.INSIGHTS },
                     onFriends = { dest = Destination.FRIENDS },
                     onCheckIn = { dest = Destination.CHECK_IN },
+                    onAutoSetup = { dest = Destination.AUTO_SETUP },
                     modifier = padded,
                 )
                 Destination.SOUNDS -> SoundsScreen(vm, padded)
@@ -202,6 +204,17 @@ fun SleepBetterUi(vm: AppViewModel, requested: Destination?, onRequestHandled: (
                     onWake = { logged -> dest = if (logged) Destination.CHECK_IN else Destination.HOME },
                     onBack = { dest = Destination.WIND_DOWN },
                 )
+                Destination.AUTO_SETUP -> {
+                    val access by vm.usageAccess.collectAsStateWithLifecycle()
+                    val sessions by vm.sessions.collectAsStateWithLifecycle()
+                    AutoSetupScreen(
+                        hasAccess = access,
+                        nightsFound = sessions.count { it.auto },
+                        onAllow = vm::openUsageAccess,
+                        onClose = { dest = Destination.HOME },
+                        modifier = padded,
+                    )
+                }
                 Destination.CHECK_IN -> CheckInScreen(vm, onDone = { dest = Destination.INSIGHTS }, modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing))
             }
         }

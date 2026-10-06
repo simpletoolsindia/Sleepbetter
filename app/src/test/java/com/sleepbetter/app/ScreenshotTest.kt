@@ -28,7 +28,7 @@ import com.sleepbetter.app.ui.theme.Palette
 import com.sleepbetter.app.ui.theme.SleepBetterTheme
 import com.sleepbetter.app.data.AutoSummary
 import com.sleepbetter.app.ui.home.AutoSleepCard
-import com.sleepbetter.app.ui.home.UsageAccessGuide
+import com.sleepbetter.app.ui.home.AutoSetupScreen
 import com.sleepbetter.core.sleep.AutoSleepDetector
 import com.sleepbetter.core.sleep.NightTag
 import com.sleepbetter.core.sleep.PhoneUse
@@ -133,13 +133,18 @@ class ScreenshotTest {
         compose.onRoot().captureRoboImage("build/screenshots/23-auto-sleep.png")
     }
 
-    /** The usage access setup guide. */
-    @Test fun usageAccessGuide() {
+    /** Auto tracking setup, before and after access is allowed. */
+    @Test fun autoSetup() = setupShot(false, "24-auto-setup")
+    @Test fun autoSetupDone() = setupShot(true, "25-auto-setup-done")
+    @Test fun autoSetupDark() = setupShot(false, "26-dark-auto-setup", dark = true)
+
+    private fun setupShot(allowed: Boolean, name: String, dark: Boolean = false) {
         Palette.theme = AppTheme.MOON_MILK
+        Palette.appearance = if (dark) Appearance.DARK else Appearance.LIGHT
         compose.mainClock.autoAdvance = false
-        compose.setContent { SleepBetterTheme { UsageAccessGuide({}, Modifier.fillMaxSize().background(Palette.Paper).padding(top = 24.dp)) } }
-        compose.mainClock.advanceTimeBy(1_000)
-        compose.onRoot().captureRoboImage("build/screenshots/24-usage-access-guide.png")
+        compose.setContent { SleepBetterTheme { AutoSetupScreen(allowed, 5, {}, {}, Modifier.fillMaxSize()) } }
+        compose.mainClock.advanceTimeBy(2_000)
+        compose.onRoot().captureRoboImage("build/screenshots/$name.png")
     }
 
     /** The reminder notification's flip-book frames and the playback artwork, as the system will get them. */
